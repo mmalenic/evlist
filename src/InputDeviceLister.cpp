@@ -20,19 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "listinputdevices/InputDeviceLister.h"
+#include "evlist/InputDeviceLister.h"
 
-#include <boost/algorithm/string.hpp>
 #include <fcntl.h>
 #include <linux/input.h>
-#include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <regex>
 
-#include "listinputdevices/InputDevice.h"
+#include "evlist/InputDevice.h"
 
 #define ULONG_BITS (CHAR_BIT * sizeof(unsigned long))
 #define STRINGIFY(x) #x

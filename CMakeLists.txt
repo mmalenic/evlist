@@ -1,19 +1,46 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.24)
 set(CMAKE_CXX_STANDARD 23)
-include("${CMAKE_SOURCE_DIR}/utils.cmake")
-project(listinputdevices)
+project(evlist)
 
-add_library(${PROJECT_NAME} include/listinputdevices/InputDevice.h include/listinputdevices/InputDeviceLister.h)
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+include(FetchContent)
 
-add_subdirectory(src)
+# Fetch content from this repo.
+FetchContent_Declare(
+    toolbelt
+    GIT_REPOSITORY https://github.com/mmalenic/cmake-toolbelt
+    GIT_TAG v0.1.1
+)
+FetchContent_MakeAvailable(toolbelt)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC clioption)
+list(APPEND CMAKE_MODULE_PATH "${toolbelt_SOURCE_DIR}/src")
+include(toolbelt)
 
-program_dependencies(${PROJECT_NAME} fmt VISIBILITY PUBLIC)
-program_dependencies(${PROJECT_NAME} spdlog VISIBILITY PUBLIC)
-program_dependencies(${PROJECT_NAME} Boost VISIBILITY PUBLIC LINK_COMPONENTS headers)
+set(LIBRARY_NAME libevlist)
+add_library(
+    ${LIBRARY_NAME}
+    include/evlist/InputDevice.h
+    include/evlist/InputDeviceLister.h
+    src/InputDevice.cpp
+    src/InputDeviceLister.cpp
+)
+target_include_directories(${LIBRARY_NAME} PUBLIC include)
+
+add_executable(
+    ${PROJECT_NAME}
+    src/main.cpp
+)
 
 if(BUILD_TESTING)
-    add_subdirectory(test)
+    set(TEST_EXECUTABLE_NAME evlisttest)
+
+    add_executable(
+        ${TEST_EXECUTABLE_NAME}
+        InputDeviceListerTest.cpp
+        InputDeviceTest.cpp
+        utils/ListInputDevicesTestUtils.h
+        utils/ListInputDevicesTestUtils.cpp
+    )
+    target_include_directories(${TEST_EXECUTABLE_NAME} PUBLIC utils)
+
+    toolbelt_setup_gtest(${TEST_EXECUTABLE_NAME} ADD_LIBRARIES ${LIBRARY_NAME})
 endif()

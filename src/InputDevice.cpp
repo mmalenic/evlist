@@ -20,15 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "listinputdevices/InputDevice.h"
-
-#include <boost/algorithm/string.hpp>
-#include <fmt/format.h>
+#include "evlist/InputDevice.h"
 
 #include <regex>
 #include <utility>
-
-namespace algorithm = boost::algorithm;
 
 static constexpr size_t MIN_SPACE_GAP = 4;
 static constexpr size_t SPACE_FOR_SYMLINK = 2;
