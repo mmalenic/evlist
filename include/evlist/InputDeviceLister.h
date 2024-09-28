@@ -23,6 +23,7 @@
 #ifndef INPUT_EVENT_RECORDER_EVENTDEVICELISTER_H
 #define INPUT_EVENT_RECORDER_EVENTDEVICELISTER_H
 
+#include <expected>
 #include <filesystem>
 #include <map>
 #include <optional>
@@ -43,7 +44,7 @@ public:
      * list input devices.
      * @return input devices list
      */
-    std::vector<InputDevice> listInputDevices();
+    std::expected<std::vector<InputDevice>, fs::filesystem_error> listInputDevices();
 
     /**
      * Get event devices.
@@ -72,7 +73,7 @@ private:
      * @param msg
      * @return
      */
-    static std::optional<fs::path>
+    static std::expected<std::optional<fs::path>, fs::filesystem_error>
     checkSymlink(const fs::path& entry, const fs::path& path, const std::string& msg) noexcept;
 
     /**

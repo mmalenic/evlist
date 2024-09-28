@@ -91,8 +91,11 @@ std::partial_ordering ListInputDevices::InputDevice::operator<=>(const InputDevi
         (!byPath.has_value() && eventDevice.byPath.has_value())) {
         return std::partial_ordering::greater;
     }
-    std::string s1 = algorithm::to_lower_copy(device.string());
-    std::string s2 = algorithm::to_lower_copy(eventDevice.device.string());
+
+    auto s1 = device.string();
+    std::transform(s1.begin(), s1.end(), s1.begin(), [](const unsigned char c){ return std::tolower(c); });
+    auto s2 = eventDevice.device.string();
+    std::transform(s2.begin(), s2.end(), s2.begin(), [](const unsigned char c){ return std::tolower(c); });
 
     std::regex numOrAlpha{R"(\d+|\D+)"};
     std::string nums = "0123456789";

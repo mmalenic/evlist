@@ -26,9 +26,12 @@
 #include <linux/input.h>
 
 #include <algorithm>
+#include <climits>
+#include <cstring>
+#include <expected>
 #include <fstream>
-#include <iostream>
 #include <regex>
+#include <unistd.h>
 
 #include "evlist/InputDevice.h"
 
@@ -44,17 +47,27 @@ ListInputDevices::InputDeviceLister::InputDeviceLister()
       eventCodeToName{getEventCodeToName()},
       maxNameSize{0},
       maxPathSize{0},
-      inputDevices{listInputDevices()} {}
+      inputDevices{*listInputDevices()} {}
 
-std::vector<ListInputDevices::InputDevice> ListInputDevices::InputDeviceLister::listInputDevices() {
+std::expected<std::vector<ListInputDevices::InputDevice>, std::filesystem::filesystem_error> ListInputDevices::InputDeviceLister::listInputDevices() {
     std::vector<InputDevice> devices{};
     for (auto& entry : fs::directory_iterator(inputDirectory)) {
         if (entry.is_character_file() && entry.path().filename().string().find("event") != std::string::npos) {
             auto name = getName(entry.path());
+
+            auto byIdSymlink = checkSymlink(entry, byId, "Could not read by-id directory: ");
+            if (byIdSymlink.has_value()) {
+                return std::unexpected{byIdSymlink.error()};
+            }
+            auto byPathSymlink = checkSymlink(entry, byPath, "Could not read by-id directory: ");
+            if (byPathSymlink.has_value()) {
+                return std::unexpected{byPathSymlink.error()};
+            }
+
             InputDevice device = {
                 entry.path(),
-                checkSymlink(entry, byId, "Could not read by-id directory: "),
-                checkSymlink(entry, byPath, "Could not read by-path directory: "),
+                *byIdSymlink,
+                *byPathSymlink,
                 getName(entry.path()),
                 getCapabilities(entry.path())};
 
@@ -77,7 +90,7 @@ const std::vector<ListInputDevices::InputDevice>& ListInputDevices::InputDeviceL
     return inputDevices;
 }
 
-std::optional<ListInputDevices::fs::path> ListInputDevices::InputDeviceLister::checkSymlink(
+std::expected<std::optional<ListInputDevices::fs::path>, std::filesystem::filesystem_error> ListInputDevices::InputDeviceLister::checkSymlink(
     const fs::path& entry,
     const fs::path& path,
     const std::string& msg
@@ -89,7 +102,7 @@ std::optional<ListInputDevices::fs::path> ListInputDevices::InputDeviceLister::c
             }
         }
     } catch (fs::filesystem_error& err) {
-        spdlog::warn(msg + err.what());
+        return std::unexpected{err};
     }
     return {};
 }
@@ -122,7 +135,6 @@ std::vector<std::pair<int, std::string>> ListInputDevices::InputDeviceLister::ge
 
     if (fd == -1) {
         std::string err = strerror(errno);
-        spdlog::warn(fmt::format("Could not open device to read capabilities: {}", err));
         return {};
     }
 
