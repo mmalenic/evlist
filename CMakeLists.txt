@@ -35,10 +35,10 @@ if(BUILD_TESTING)
 
     add_executable(
         ${TEST_EXECUTABLE_NAME}
-        InputDeviceListerTest.cpp
-        InputDeviceTest.cpp
-        utils/ListInputDevicesTestUtils.h
-        utils/ListInputDevicesTestUtils.cpp
+        test/InputDeviceListerTest.cpp
+        test/InputDeviceTest.cpp
+        test/utils/ListInputDevicesTestUtils.h
+        test/utils/ListInputDevicesTestUtils.cpp
     )
     target_include_directories(${TEST_EXECUTABLE_NAME} PUBLIC utils)
 

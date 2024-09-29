@@ -25,15 +25,15 @@
 
 #include <gtest/gtest.h>
 
-#include "listinputdevices/InputDevice.h"
-#include "listinputdevices/InputDeviceLister.h"
+#include "evlist/InputDevice.h"
+#include "evlist/InputDeviceLister.h"
 
 namespace ListInputDeviceTestUtils {
 
 namespace fs = std::filesystem;
 
 void checkDevices(auto&& getDevice) {
-    std::vector<ListInputDevices::InputDevice> devices = ListInputDevices::InputDeviceLister{}.listInputDevices();
+    std::vector<ListInputDevices::InputDevice> devices = ListInputDevices::InputDeviceLister{}.listInputDevices().value();
 
     std::vector<bool> results{};
     for (auto& device : devices) {

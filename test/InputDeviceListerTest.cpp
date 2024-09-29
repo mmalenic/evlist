@@ -25,13 +25,14 @@
 #include <filesystem>
 #include <fstream>
 
-#include "ListInputDevicesTestUtils.h"
-#include "listinputdevices/InputDeviceLister.h"
+#include "utils/ListInputDevicesTestUtils.h"
+#include "evlist/InputDeviceLister.h"
+#include "evlist/InputDevice.h"
 
 namespace fs = std::filesystem;
 
 TEST(InputDeviceListerTest, ElevatedContainsAllDevices) {  // NOLINT(cert-err58-cpp)
-    std::vector<ListInputDevices::InputDevice> devices = ListInputDevices::InputDeviceLister{}.listInputDevices();
+    std::vector<ListInputDevices::InputDevice> devices = ListInputDevices::InputDeviceLister{}.listInputDevices().value();
 
     std::vector<bool> results{};
     for (auto& entry : fs::directory_iterator("/dev/input")) {

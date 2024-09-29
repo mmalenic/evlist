@@ -11,7 +11,7 @@ class EvListRecipe(ConanFile):
     generators = "CMakeToolchain", "CMakeDeps"
 
     options = { "build_testing": [True, False] }
-    default_options = { "build_testing": True }
+    default_options = { "build_testing": False }
 
     def validate(self):
         if self.settings.compiler.cppstd:

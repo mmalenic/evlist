@@ -22,8 +22,8 @@
 
 #include <gtest/gtest.h>
 
-#include "ListInputDevicesTestUtils.h"
-#include "listinputdevices/InputDevice.h"
+#include "utils/ListInputDevicesTestUtils.h"
+#include "evlist/InputDevice.h"
 
 TEST(InputDeviceTest, OrderWithAndWithoutSymlinks) {  // NOLINT(cert-err58-cpp)
     ListInputDevices::InputDevice lt{"/dev/input/event3", "", "", "", ListInputDeviceTestUtils::createCapabilities()};
