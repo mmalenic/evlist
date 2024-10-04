@@ -31,6 +31,7 @@ add_executable(
 )
 
 if(BUILD_TESTING)
+    enable_testing()
     set(TEST_EXECUTABLE_NAME evlisttest)
 
     add_executable(
