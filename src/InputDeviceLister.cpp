@@ -52,15 +52,15 @@ ListInputDevices::InputDeviceLister::InputDeviceLister()
 std::expected<std::vector<ListInputDevices::InputDevice>, std::filesystem::filesystem_error> ListInputDevices::InputDeviceLister::listInputDevices() {
     std::vector<InputDevice> devices{};
     for (auto& entry : fs::directory_iterator(inputDirectory)) {
-        if (entry.is_character_file() && entry.path().filename().string().find("event") != std::string::npos) {
+        if (entry.is_character_file() && entry.path().filename().string().contains("event")) {
             auto name = getName(entry.path());
 
-            auto byIdSymlink = checkSymlink(entry, byId, "Could not read by-id directory: ");
-            if (byIdSymlink.has_value()) {
+            auto byIdSymlink = checkSymlink(entry, byId);
+            if (!byIdSymlink.has_value()) {
                 return std::unexpected{byIdSymlink.error()};
             }
-            auto byPathSymlink = checkSymlink(entry, byPath, "Could not read by-id directory: ");
-            if (byPathSymlink.has_value()) {
+            auto byPathSymlink = checkSymlink(entry, byPath);
+            if (!byPathSymlink.has_value()) {
                 return std::unexpected{byPathSymlink.error()};
             }
 
@@ -86,18 +86,23 @@ std::expected<std::vector<ListInputDevices::InputDevice>, std::filesystem::files
     return devices;
 }
 
+std::vector<std::string>
+ListInputDevices::InputDeviceLister::partition(std::string s) const {
+
+}
+
+
 const std::vector<ListInputDevices::InputDevice>& ListInputDevices::InputDeviceLister::getInputDevices() const {
     return inputDevices;
 }
 
 std::expected<std::optional<ListInputDevices::fs::path>, std::filesystem::filesystem_error> ListInputDevices::InputDeviceLister::checkSymlink(
     const fs::path& entry,
-    const fs::path& path,
-    const std::string& msg
+    const fs::path& path
 ) noexcept {
     try {
         for (auto& symEntry : fs::directory_iterator(path)) {
-            if (symEntry.is_symlink() && fs::read_symlink(symEntry.path()).filename() == entry.filename()) {
+            if (symEntry.is_symlink() && read_symlink(symEntry.path()).filename() == entry.filename()) {
                 return symEntry.path();
             }
         }
@@ -107,13 +112,13 @@ std::expected<std::optional<ListInputDevices::fs::path>, std::filesystem::filesy
     return {};
 }
 
-std::ostream& ListInputDevices::operator<<(std::ostream& os, const ListInputDevices::InputDeviceLister& deviceLister) {
+std::ostream& ListInputDevices::operator<<(std::ostream& os, const InputDeviceLister& deviceLister) {
     if (!deviceLister.inputDevices.empty()) {
         os << "Event devices with path or id symbolic links: \n";
     }
     auto i = deviceLister.inputDevices.begin();
     for (; i != deviceLister.inputDevices.end(); i++) {
-        if (!(*i).getById().has_value() && !(*i).getById().has_value()) {
+        if (!(*i).getById().has_value() && !(*i).getByPath().has_value()) {
             break;
         }
         os << *i << "\n";
@@ -127,12 +132,11 @@ std::ostream& ListInputDevices::operator<<(std::ostream& os, const ListInputDevi
     return os;
 }
 
-std::vector<std::pair<int, std::string>> ListInputDevices::InputDeviceLister::getCapabilities(const fs::path& device) {
-    unsigned long bit[EV_MAX];
+std::vector<std::pair<int, std::string>> ListInputDevices::InputDeviceLister::getCapabilities(const fs::path& device) const
+{
+    unsigned long bit[EV_MAX] = {};
 
-    memset(bit, 0, sizeof(bit));
-    int fd = open(device.string().c_str(), O_RDONLY);
-
+    const int fd = open(device.string().c_str(), O_RDONLY);
     if (fd == -1) {
         std::string err = strerror(errno);
         return {};
@@ -142,7 +146,7 @@ std::vector<std::pair<int, std::string>> ListInputDevices::InputDeviceLister::ge
 
     std::vector<std::pair<int, std::string>> vec{};
     for (const auto& type : eventCodeToName) {
-        if (!!(bit[type.first / ULONG_BITS] & (1uL << (type.first % ULONG_BITS)))) {
+        if (!!(bit[type.first / ULONG_BITS] & 1uL << type.first % ULONG_BITS)) {
             vec.emplace_back(type);
         }
     }
@@ -154,8 +158,8 @@ std::vector<std::pair<int, std::string>> ListInputDevices::InputDeviceLister::ge
 std::string ListInputDevices::InputDeviceLister::getName(const fs::path& device) {
     fs::path fullPath = sysClass / device.filename() / namePath;
     std::ifstream file{fullPath};
-    std::string name{(std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()};
-    name.erase(remove(name.begin(), name.end(), '\n'), name.end());
+    std::string name{(std::istreambuf_iterator(file)), std::istreambuf_iterator<char>()};
+    name.erase(std::ranges::remove(name, '\n').begin(), name.end());
 
     if (name.length() > maxNameSize) {
         maxNameSize = name.length();

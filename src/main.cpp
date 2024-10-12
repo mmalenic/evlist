@@ -1,6 +1,9 @@
 
 #include <iostream>
+#include "evlist/InputDeviceLister.h"
 
 int main(int argc, char* argv[]) {
-    std::cout << "Hello World!\n";
+    auto lister = ListInputDevices::InputDeviceLister{};
+
+    std::cout << lister;
 }

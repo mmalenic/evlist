@@ -74,7 +74,7 @@ private:
      * @return
      */
     static std::expected<std::optional<fs::path>, fs::filesystem_error>
-    checkSymlink(const fs::path& entry, const fs::path& path, const std::string& msg) noexcept;
+    checkSymlink(const fs::path& entry, const fs::path& path) noexcept;
 
     /**
      * Create the event codes to name map.
@@ -92,7 +92,7 @@ private:
      * Get capabilities. The underlying ioctl calls require elevated privileges.
      * @return name
      */
-    [[nodiscard]] std::vector<std::pair<int, std::string>> getCapabilities(const fs::path& device);
+    [[nodiscard]] std::vector<std::pair<int, std::string>> getCapabilities(const fs::path& device) const;
 };
 }  // namespace ListInputDevices
 

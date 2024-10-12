@@ -22,6 +22,7 @@
 
 #include "evlist/InputDevice.h"
 
+#include <ranges>
 #include <regex>
 #include <utility>
 
@@ -71,7 +72,7 @@ size_t ListInputDevices::InputDevice::getMaxNameSize() {
 }
 
 void ListInputDevices::InputDevice::setMaxNameSize(size_t newMaxNameSize) {
-    InputDevice::maxNameSize = newMaxNameSize;
+    maxNameSize = newMaxNameSize;
 }
 
 size_t ListInputDevices::InputDevice::getMaxPathSize() {
@@ -79,8 +80,27 @@ size_t ListInputDevices::InputDevice::getMaxPathSize() {
 }
 
 void ListInputDevices::InputDevice::setMaxPathSize(size_t newMaxPathSize) {
-    InputDevice::maxPathSize = newMaxPathSize;
+    maxPathSize = newMaxPathSize;
 }
+
+std::vector<std::string>
+ListInputDevices::InputDevice::partition(std::string s) const {
+    std::transform(s.begin(), s.end(), s.begin(), [](const unsigned char c){ return std::tolower(c); });
+
+    std::vector<std::string> result{s[0]};
+    for (auto i = 1; i < s.length(); i++) {
+        auto prev = s[i - 1];
+        auto curr = s[i];
+        if (std::isdigit(prev) && std::isdigit(curr)) {
+            result[result.size() - 1] += curr;
+        } else {
+            result.push_back(std::string{curr});
+        }
+    }
+
+    return result;
+}
+
 
 std::partial_ordering ListInputDevices::InputDevice::operator<=>(const InputDevice& eventDevice) const {
     if ((byId.has_value() && !eventDevice.byId.has_value()) ||
@@ -92,43 +112,22 @@ std::partial_ordering ListInputDevices::InputDevice::operator<=>(const InputDevi
         return std::partial_ordering::greater;
     }
 
-    auto s1 = device.string();
-    std::transform(s1.begin(), s1.end(), s1.begin(), [](const unsigned char c){ return std::tolower(c); });
-    auto s2 = eventDevice.device.string();
-    std::transform(s2.begin(), s2.end(), s2.begin(), [](const unsigned char c){ return std::tolower(c); });
-
-    std::regex numOrAlpha{R"(\d+|\D+)"};
-    std::string nums = "0123456789";
-    auto beginS1 = std::sregex_iterator(s1.begin(), s1.end(), numOrAlpha);
-    auto endS1 = std::sregex_iterator();
-
-    auto beginS2 = std::sregex_iterator(s2.begin(), s2.end(), numOrAlpha);
-    auto endS2 = std::sregex_iterator();
-
-    for (std::pair i{beginS1, beginS2}; i.first != endS1 && i.second != endS2; ++i.first, ++i.second) {
-        std::string matchS1 = i.first->str();
-        std::string matchS2 = i.second->str();
-
-        if ((matchS1.find_first_of(nums) != std::string::npos && matchS2.find_first_of(nums) != std::string::npos &&
-             stol(matchS1) < stol(matchS2)) ||
-            ((matchS1 < matchS2))) {
-            return std::partial_ordering::less;
-        }
-    }
+    auto s1_partitions = partition(device.string());
+    auto s2_partitions = partition(eventDevice.device.string());
 
     return std::partial_ordering::unordered;
 }
 
-std::ostream& ListInputDevices::operator<<(std::ostream& os, const ListInputDevices::InputDevice& eventDevice) {
+std::ostream& ListInputDevices::operator<<(std::ostream& os, const InputDevice& eventDevice) {
     size_t deviceNameLength = 0;
     size_t devicePathLength = eventDevice.device.string().length();
     if (eventDevice.name.has_value()) {
         os << eventDevice.name.value();
         deviceNameLength = eventDevice.name->length();
     }
-    auto totalName = MIN_SPACE_GAP + ListInputDevices::InputDevice::maxNameSize;
+    auto totalName = MIN_SPACE_GAP + InputDevice::maxNameSize;
     auto spacesName = totalName - deviceNameLength;
-    auto spacesPath = (MIN_SPACE_GAP + ListInputDevices::InputDevice::maxPathSize) - devicePathLength;
+    auto spacesPath = (MIN_SPACE_GAP + InputDevice::maxPathSize) - devicePathLength;
     os << std::string(spacesName, ' ') << eventDevice.device.string() << std::string(spacesPath, ' ');
 
     if (!eventDevice.capabilities.empty()) {
@@ -141,11 +140,11 @@ std::ostream& ListInputDevices::operator<<(std::ostream& os, const ListInputDevi
     os << "\n";
 
     if (eventDevice.byId.has_value()) {
-        auto spacesById = totalName - (sizeof(BY_ID) / sizeof(*BY_ID)) + SPACE_FOR_SYMLINK;
+        auto spacesById = totalName - std::size(BY_ID) + SPACE_FOR_SYMLINK;
         os << "  " << BY_ID << std::string(spacesById, ' ') << "<- " << eventDevice.byId.value() << "\n";
     }
     if (eventDevice.byPath.has_value()) {
-        auto spacesByPath = totalName - (sizeof(BY_PATH) / sizeof(*BY_PATH)) + SPACE_FOR_SYMLINK;
+        auto spacesByPath = totalName - std::size(BY_PATH) + SPACE_FOR_SYMLINK;
         os << "  " << BY_PATH << std::string(spacesByPath, ' ') << "<- " << eventDevice.byPath.value() << "\n";
     }
     return os;

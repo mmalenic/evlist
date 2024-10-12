@@ -8,7 +8,7 @@ include(FetchContent)
 FetchContent_Declare(
     toolbelt
     GIT_REPOSITORY https://github.com/mmalenic/cmake-toolbelt
-    GIT_TAG v0.2.0
+    GIT_TAG v0.3.0
 )
 FetchContent_MakeAvailable(toolbelt)
 
@@ -29,6 +29,7 @@ add_executable(
     ${PROJECT_NAME}
     src/main.cpp
 )
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARY_NAME})
 
 if(BUILD_TESTING)
     enable_testing()

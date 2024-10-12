@@ -116,6 +116,11 @@ private:
     std::vector<std::pair<int, std::string>> capabilities;
     static size_t maxNameSize;
     static size_t maxPathSize;
+
+    /**
+     * Partition a string into continuous segments of numbers of characters.
+     */
+    [[nodiscard]] std::vector<std::string> partition(std::string s) const;
 };
 }  // namespace ListInputDevices
 
