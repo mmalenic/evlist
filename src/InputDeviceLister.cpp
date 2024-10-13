@@ -86,12 +86,6 @@ std::expected<std::vector<ListInputDevices::InputDevice>, std::filesystem::files
     return devices;
 }
 
-std::vector<std::string>
-ListInputDevices::InputDeviceLister::partition(std::string s) const {
-
-}
-
-
 const std::vector<ListInputDevices::InputDevice>& ListInputDevices::InputDeviceLister::getInputDevices() const {
     return inputDevices;
 }

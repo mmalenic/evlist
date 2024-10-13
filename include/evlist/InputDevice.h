@@ -120,7 +120,7 @@ private:
     /**
      * Partition a string into continuous segments of numbers of characters.
      */
-    [[nodiscard]] std::vector<std::string> partition(std::string s) const;
+    [[nodiscard]] static std::vector<std::string> partition(std::string s) ;
 };
 }  // namespace ListInputDevices
 

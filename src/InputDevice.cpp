@@ -84,17 +84,22 @@ void ListInputDevices::InputDevice::setMaxPathSize(size_t newMaxPathSize) {
 }
 
 std::vector<std::string>
-ListInputDevices::InputDevice::partition(std::string s) const {
+ListInputDevices::InputDevice::partition(std::string s) {
+    if (s.empty()) {
+        return {};
+    }
+
     std::transform(s.begin(), s.end(), s.begin(), [](const unsigned char c){ return std::tolower(c); });
 
-    std::vector<std::string> result{s[0]};
+    std::vector<std::string> result{};
+    result.push_back({s[0]});
     for (auto i = 1; i < s.length(); i++) {
         auto prev = s[i - 1];
         auto curr = s[i];
         if (std::isdigit(prev) && std::isdigit(curr)) {
             result[result.size() - 1] += curr;
         } else {
-            result.push_back(std::string{curr});
+            result.push_back({curr});
         }
     }
 
@@ -115,7 +120,16 @@ std::partial_ordering ListInputDevices::InputDevice::operator<=>(const InputDevi
     auto s1_partitions = partition(device.string());
     auto s2_partitions = partition(eventDevice.device.string());
 
-    return std::partial_ordering::unordered;
+    for (auto [a, b] : std::views::zip(s1_partitions, s2_partitions)) {
+        if (a != b) {
+            if (isdigit(a[0]) && isdigit(b[0])) {
+            return std::stoi(a) <=> std::stoi(b);
+          }
+          return a <=> b;
+        }
+    }
+
+    return device.string() <=> eventDevice.device.string();
 }
 
 std::ostream& ListInputDevices::operator<<(std::ostream& os, const InputDevice& eventDevice) {
