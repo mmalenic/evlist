@@ -121,11 +121,11 @@ std::partial_ordering ListInputDevices::InputDevice::operator<=>(const InputDevi
     auto s2_partitions = partition(eventDevice.device.string());
 
     for (auto [a, b] : std::views::zip(s1_partitions, s2_partitions)) {
-        if (a != b) {
+        if (a != b && !a.empty() && !b.empty()) {
             if (isdigit(a[0]) && isdigit(b[0])) {
-            return std::stoi(a) <=> std::stoi(b);
-          }
-          return a <=> b;
+                return std::stoi(a) <=> std::stoi(b);
+            }
+            return a <=> b;
         }
     }
 
