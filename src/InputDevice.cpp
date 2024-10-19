@@ -108,15 +108,6 @@ ListInputDevices::InputDevice::partition(std::string s) {
 
 
 std::partial_ordering ListInputDevices::InputDevice::operator<=>(const InputDevice& eventDevice) const {
-    if ((byId.has_value() && !eventDevice.byId.has_value()) ||
-        (byPath.has_value() && !eventDevice.byPath.has_value())) {
-        return std::partial_ordering::less;
-    }
-    if ((!byId.has_value() && eventDevice.byId.has_value()) ||
-        (!byPath.has_value() && eventDevice.byPath.has_value())) {
-        return std::partial_ordering::greater;
-    }
-
     auto s1_partitions = partition(device.string());
     auto s2_partitions = partition(eventDevice.device.string());
 

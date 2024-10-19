@@ -165,6 +165,22 @@ public:
 
     template <typename Context>
     constexpr auto format(ListInputDevices::InputDevices const& devices, Context& ctx) const {
+        auto format = [&ctx, &devices](auto name, auto device, auto by_id, auto by_path, auto capabilities) {
+            std::format_to(ctx.out(), "{: <{}}{: <{}}{: <{}}{: <{}}{}\n",
+                name,
+                devices.max_name_size(),
+                device,
+                devices.max_device_size(),
+                by_id,
+                devices.max_by_id_size(),
+                by_path,
+                devices.max_by_path_size(),
+                capabilities
+                );
+        };
+
+        format("NAME", "DEVICE", "BY_ID", "BY_PATH", "CAPABILITIES");
+
         for (ListInputDevices::InputDevice device : devices.devices()) {
             auto capabilities = device.getCapabilities();
             std::string capabilities_str{};
@@ -178,17 +194,13 @@ public:
                 capabilities_str += "]";
             }
 
-            std::format_to(ctx.out(), "{: <{}}{: <{}}{: <{}}{: <{}}{}\n",
+            format(
                 device.getName().value_or(""),
-                devices.max_name_size(),
                 device.getDevice().string(),
-                devices.max_device_size(),
                 device.getById().value_or(""),
-                devices.max_by_id_size(),
                 device.getByPath().value_or(""),
-                devices.max_by_path_size(),
                 capabilities_str
-            );
+                );
         }
 
         return std::format_to(ctx.out(), "");
