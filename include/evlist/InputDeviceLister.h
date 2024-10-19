@@ -44,13 +44,13 @@ public:
      * list input devices.
      * @return input devices list
      */
-    std::expected<std::vector<InputDevice>, fs::filesystem_error> listInputDevices();
+    std::expected<InputDevices, fs::filesystem_error> listInputDevices();
 
     /**
      * Get event devices.
      * @return event devices
      */
-    [[nodiscard]] const std::vector<InputDevice>& getInputDevices() const;
+    [[nodiscard]] const InputDevices& getInputDevices() const;
 
     friend std::ostream& operator<<(std::ostream& os, const InputDeviceLister& deviceLister);
 
@@ -64,7 +64,7 @@ private:
 
     size_t maxNameSize;
     size_t maxPathSize;
-    std::vector<InputDevice> inputDevices;
+    InputDevices inputDevices;
 
     /**
      * Check the symlink in path to see if they point to entry.

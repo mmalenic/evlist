@@ -133,33 +133,96 @@ std::partial_ordering ListInputDevices::InputDevice::operator<=>(const InputDevi
 }
 
 std::ostream& ListInputDevices::operator<<(std::ostream& os, const InputDevice& eventDevice) {
-    size_t deviceNameLength = 0;
-    size_t devicePathLength = eventDevice.device.string().length();
+    std::string name = "";
     if (eventDevice.name.has_value()) {
-        os << eventDevice.name.value();
-        deviceNameLength = eventDevice.name->length();
+        name = *eventDevice.name;
     }
-    auto totalName = MIN_SPACE_GAP + InputDevice::maxNameSize;
-    auto spacesName = totalName - deviceNameLength;
-    auto spacesPath = (MIN_SPACE_GAP + InputDevice::maxPathSize) - devicePathLength;
-    os << std::string(spacesName, ' ') << eventDevice.device.string() << std::string(spacesPath, ' ');
 
-    if (!eventDevice.capabilities.empty()) {
-        os << "capabilities = [";
-        for (auto i{eventDevice.capabilities.begin()}; i != --eventDevice.capabilities.end(); ++i) {
-            os << "(" << i->first << "; " << i->second << "), ";
-        }
-        os << "(" << eventDevice.capabilities.back().first << "; " << eventDevice.capabilities.back().second << ")]";
-    }
-    os << "\n";
+    std::string path = eventDevice.device.string();
 
-    if (eventDevice.byId.has_value()) {
-        auto spacesById = totalName - std::size(BY_ID) + SPACE_FOR_SYMLINK;
-        os << "  " << BY_ID << std::string(spacesById, ' ') << "<- " << eventDevice.byId.value() << "\n";
-    }
-    if (eventDevice.byPath.has_value()) {
-        auto spacesByPath = totalName - std::size(BY_PATH) + SPACE_FOR_SYMLINK;
-        os << "  " << BY_PATH << std::string(spacesByPath, ' ') << "<- " << eventDevice.byPath.value() << "\n";
-    }
+    os << std::format(
+        "{: <{}}{: <{}}\n",
+        name,
+        MIN_SPACE_GAP + InputDevice::maxNameSize,
+        path,
+        MIN_SPACE_GAP + InputDevice::maxPathSize
+        // *eventDevice.getById(),
+        // 10,
+        // *eventDevice.getByPath(),
+        // 10
+        );
+    // size_t deviceNameLength = 0;
+    // size_t devicePathLength = eventDevice.device.string().length();
+    // if (eventDevice.name.has_value()) {
+    //     os << eventDevice.name.value();
+    //     deviceNameLength = eventDevice.name->length();
+    // }
+    // auto totalName = MIN_SPACE_GAP + InputDevice::maxNameSize;
+    // auto spacesName = totalName - deviceNameLength;
+    // auto spacesPath = (MIN_SPACE_GAP + InputDevice::maxPathSize) - devicePathLength;
+    // os << std::string(1, '\t') << eventDevice.device.string() << std::string(1, '\t');
+    //
+    // if (!eventDevice.capabilities.empty()) {
+    //     os << "capabilities = [";
+    //     for (auto i{eventDevice.capabilities.begin()}; i != --eventDevice.capabilities.end(); ++i) {
+    //         os << "(" << i->first << "; " << i->second << "), ";
+    //     }
+    //     os << "(" << eventDevice.capabilities.back().first << "; " << eventDevice.capabilities.back().second << ")]";
+    // }
+    // os << "\n";
+    //
+    // if (eventDevice.byId.has_value()) {
+    //     auto spacesById = totalName - std::size(BY_ID) + SPACE_FOR_SYMLINK;
+    //     os << "  " << BY_ID << std::string(spacesById, ' ') << "<- " << eventDevice.byId.value() << "\n";
+    // }
+    // if (eventDevice.byPath.has_value()) {
+    //     auto spacesByPath = totalName - std::size(BY_PATH) + SPACE_FOR_SYMLINK;
+    //     os << "  " << BY_PATH << std::string(spacesByPath, ' ') << "<- " << eventDevice.byPath.value() << "\n";
+    // }
+    // return os;
+
     return os;
+}
+
+ListInputDevices::InputDevices::InputDevices(std::vector<InputDevice> devices)
+    : _devices{std::move(devices)} {}
+
+void ListInputDevices::InputDevices::add_max_name_size(size_t max_name_size) {
+    _max_name_size += max_name_size;
+}
+
+void ListInputDevices::InputDevices::add_max_device_size(size_t max_device_size
+) {
+    _max_device_size += max_device_size;
+}
+
+void ListInputDevices::InputDevices::add_max_by_id_size(size_t max_by_id_size) {
+    _max_by_id_size += max_by_id_size;
+}
+
+void ListInputDevices::InputDevices::add_max_by_path_size(
+    size_t max_by_path_size
+) {
+    _max_by_path_size += max_by_path_size;
+}
+
+std::vector<ListInputDevices::InputDevice>
+ListInputDevices::InputDevices::devices() const {
+    return _devices;
+}
+
+size_t ListInputDevices::InputDevices::max_name_size() const {
+    return _max_name_size;
+}
+
+size_t ListInputDevices::InputDevices::max_device_size() const {
+    return _max_device_size;
+}
+
+size_t ListInputDevices::InputDevices::max_by_id_size() const {
+    return _max_by_id_size;
+}
+
+size_t ListInputDevices::InputDevices::max_by_path_size() const {
+    return _max_by_path_size;
 }

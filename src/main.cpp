@@ -5,5 +5,5 @@
 int main(int argc, char* argv[]) {
     auto lister = ListInputDevices::InputDeviceLister{};
 
-    std::cout << lister;
+    std::cout << std::format("{}", lister.getInputDevices());
 }

@@ -26,6 +26,7 @@
 #include <filesystem>
 #include <optional>
 #include <vector>
+#include <format>
 
 namespace ListInputDevices {
 namespace fs = std::filesystem;
@@ -122,6 +123,76 @@ private:
      */
     [[nodiscard]] static std::vector<std::string> partition(std::string s) ;
 };
+
+/**
+ * A list of input devices used for formatting.
+ */
+class InputDevices {
+public:
+    /**
+     * Create input devices.
+     *
+     * @param input_devices list of devices.
+     */
+    explicit InputDevices(std::vector<InputDevice> input_devices);
+
+    void add_max_name_size(size_t max_name_size);
+    void add_max_device_size(size_t max_device_size);
+    void add_max_by_id_size(size_t max_by_id_size);
+    void add_max_by_path_size(size_t max_by_path_size);
+
+    [[nodiscard]] std::vector<InputDevice> devices() const;
+    [[nodiscard]] size_t max_name_size() const;
+    [[nodiscard]] size_t max_device_size() const;
+    [[nodiscard]] size_t max_by_id_size() const;
+    [[nodiscard]] size_t max_by_path_size() const;
+
+private:
+    size_t MIN_SPACES{1};
+
+    std::vector<InputDevice> _devices;
+    size_t _max_name_size{MIN_SPACES};
+    size_t _max_device_size{MIN_SPACES};
+    size_t _max_by_id_size{MIN_SPACES};
+    size_t _max_by_path_size{MIN_SPACES};
+};
 }  // namespace ListInputDevices
+
+template <>
+struct std::formatter<ListInputDevices::InputDevices> {
+public:
+    constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }
+
+    template <typename Context>
+    constexpr auto format(ListInputDevices::InputDevices const& devices, Context& ctx) const {
+        for (ListInputDevices::InputDevice device : devices.devices()) {
+            auto capabilities = device.getCapabilities();
+            std::string capabilities_str{};
+            if (!capabilities.empty()) {
+                capabilities_str += "[";
+                for (auto capability : device.getCapabilities()) {
+                    capabilities_str += std::format("({}, {}), ", capability.first, capability.second);
+                }
+
+                capabilities_str.erase(capabilities_str.length() - 2);
+                capabilities_str += "]";
+            }
+
+            std::format_to(ctx.out(), "{: <{}}{: <{}}{: <{}}{: <{}}{}\n",
+                device.getName().value_or(""),
+                devices.max_name_size(),
+                device.getDevice().string(),
+                devices.max_device_size(),
+                device.getById().value_or(""),
+                devices.max_by_id_size(),
+                device.getByPath().value_or(""),
+                devices.max_by_path_size(),
+                capabilities_str
+            );
+        }
+
+        return std::format_to(ctx.out(), "");
+    }
+};
 
 #endif  // INPUT_EVENT_RECORDER_EVENTDEVICE_H

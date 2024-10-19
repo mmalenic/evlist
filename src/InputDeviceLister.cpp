@@ -49,7 +49,12 @@ ListInputDevices::InputDeviceLister::InputDeviceLister()
       maxPathSize{0},
       inputDevices{*listInputDevices()} {}
 
-std::expected<std::vector<ListInputDevices::InputDevice>, std::filesystem::filesystem_error> ListInputDevices::InputDeviceLister::listInputDevices() {
+std::expected<ListInputDevices::InputDevices, std::filesystem::filesystem_error> ListInputDevices::InputDeviceLister::listInputDevices() {
+    std::size_t max_name_size = 0;
+    std::size_t max_device_size = 0;
+    std::size_t max_by_id_size = 0;
+    std::size_t max_by_path_size = 0;
+
     std::vector<InputDevice> devices{};
     for (auto& entry : fs::directory_iterator(inputDirectory)) {
         if (entry.is_character_file() && entry.path().filename().string().contains("event")) {
@@ -71,22 +76,26 @@ std::expected<std::vector<ListInputDevices::InputDevice>, std::filesystem::files
                 getName(entry.path()),
                 getCapabilities(entry.path())};
 
-            if (name.length() > InputDevice::getMaxNameSize()) {
-                InputDevice::setMaxNameSize(name.length());
-            }
-            if (entry.path().string().length() > InputDevice::getMaxPathSize()) {
-                InputDevice::setMaxPathSize(entry.path().string().length());
-            }
+            max_name_size = std::ranges::max(max_name_size, name.length());
+            max_device_size = std::ranges::max(max_device_size, entry.path().string().length());
+            max_by_id_size = std::ranges::max(max_by_id_size, byIdSymlink->value_or(fs::path{}).string().length());
+            max_by_path_size = std::ranges::max(max_by_path_size, byPathSymlink->value_or(fs::path{}).string().length());
 
             devices.push_back(device);
         }
     }
     sort(devices.begin(), devices.end());
 
-    return devices;
+    auto inputDevices = InputDevices{devices};
+    inputDevices.add_max_name_size(max_name_size);
+    inputDevices.add_max_device_size(max_device_size);
+    inputDevices.add_max_by_id_size(max_by_id_size);
+    inputDevices.add_max_by_path_size(max_by_path_size);
+
+    return inputDevices;
 }
 
-const std::vector<ListInputDevices::InputDevice>& ListInputDevices::InputDeviceLister::getInputDevices() const {
+const ListInputDevices::InputDevices& ListInputDevices::InputDeviceLister::getInputDevices() const {
     return inputDevices;
 }
 
@@ -107,23 +116,23 @@ std::expected<std::optional<ListInputDevices::fs::path>, std::filesystem::filesy
 }
 
 std::ostream& ListInputDevices::operator<<(std::ostream& os, const InputDeviceLister& deviceLister) {
-    if (!deviceLister.inputDevices.empty()) {
-        os << "Event devices with path or id symbolic links: \n";
-    }
-    auto i = deviceLister.inputDevices.begin();
-    for (; i != deviceLister.inputDevices.end(); i++) {
-        if (!(*i).getById().has_value() && !(*i).getByPath().has_value()) {
-            break;
-        }
-        os << *i << "\n";
-    }
-    if (i != deviceLister.inputDevices.end()) {
-        os << "Event devices without path or id symbolic links: \n";
-    }
-    for (; i != deviceLister.inputDevices.end(); i++) {
-        os << *i;
-    }
-    return os;
+    // if (!deviceLister.inputDevices.empty()) {
+    //     os << "Event devices with path or id symbolic links: \n";
+    // }
+    // auto i = deviceLister.inputDevices.begin();
+    // for (; i != deviceLister.inputDevices.end(); i++) {
+    //     if (!(*i).getById().has_value() && !(*i).getByPath().has_value()) {
+    //         break;
+    //     }
+    //     os << *i << "\n";
+    // }
+    // if (i != deviceLister.inputDevices.end()) {
+    //     os << "Event devices without path or id symbolic links: \n";
+    // }
+    // for (; i != deviceLister.inputDevices.end(); i++) {
+    //     os << *i;
+    // }
+    // return os;
 }
 
 std::vector<std::pair<int, std::string>> ListInputDevices::InputDeviceLister::getCapabilities(const fs::path& device) const
