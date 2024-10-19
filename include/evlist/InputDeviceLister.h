@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,7 +34,7 @@
 
 namespace ListInputDevices {
 class InputDeviceLister {
-public:
+   public:
     /**
      * Create an event device lister.
      */
@@ -50,11 +50,13 @@ public:
      * Get event devices.
      * @return event devices
      */
-    [[nodiscard]] const InputDevices& getInputDevices() const;
+    [[nodiscard]] const InputDevices &getInputDevices() const;
 
-    friend std::ostream& operator<<(std::ostream& os, const InputDeviceLister& deviceLister);
+    friend std::ostream &operator<<(
+        std::ostream &os, const InputDeviceLister &deviceLister
+    );
 
-private:
+   private:
     const fs::path inputDirectory;
     const fs::path byId;
     const fs::path byPath;
@@ -74,7 +76,7 @@ private:
      * @return
      */
     static std::expected<std::optional<fs::path>, fs::filesystem_error>
-    checkSymlink(const fs::path& entry, const fs::path& path) noexcept;
+    checkSymlink(const fs::path &entry, const fs::path &path) noexcept;
 
     /**
      * Create the event codes to name map.
@@ -86,13 +88,15 @@ private:
      * Get name.
      * @return name
      */
-    [[nodiscard]] std::string getName(const fs::path& device);
+    [[nodiscard]] std::string getName(const fs::path &device);
 
     /**
      * Get capabilities. The underlying ioctl calls require elevated privileges.
      * @return name
      */
-    [[nodiscard]] std::vector<std::pair<int, std::string>> getCapabilities(const fs::path& device) const;
+    [[nodiscard]] std::vector<std::pair<int, std::string>> getCapabilities(
+        const fs::path &device
+    ) const;
 };
 }  // namespace ListInputDevices
 

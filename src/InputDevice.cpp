@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -34,7 +34,8 @@ static constexpr char BY_PATH[] = "by-path";
 size_t ListInputDevices::InputDevice::maxNameSize = 0;
 size_t ListInputDevices::InputDevice::maxPathSize = 0;
 
-const ListInputDevices::fs::path& ListInputDevices::InputDevice::getDevice() const {
+const ListInputDevices::fs::path &ListInputDevices::InputDevice::getDevice(
+) const {
     return device;
 }
 
@@ -51,45 +52,47 @@ ListInputDevices::InputDevice::InputDevice(
       name{std::move(name)},
       capabilities{std::move(capabilities)} {}
 
-const std::optional<std::string>& ListInputDevices::InputDevice::getById() const {
+const std::optional<std::string> &ListInputDevices::InputDevice::getById(
+) const {
     return byId;
 }
 
-const std::optional<std::string>& ListInputDevices::InputDevice::getByPath() const {
+const std::optional<std::string> &ListInputDevices::InputDevice::getByPath(
+) const {
     return byPath;
 }
 
-const std::optional<std::string>& ListInputDevices::InputDevice::getName() const {
+const std::optional<std::string> &ListInputDevices::InputDevice::getName(
+) const {
     return name;
 }
 
-const std::vector<std::pair<int, std::string>>& ListInputDevices::InputDevice::getCapabilities() const {
+const std::vector<std::pair<int, std::string>> &
+ListInputDevices::InputDevice::getCapabilities() const {
     return capabilities;
 }
 
-size_t ListInputDevices::InputDevice::getMaxNameSize() {
-    return maxNameSize;
-}
+size_t ListInputDevices::InputDevice::getMaxNameSize() { return maxNameSize; }
 
 void ListInputDevices::InputDevice::setMaxNameSize(size_t newMaxNameSize) {
     maxNameSize = newMaxNameSize;
 }
 
-size_t ListInputDevices::InputDevice::getMaxPathSize() {
-    return maxPathSize;
-}
+size_t ListInputDevices::InputDevice::getMaxPathSize() { return maxPathSize; }
 
 void ListInputDevices::InputDevice::setMaxPathSize(size_t newMaxPathSize) {
     maxPathSize = newMaxPathSize;
 }
 
-std::vector<std::string>
-ListInputDevices::InputDevice::partition(std::string s) {
+std::vector<std::string> ListInputDevices::InputDevice::partition(std::string s
+) {
     if (s.empty()) {
         return {};
     }
 
-    std::transform(s.begin(), s.end(), s.begin(), [](const unsigned char c){ return std::tolower(c); });
+    std::transform(s.begin(), s.end(), s.begin(), [](const unsigned char c) {
+        return std::tolower(c);
+    });
 
     std::vector<std::string> result{};
     result.push_back({s[0]});
@@ -106,8 +109,9 @@ ListInputDevices::InputDevice::partition(std::string s) {
     return result;
 }
 
-
-std::partial_ordering ListInputDevices::InputDevice::operator<=>(const InputDevice& eventDevice) const {
+std::partial_ordering ListInputDevices::InputDevice::operator<=>(
+    const InputDevice &eventDevice
+) const {
     auto s1_partitions = partition(device.string());
     auto s2_partitions = partition(eventDevice.device.string());
 
@@ -123,7 +127,9 @@ std::partial_ordering ListInputDevices::InputDevice::operator<=>(const InputDevi
     return device.string() <=> eventDevice.device.string();
 }
 
-std::ostream& ListInputDevices::operator<<(std::ostream& os, const InputDevice& eventDevice) {
+std::ostream &ListInputDevices::operator<<(
+    std::ostream &os, const InputDevice &eventDevice
+) {
     std::string name = "";
     if (eventDevice.name.has_value()) {
         name = *eventDevice.name;
@@ -141,7 +147,7 @@ std::ostream& ListInputDevices::operator<<(std::ostream& os, const InputDevice& 
         // 10,
         // *eventDevice.getByPath(),
         // 10
-        );
+    );
     // size_t deviceNameLength = 0;
     // size_t devicePathLength = eventDevice.device.string().length();
     // if (eventDevice.name.has_value()) {
@@ -150,25 +156,30 @@ std::ostream& ListInputDevices::operator<<(std::ostream& os, const InputDevice& 
     // }
     // auto totalName = MIN_SPACE_GAP + InputDevice::maxNameSize;
     // auto spacesName = totalName - deviceNameLength;
-    // auto spacesPath = (MIN_SPACE_GAP + InputDevice::maxPathSize) - devicePathLength;
-    // os << std::string(1, '\t') << eventDevice.device.string() << std::string(1, '\t');
+    // auto spacesPath = (MIN_SPACE_GAP + InputDevice::maxPathSize) -
+    // devicePathLength; os << std::string(1, '\t') <<
+    // eventDevice.device.string() << std::string(1, '\t');
     //
     // if (!eventDevice.capabilities.empty()) {
     //     os << "capabilities = [";
-    //     for (auto i{eventDevice.capabilities.begin()}; i != --eventDevice.capabilities.end(); ++i) {
+    //     for (auto i{eventDevice.capabilities.begin()}; i !=
+    //     --eventDevice.capabilities.end(); ++i) {
     //         os << "(" << i->first << "; " << i->second << "), ";
     //     }
-    //     os << "(" << eventDevice.capabilities.back().first << "; " << eventDevice.capabilities.back().second << ")]";
+    //     os << "(" << eventDevice.capabilities.back().first << "; " <<
+    //     eventDevice.capabilities.back().second << ")]";
     // }
     // os << "\n";
     //
     // if (eventDevice.byId.has_value()) {
     //     auto spacesById = totalName - std::size(BY_ID) + SPACE_FOR_SYMLINK;
-    //     os << "  " << BY_ID << std::string(spacesById, ' ') << "<- " << eventDevice.byId.value() << "\n";
+    //     os << "  " << BY_ID << std::string(spacesById, ' ') << "<- " <<
+    //     eventDevice.byId.value() << "\n";
     // }
     // if (eventDevice.byPath.has_value()) {
-    //     auto spacesByPath = totalName - std::size(BY_PATH) + SPACE_FOR_SYMLINK;
-    //     os << "  " << BY_PATH << std::string(spacesByPath, ' ') << "<- " << eventDevice.byPath.value() << "\n";
+    //     auto spacesByPath = totalName - std::size(BY_PATH) +
+    //     SPACE_FOR_SYMLINK; os << "  " << BY_PATH << std::string(spacesByPath,
+    //     ' ') << "<- " << eventDevice.byPath.value() << "\n";
     // }
     // return os;
 

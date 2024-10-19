@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,6 +24,7 @@
 
 #include <fcntl.h>
 #include <linux/input.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <climits>
@@ -31,7 +32,6 @@
 #include <expected>
 #include <fstream>
 #include <regex>
-#include <unistd.h>
 
 #include "evlist/InputDevice.h"
 
@@ -49,15 +49,17 @@ ListInputDevices::InputDeviceLister::InputDeviceLister()
       maxPathSize{0},
       inputDevices{*listInputDevices()} {}
 
-std::expected<ListInputDevices::InputDevices, std::filesystem::filesystem_error> ListInputDevices::InputDeviceLister::listInputDevices() {
+std::expected<ListInputDevices::InputDevices, std::filesystem::filesystem_error>
+ListInputDevices::InputDeviceLister::listInputDevices() {
     std::size_t max_name_size = 0;
     std::size_t max_device_size = 0;
     std::size_t max_by_id_size = 0;
     std::size_t max_by_path_size = 0;
 
     std::vector<InputDevice> devices{};
-    for (auto& entry : fs::directory_iterator(inputDirectory)) {
-        if (entry.is_character_file() && entry.path().filename().string().contains("event")) {
+    for (auto &entry : fs::directory_iterator(inputDirectory)) {
+        if (entry.is_character_file() &&
+            entry.path().filename().string().contains("event")) {
             auto name = getName(entry.path());
 
             auto byIdSymlink = checkSymlink(entry, byId);
@@ -74,12 +76,21 @@ std::expected<ListInputDevices::InputDevices, std::filesystem::filesystem_error>
                 *byIdSymlink,
                 *byPathSymlink,
                 getName(entry.path()),
-                getCapabilities(entry.path())};
+                getCapabilities(entry.path())
+            };
 
             max_name_size = std::ranges::max(max_name_size, name.length());
-            max_device_size = std::ranges::max(max_device_size, entry.path().string().length());
-            max_by_id_size = std::ranges::max(max_by_id_size, byIdSymlink->value_or(fs::path{}).string().length());
-            max_by_path_size = std::ranges::max(max_by_path_size, byPathSymlink->value_or(fs::path{}).string().length());
+            max_device_size = std::ranges::max(
+                max_device_size, entry.path().string().length()
+            );
+            max_by_id_size = std::ranges::max(
+                max_by_id_size,
+                byIdSymlink->value_or(fs::path{}).string().length()
+            );
+            max_by_path_size = std::ranges::max(
+                max_by_path_size,
+                byPathSymlink->value_or(fs::path{}).string().length()
+            );
 
             devices.push_back(device);
         }
@@ -95,27 +106,33 @@ std::expected<ListInputDevices::InputDevices, std::filesystem::filesystem_error>
     return inputDevices;
 }
 
-const ListInputDevices::InputDevices& ListInputDevices::InputDeviceLister::getInputDevices() const {
+const ListInputDevices::InputDevices &
+ListInputDevices::InputDeviceLister::getInputDevices() const {
     return inputDevices;
 }
 
-std::expected<std::optional<ListInputDevices::fs::path>, std::filesystem::filesystem_error> ListInputDevices::InputDeviceLister::checkSymlink(
-    const fs::path& entry,
-    const fs::path& path
+std::expected<
+    std::optional<ListInputDevices::fs::path>,
+    std::filesystem::filesystem_error>
+ListInputDevices::InputDeviceLister::checkSymlink(
+    const fs::path &entry, const fs::path &path
 ) noexcept {
     try {
-        for (auto& symEntry : fs::directory_iterator(path)) {
-            if (symEntry.is_symlink() && read_symlink(symEntry.path()).filename() == entry.filename()) {
+        for (auto &symEntry : fs::directory_iterator(path)) {
+            if (symEntry.is_symlink() &&
+                read_symlink(symEntry.path()).filename() == entry.filename()) {
                 return symEntry.path();
             }
         }
-    } catch (fs::filesystem_error& err) {
+    } catch (fs::filesystem_error &err) {
         return std::unexpected{err};
     }
     return {};
 }
 
-std::ostream& ListInputDevices::operator<<(std::ostream& os, const InputDeviceLister& deviceLister) {
+std::ostream &ListInputDevices::operator<<(
+    std::ostream &os, const InputDeviceLister &deviceLister
+) {
     // if (!deviceLister.inputDevices.empty()) {
     //     os << "Event devices with path or id symbolic links: \n";
     // }
@@ -135,8 +152,9 @@ std::ostream& ListInputDevices::operator<<(std::ostream& os, const InputDeviceLi
     // return os;
 }
 
-std::vector<std::pair<int, std::string>> ListInputDevices::InputDeviceLister::getCapabilities(const fs::path& device) const
-{
+std::vector<std::pair<int, std::string>>
+ListInputDevices::InputDeviceLister::getCapabilities(const fs::path &device
+) const {
     unsigned long bit[EV_MAX] = {};
 
     const int fd = open(device.string().c_str(), O_RDONLY);
@@ -148,7 +166,7 @@ std::vector<std::pair<int, std::string>> ListInputDevices::InputDeviceLister::ge
     ioctl(fd, EVIOCGBIT(0, EV_MAX), &bit);
 
     std::vector<std::pair<int, std::string>> vec{};
-    for (const auto& type : eventCodeToName) {
+    for (const auto &type : eventCodeToName) {
         if (!!(bit[type.first / ULONG_BITS] & 1uL << type.first % ULONG_BITS)) {
             vec.emplace_back(type);
         }
@@ -158,10 +176,13 @@ std::vector<std::pair<int, std::string>> ListInputDevices::InputDeviceLister::ge
     return vec;
 }
 
-std::string ListInputDevices::InputDeviceLister::getName(const fs::path& device) {
+std::string ListInputDevices::InputDeviceLister::getName(const fs::path &device
+) {
     fs::path fullPath = sysClass / device.filename() / namePath;
     std::ifstream file{fullPath};
-    std::string name{(std::istreambuf_iterator(file)), std::istreambuf_iterator<char>()};
+    std::string name{
+        (std::istreambuf_iterator(file)), std::istreambuf_iterator<char>()
+    };
     name.erase(std::ranges::remove(name, '\n').begin(), name.end());
 
     if (name.length() > maxNameSize) {
@@ -171,7 +192,8 @@ std::string ListInputDevices::InputDeviceLister::getName(const fs::path& device)
     return name;
 }
 
-std::map<int, std::string> ListInputDevices::InputDeviceLister::getEventCodeToName() {
+std::map<int, std::string>
+ListInputDevices::InputDeviceLister::getEventCodeToName() {
     return {
         {EV_SYN, STRINGIFY(EV_SYN)},
         {EV_KEY, STRINGIFY(EV_KEY)},

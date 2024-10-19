@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -32,20 +32,23 @@ namespace ListInputDeviceTestUtils {
 
 namespace fs = std::filesystem;
 
-void checkDevices(auto&& getDevice) {
-    std::vector<ListInputDevices::InputDevice> devices = ListInputDevices::InputDeviceLister{}.listInputDevices().value();
+void checkDevices(auto &&getDevice) {
+    std::vector<ListInputDevices::InputDevice> devices =
+        ListInputDevices::InputDeviceLister{}.listInputDevices().value();
 
     std::vector<bool> results{};
-    for (auto& device : devices) {
+    for (auto &device : devices) {
         auto name = getDevice(device);
         if (name.has_value()) {
             fs::path path{name.value()};
             results.push_back(
-                fs::is_symlink(path) && fs::read_symlink(path).filename() == device.getDevice().filename()
+                fs::is_symlink(path) && fs::read_symlink(path).filename() ==
+                                            device.getDevice().filename()
             );
         }
     }
-    ASSERT_TRUE(all_of(results.begin(), results.end(), [](bool v) { return v; }));
+    ASSERT_TRUE(all_of(results.begin(), results.end(), [](bool v) { return v; })
+    );
 }
 
 std::vector<std::pair<int, std::string>> createCapabilities();

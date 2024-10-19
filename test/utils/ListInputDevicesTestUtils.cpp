@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,10 +24,12 @@
 
 #include <linux/input.h>
 
-std::vector<std::pair<int, std::string>> ListInputDeviceTestUtils::createCapabilities() {
+std::vector<std::pair<int, std::string>>
+ListInputDeviceTestUtils::createCapabilities() {
     return {
         std::make_pair(EV_SYN, std::to_string(EV_SYN)),
         std::make_pair(EV_KEY, std::to_string(EV_KEY)),
         std::make_pair(EV_REL, std::to_string(EV_REL)),
-        std::make_pair(EV_MSC, std::to_string(EV_MSC))};
+        std::make_pair(EV_MSC, std::to_string(EV_MSC))
+    };
 }

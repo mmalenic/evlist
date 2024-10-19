@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,18 +25,23 @@
 #include <filesystem>
 #include <fstream>
 
-#include "utils/ListInputDevicesTestUtils.h"
-#include "evlist/InputDeviceLister.h"
 #include "evlist/InputDevice.h"
+#include "evlist/InputDeviceLister.h"
+#include "utils/ListInputDevicesTestUtils.h"
 
 namespace fs = std::filesystem;
 
-TEST(InputDeviceListerTest, ElevatedContainsAllDevices) {  // NOLINT(cert-err58-cpp)
-    std::vector<ListInputDevices::InputDevice> devices = ListInputDevices::InputDeviceLister{}.listInputDevices().value();
+TEST(
+    InputDeviceListerTest, ElevatedContainsAllDevices
+) {  // NOLINT(cert-err58-cpp)
+    std::vector<ListInputDevices::InputDevice> devices =
+        ListInputDevices::InputDeviceLister{}.listInputDevices().value();
 
     std::vector<bool> results{};
-    for (auto& entry : fs::directory_iterator("/dev/input")) {
-        if (entry.is_character_file() && entry.path().filename().string().find("event") != std::string::npos) {
+    for (auto &entry : fs::directory_iterator("/dev/input")) {
+        if (entry.is_character_file() &&
+            entry.path().filename().string().find("event") !=
+                std::string::npos) {
             auto i{devices.begin()};
             for (; i != devices.end(); i++) {
                 if ((*i).getDevice().string() == entry.path().string()) {
@@ -49,13 +54,22 @@ TEST(InputDeviceListerTest, ElevatedContainsAllDevices) {  // NOLINT(cert-err58-
             }
         }
     }
-    ASSERT_TRUE(all_of(results.begin(), results.end(), [](bool v) { return v; }));
+    ASSERT_TRUE(all_of(results.begin(), results.end(), [](bool v) { return v; })
+    );
 }
 
-TEST(InputDeviceListerTest, ElevatedContainsAllIdSymlinks) {  // NOLINT(cert-err58-cpp)
-    ListInputDeviceTestUtils::checkDevices([](auto& device) { return device.getById(); });
+TEST(
+    InputDeviceListerTest, ElevatedContainsAllIdSymlinks
+) {  // NOLINT(cert-err58-cpp)
+    ListInputDeviceTestUtils::checkDevices([](auto &device) {
+        return device.getById();
+    });
 }
 
-TEST(InputDeviceListerTest, ElevatedContainsAllPathSymlinks) {  // NOLINT(cert-err58-cpp)
-    ListInputDeviceTestUtils::checkDevices([](auto& device) { return device.getByPath(); });
+TEST(
+    InputDeviceListerTest, ElevatedContainsAllPathSymlinks
+) {  // NOLINT(cert-err58-cpp)
+    ListInputDeviceTestUtils::checkDevices([](auto &device) {
+        return device.getByPath();
+    });
 }

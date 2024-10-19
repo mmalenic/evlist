@@ -10,8 +10,8 @@ class EvListRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeToolchain", "CMakeDeps"
 
-    options = { "build_testing": [True, False] }
-    default_options = { "build_testing": False }
+    options = {"build_testing": [True, False]}
+    default_options = {"build_testing": False}
 
     def validate(self):
         if self.settings.compiler.cppstd:

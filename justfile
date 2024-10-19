@@ -13,3 +13,6 @@ run build_type='Debug' *options='': (build build_type options)
 # Build and test evlist.
 test build_type='Debug' *options='': (build build_type options)
     cd build/{{ capitalize(build_type) }} && ctest
+
+lint:
+    pre-commit run --all-files
