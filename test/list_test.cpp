@@ -20,22 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "evlist/list.h"
+
 #include <gtest/gtest.h>
 
 #include <filesystem>
 #include <fstream>
 
-#include "evlist/InputDevice.h"
-#include "evlist/InputDeviceLister.h"
-#include "utils/ListInputDevicesTestUtils.h"
+#include "evlist/device.h"
+#include "utils/test.h"
 
 namespace fs = std::filesystem;
 
 TEST(
     InputDeviceListerTest, ElevatedContainsAllDevices
 ) {  // NOLINT(cert-err58-cpp)
-    ListInputDevices::InputDevices devices =
-        ListInputDevices::InputDeviceLister{}.listInputDevices().value();
+    evlist::InputDevices devices =
+        evlist::InputDeviceLister{}.listInputDevices().value();
 
     std::vector<bool> results{};
     for (auto &entry : fs::directory_iterator("/dev/input")) {
@@ -61,15 +62,11 @@ TEST(
 TEST(
     InputDeviceListerTest, ElevatedContainsAllIdSymlinks
 ) {  // NOLINT(cert-err58-cpp)
-    ListInputDeviceTestUtils::checkDevices([](auto &device) {
-        return device.getById();
-    });
+    test::checkDevices([](auto &device) { return device.getById(); });
 }
 
 TEST(
     InputDeviceListerTest, ElevatedContainsAllPathSymlinks
 ) {  // NOLINT(cert-err58-cpp)
-    ListInputDeviceTestUtils::checkDevices([](auto &device) {
-        return device.getByPath();
-    });
+    test::checkDevices([](auto &device) { return device.getByPath(); });
 }

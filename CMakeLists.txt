@@ -18,10 +18,8 @@ if(RUN_CLANG_TIDY)
 endif()
 
 set(LIBRARY_NAME libevlist)
-add_library(
-  ${LIBRARY_NAME}
-  include/evlist/InputDevice.h include/evlist/InputDeviceLister.h
-  src/InputDevice.cpp src/InputDeviceLister.cpp)
+add_library(${LIBRARY_NAME} include/evlist/device.h include/evlist/list.h
+                            src/device.cpp src/list.cpp)
 target_include_directories(${LIBRARY_NAME} PUBLIC include)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
@@ -32,10 +30,8 @@ if(BUILD_TESTING)
   set(TEST_EXECUTABLE_NAME evlisttest)
 
   add_executable(
-    ${TEST_EXECUTABLE_NAME}
-    test/InputDeviceListerTest.cpp test/InputDeviceTest.cpp
-    test/utils/ListInputDevicesTestUtils.h
-    test/utils/ListInputDevicesTestUtils.cpp)
+    ${TEST_EXECUTABLE_NAME} test/list_test.cpp test/device_test.cpp
+                            test/utils/test.h test/utils/test.cpp)
   target_include_directories(${TEST_EXECUTABLE_NAME} PUBLIC utils)
 
   toolbelt_setup_gtest(${TEST_EXECUTABLE_NAME} ADD_LIBRARIES ${LIBRARY_NAME})

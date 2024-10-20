@@ -1,34 +1,12 @@
-// MIT License
-//
-// Copyright (c) 2021 Marko Malenic
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
-#ifndef INPUT_EVENT_RECORDER_EVENTDEVICE_H
-#define INPUT_EVENT_RECORDER_EVENTDEVICE_H
+#ifndef INPUT_DEVICE_H
+#define INPUT_DEVICE_H
 
 #include <filesystem>
 #include <format>
 #include <optional>
 #include <vector>
 
-namespace ListInputDevices {
+namespace evlist {
 namespace fs = std::filesystem;
 
 /**
@@ -83,34 +61,7 @@ public:
     [[nodiscard]] const std::vector<std::pair<int, std::string>> &
     getCapabilities() const;
 
-    /**
-     * Get max name size.
-     * @return max name size
-     */
-    static size_t getMaxNameSize();
-
-    /**
-     * Set max name size.
-     * @param newMaxNameSize max name size
-     */
-    static void setMaxNameSize(size_t newMaxNameSize);
-
-    /**
-     * Get max path size.
-     * @return max path size
-     */
-    static size_t getMaxPathSize();
-
-    /**
-     * Set max path size.
-     * @param newMaxPathSize max path size
-     */
-    static void setMaxPathSize(size_t newMaxPathSize);
-
     std::partial_ordering operator<=>(const InputDevice &eventDevice) const;
-    friend std::ostream &operator<<(
-        std::ostream &os, const InputDevice &deviceLister
-    );
 
 private:
     fs::path device;
@@ -118,13 +69,11 @@ private:
     std::optional<std::string> byPath;
     std::optional<std::string> name;
     std::vector<std::pair<int, std::string>> capabilities;
-    static size_t maxNameSize;
-    static size_t maxPathSize;
 
     /**
      * Partition a string into continuous segments of numbers of characters.
      */
-    [[nodiscard]] static std::vector<std::string> partition(std::string s);
+    [[nodiscard]] static std::vector<std::string> partition(std::string str);
 };
 
 /**
@@ -159,17 +108,17 @@ private:
     size_t _max_by_id_size{MIN_SPACES};
     size_t _max_by_path_size{MIN_SPACES};
 };
-}  // namespace ListInputDevices
+}  // namespace evlist
 
 template <>
-struct std::formatter<ListInputDevices::InputDevices> {
-public:
-    constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
+struct std::formatter<evlist::InputDevices> {
+    static constexpr auto parse(const std::format_parse_context &ctx) {
+        return ctx.begin();
+    }
 
     template <typename Context>
-    constexpr auto format(
-        ListInputDevices::InputDevices const &devices, Context &ctx
-    ) const {
+    constexpr auto format(evlist::InputDevices const &devices, Context &ctx)
+        const {
         auto format = [&ctx, &devices](
                           auto name,
                           auto device,
@@ -194,15 +143,13 @@ public:
 
         format("NAME", "DEVICE", "BY_ID", "BY_PATH", "CAPABILITIES");
 
-        for (ListInputDevices::InputDevice device : devices.devices()) {
+        for (evlist::InputDevice const &device : devices.devices()) {
             auto capabilities = device.getCapabilities();
             std::string capabilities_str{};
             if (!capabilities.empty()) {
                 capabilities_str += "[";
-                for (auto capability : device.getCapabilities()) {
-                    capabilities_str += std::format(
-                        "({}, {}), ", capability.first, capability.second
-                    );
+                for (auto [id, name] : device.getCapabilities()) {
+                    capabilities_str += std::format("({}, {}), ", id, name);
                 }
 
                 capabilities_str.erase(capabilities_str.length() - 2);
@@ -222,4 +169,4 @@ public:
     }
 };
 
-#endif  // INPUT_EVENT_RECORDER_EVENTDEVICE_H
+#endif  // INPUT_DEVICE_H

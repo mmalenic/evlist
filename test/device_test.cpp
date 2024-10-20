@@ -20,79 +20,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "evlist/device.h"
+
 #include <gtest/gtest.h>
 
-#include "evlist/InputDevice.h"
-#include "utils/ListInputDevicesTestUtils.h"
+#include "utils/test.h"
 
 TEST(InputDeviceTest, OrderWithAndWithoutSymlinks) {  // NOLINT(cert-err58-cpp)
-    ListInputDevices::InputDevice lt{
-        "/dev/input/event0",
-        "",
-        "",
-        "",
-        ListInputDeviceTestUtils::createCapabilities()
+    evlist::InputDevice lt{
+        "/dev/input/event0", "", "", "", test::createCapabilities()
     };
-    ListInputDevices::InputDevice gt{
-        "/dev/input/event3",
-        {},
-        {},
-        "",
-        ListInputDeviceTestUtils::createCapabilities()
+    evlist::InputDevice gt{
+        "/dev/input/event3", {}, {}, "", test::createCapabilities()
     };
     ASSERT_LT(lt, gt);
 }
 
 TEST(InputDeviceTest, OrderBothWithSymlinks) {  // NOLINT(cert-err58-cpp)
-    ListInputDevices::InputDevice lt{
-        "/dev/input/event3",
-        "",
-        "",
-        "",
-        ListInputDeviceTestUtils::createCapabilities()
+    evlist::InputDevice lt{
+        "/dev/input/event3", "", "", "", test::createCapabilities()
     };
-    ListInputDevices::InputDevice gt{
-        "/dev/input/event4",
-        "",
-        "",
-        "",
-        ListInputDeviceTestUtils::createCapabilities()
+    evlist::InputDevice gt{
+        "/dev/input/event4", "", "", "", test::createCapabilities()
     };
     ASSERT_LT(lt, gt);
 }
 
 TEST(InputDeviceTest, OrderBothWithoutSymlinks) {  // NOLINT(cert-err58-cpp)
-    ListInputDevices::InputDevice lt{
-        "/dev/input/event3",
-        {},
-        {},
-        "",
-        ListInputDeviceTestUtils::createCapabilities()
+    evlist::InputDevice lt{
+        "/dev/input/event3", {}, {}, "", test::createCapabilities()
     };
-    ListInputDevices::InputDevice gt{
-        "/dev/input/event4",
-        {},
-        {},
-        "",
-        ListInputDeviceTestUtils::createCapabilities()
+    evlist::InputDevice gt{
+        "/dev/input/event4", {}, {}, "", test::createCapabilities()
     };
     ASSERT_LT(lt, gt);
 }
 
 TEST(InputDeviceTest, OrderBothNaturalSort) {  // NOLINT(cert-err58-cpp)
-    ListInputDevices::InputDevice lt{
-        "/dev/input/event3",
-        {},
-        {},
-        "",
-        ListInputDeviceTestUtils::createCapabilities()
+    evlist::InputDevice lt{
+        "/dev/input/event3", {}, {}, "", test::createCapabilities()
     };
-    ListInputDevices::InputDevice gt{
-        "/dev/input/event10",
-        {},
-        {},
-        "",
-        ListInputDeviceTestUtils::createCapabilities()
+    evlist::InputDevice gt{
+        "/dev/input/event10", {}, {}, "", test::createCapabilities()
     };
 
     ASSERT_LT(lt, gt);

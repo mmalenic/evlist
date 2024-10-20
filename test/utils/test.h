@@ -20,16 +20,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "ListInputDevicesTestUtils.h"
+#ifndef TEST_H
+#define TEST_H
 
-#include <linux/input.h>
+#include <gtest/gtest.h>
 
-std::vector<std::pair<int, std::string>>
-ListInputDeviceTestUtils::createCapabilities() {
-    return {
-        std::make_pair(EV_SYN, std::to_string(EV_SYN)),
-        std::make_pair(EV_KEY, std::to_string(EV_KEY)),
-        std::make_pair(EV_REL, std::to_string(EV_REL)),
-        std::make_pair(EV_MSC, std::to_string(EV_MSC))
-    };
+#include "evlist/device.h"
+#include "evlist/list.h"
+
+namespace test {
+
+namespace fs = std::filesystem;
+
+void checkDevices(auto &&getDevice) {
+    evlist::InputDevices devices =
+        evlist::InputDeviceLister{}.listInputDevices().value();
+
+    std::vector<bool> results{};
+    for (auto &device : devices.devices()) {
+        auto name = getDevice(device);
+        if (name.has_value()) {
+            fs::path path{name.value()};
+            results.push_back(
+                fs::is_symlink(path) && fs::read_symlink(path).filename() ==
+                                            device.getDevice().filename()
+            );
+        }
+    }
+    ASSERT_TRUE(all_of(results.begin(), results.end(), [](bool v) { return v; })
+    );
 }
+
+std::vector<std::pair<int, std::string>> createCapabilities();
+}  // namespace test
+
+#endif  // TEST_H
