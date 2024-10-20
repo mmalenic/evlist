@@ -16,3 +16,8 @@ test build_type='Debug' *options='-o build_testing=True': (build build_type opti
 
 lint:
     pre-commit run --all-files
+
+check build_type='Debug' *options='-o build_testing=True -o run_clang_tidy=True': lint (build build_type options)
+
+clean:
+    rm -r build
