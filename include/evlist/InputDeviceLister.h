@@ -34,7 +34,7 @@
 
 namespace ListInputDevices {
 class InputDeviceLister {
-   public:
+public:
     /**
      * Create an event device lister.
      */
@@ -56,13 +56,13 @@ class InputDeviceLister {
         std::ostream &os, const InputDeviceLister &deviceLister
     );
 
-   private:
-    const fs::path inputDirectory;
-    const fs::path byId;
-    const fs::path byPath;
-    const fs::path sysClass;
-    const fs::path namePath;
-    const std::map<int, std::string> eventCodeToName;
+private:
+    fs::path inputDirectory;
+    fs::path byId;
+    fs::path byPath;
+    fs::path sysClass;
+    fs::path namePath;
+    std::map<int, std::string> eventCodeToName;
 
     size_t maxNameSize;
     size_t maxPathSize;

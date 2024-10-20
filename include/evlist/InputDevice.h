@@ -35,7 +35,7 @@ namespace fs = std::filesystem;
  * Store the paths for event devices.
  */
 class InputDevice {
-   public:
+public:
     /**
      * Create event device.
      * @param device device path
@@ -112,7 +112,7 @@ class InputDevice {
         std::ostream &os, const InputDevice &deviceLister
     );
 
-   private:
+private:
     fs::path device;
     std::optional<std::string> byId;
     std::optional<std::string> byPath;
@@ -131,7 +131,7 @@ class InputDevice {
  * A list of input devices used for formatting.
  */
 class InputDevices {
-   public:
+public:
     /**
      * Create input devices.
      *
@@ -150,7 +150,7 @@ class InputDevices {
     [[nodiscard]] size_t max_by_id_size() const;
     [[nodiscard]] size_t max_by_path_size() const;
 
-   private:
+private:
     size_t MIN_SPACES{1};
 
     std::vector<InputDevice> _devices;
@@ -163,7 +163,7 @@ class InputDevices {
 
 template <>
 struct std::formatter<ListInputDevices::InputDevices> {
-   public:
+public:
     constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
 
     template <typename Context>

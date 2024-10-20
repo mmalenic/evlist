@@ -33,11 +33,11 @@ namespace ListInputDeviceTestUtils {
 namespace fs = std::filesystem;
 
 void checkDevices(auto &&getDevice) {
-    std::vector<ListInputDevices::InputDevice> devices =
+    ListInputDevices::InputDevices devices =
         ListInputDevices::InputDeviceLister{}.listInputDevices().value();
 
     std::vector<bool> results{};
-    for (auto &device : devices) {
+    for (auto &device : devices.devices()) {
         auto name = getDevice(device);
         if (name.has_value()) {
             fs::path path{name.value()};

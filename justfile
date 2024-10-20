@@ -11,7 +11,7 @@ run build_type='Debug' *options='': (build build_type options)
     cd build/{{ capitalize(build_type) }} && ./evlist
 
 # Build and test evlist.
-test build_type='Debug' *options='': (build build_type options)
+test build_type='Debug' *options='-o build_testing=True': (build build_type options)
     cd build/{{ capitalize(build_type) }} && ctest
 
 lint:

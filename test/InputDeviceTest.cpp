@@ -27,14 +27,14 @@
 
 TEST(InputDeviceTest, OrderWithAndWithoutSymlinks) {  // NOLINT(cert-err58-cpp)
     ListInputDevices::InputDevice lt{
-        "/dev/input/event3",
+        "/dev/input/event0",
         "",
         "",
         "",
         ListInputDeviceTestUtils::createCapabilities()
     };
     ListInputDevices::InputDevice gt{
-        "/dev/input/event0",
+        "/dev/input/event3",
         {},
         {},
         "",
@@ -52,7 +52,7 @@ TEST(InputDeviceTest, OrderBothWithSymlinks) {  // NOLINT(cert-err58-cpp)
         ListInputDeviceTestUtils::createCapabilities()
     };
     ListInputDevices::InputDevice gt{
-        "/dev/input/event4",
+        "/dev/input/event
         "",
         "",
         "",

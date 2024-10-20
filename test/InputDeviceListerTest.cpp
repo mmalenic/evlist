@@ -34,7 +34,7 @@ namespace fs = std::filesystem;
 TEST(
     InputDeviceListerTest, ElevatedContainsAllDevices
 ) {  // NOLINT(cert-err58-cpp)
-    std::vector<ListInputDevices::InputDevice> devices =
+    ListInputDevices::InputDevices devices =
         ListInputDevices::InputDeviceLister{}.listInputDevices().value();
 
     std::vector<bool> results{};
@@ -42,14 +42,14 @@ TEST(
         if (entry.is_character_file() &&
             entry.path().filename().string().find("event") !=
                 std::string::npos) {
-            auto i{devices.begin()};
-            for (; i != devices.end(); i++) {
-                if ((*i).getDevice().string() == entry.path().string()) {
+            auto i{devices.devices().begin()};
+            for (auto device : devices.devices()) {
+                if (device.getDevice().string() == entry.path().string()) {
                     results.push_back(true);
                     break;
                 }
             }
-            if (i == devices.end()) {
+            if (i == devices.devices().end()) {
                 results.push_back(false);
             }
         }

@@ -8,14 +8,22 @@ class EvListRecipe(ConanFile):
     test_requires = "gtest/1.15.0"
 
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeToolchain", "CMakeDeps"
+    generators = "CMakeDeps"
 
-    options = {"build_testing": [True, False]}
-    default_options = {"build_testing": False}
+    options = {"build_testing": [True, False], "run_clang_tidy": [True, False]}
+    default_options = {"build_testing": False, "run_clang_tidy": False}
 
     def validate(self):
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, 23)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+
+        tc.variables["BUILD_TESTING"] = self.options.build_testing
+        tc.variables["RUN_CLANG_TIDY"] = self.options.run_clang_tidy
+
+        tc.generate()
 
     def layout(self):
         cmake_layout(self)

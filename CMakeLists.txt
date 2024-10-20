@@ -3,7 +3,6 @@ set(CMAKE_CXX_STANDARD 23)
 project(evlist)
 
 include(FetchContent)
-
 # Fetch content from this repo.
 FetchContent_Declare(
   toolbelt
@@ -13,6 +12,10 @@ FetchContent_MakeAvailable(toolbelt)
 
 list(APPEND CMAKE_MODULE_PATH "${toolbelt_SOURCE_DIR}/src")
 include(toolbelt)
+
+if(RUN_CLANG_TIDY)
+  set(CMAKE_CXX_CLANG_TIDY clang-tidy)
+endif()
 
 set(LIBRARY_NAME libevlist)
 add_library(
