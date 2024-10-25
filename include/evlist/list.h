@@ -1,5 +1,5 @@
-#ifndef EVLIST_H
-#define EVLIST_H
+#ifndef EVLIST_LIST_H
+#define EVLIST_LIST_H
 
 #include <expected>
 #include <filesystem>
@@ -38,8 +38,8 @@ private:
     fs::path namePath;
     std::map<int, std::string> eventCodeToName;
 
-    size_t maxNameSize;
-    size_t maxPathSize;
+    size_t maxNameSize{0};
+    size_t maxPathSize{0};
     InputDevices inputDevices;
 
     /**
@@ -73,4 +73,4 @@ private:
 };
 }  // namespace evlist
 
-#endif  // INPUT_EVENT_RECORDER_EVENTDEVICELISTER_H
+#endif  // EVLIST_LIST_H

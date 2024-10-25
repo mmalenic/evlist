@@ -22,16 +22,23 @@
 
 #include "evlist/list.h"
 
-#include <fcntl.h>
+#include <linux/input-event-codes.h>
 #include <linux/input.h>
-#include <unistd.h>
+#include <sys/ioctl.h>
 
 #include <algorithm>
+#include <array>
 #include <climits>
+#include <cstdint>
+#include <cstdio>
 #include <cstring>
+#include <exception>
 #include <expected>
-#include <fstream>
-#include <regex>
+#include <filesystem>
+#include <map>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #include "evlist/device.h"
 
@@ -119,10 +126,11 @@ std::
         for (const auto &symEntry : fs::directory_iterator(path)) {
             if (symEntry.is_symlink() &&
                 read_symlink(symEntry.path()).filename() == entry.filename()) {
-                return symEntry.path();
+                return {{symEntry.path()}};
             }
         }
     } catch (fs::filesystem_error &err) {
+        // NOLINT
         return std::unexpected{err};
     }
     return {};
@@ -130,38 +138,40 @@ std::
 
 std::vector<std::pair<int, std::string>>
 evlist::InputDeviceLister::getCapabilities(const fs::path &device) const {
-    unsigned long bit[EV_MAX] = {};
+    std::array<std::uint64_t, EV_MAX> bit{};
 
-    const int fd = open(device.string().c_str(), O_RDONLY);
-    if (fd == -1) {
-        std::string err = strerror(errno);
+    auto file = std::unique_ptr<FILE, decltype(&fclose)>{
+        std::fopen(device.c_str(), "re"),
+        [](auto *file) {
+            if (file != nullptr) {
+                return std::fclose(file);
+            }
+            return EOF;
+        }
+    };
+
+    if (file == nullptr) {
         return {};
     }
 
-    ioctl(fd, EVIOCGBIT(0, EV_MAX), &bit);
+    ioctl(fileno(file.get()), EVIOCGBIT(0, EV_MAX), bit.data());
 
     std::vector<std::pair<int, std::string>> vec{};
     for (const auto &type : eventCodeToName) {
-        if (!!(bit[type.first / ULONG_BITS] & 1uL << type.first % ULONG_BITS)) {
+        if ((bit.at(type.first / ULONG_BITS) & 1UL << type.first % ULONG_BITS
+            ) != 0U) {
             vec.emplace_back(type);
         }
     }
 
-    close(fd);
     return vec;
 }
 
 std::string evlist::InputDeviceLister::getName(const fs::path &device) {
-    fs::path fullPath = sysClass / device.filename() / namePath;
-    std::ifstream file{fullPath};
-    std::string name{
-        (std::istreambuf_iterator(file)), std::istreambuf_iterator<char>()
-    };
-    name.erase(std::ranges::remove(name, '\n').begin(), name.end());
+    const fs::path fullPath = sysClass / device.filename() / namePath;
+    std::string name = fullPath.string();
 
-    if (name.length() > maxNameSize) {
-        maxNameSize = name.length();
-    }
+    maxNameSize = std::max(name.length(), maxNameSize);
 
     return name;
 }

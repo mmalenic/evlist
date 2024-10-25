@@ -1,5 +1,5 @@
-#ifndef INPUT_DEVICE_H
-#define INPUT_DEVICE_H
+#ifndef EVLIST_DEVICE_H
+#define EVLIST_DEVICE_H
 
 #include <filesystem>
 #include <format>
@@ -169,4 +169,4 @@ struct std::formatter<evlist::InputDevices> {
     }
 };
 
-#endif  // INPUT_DEVICE_H
+#endif  // EVLIST_DEVICE_H
