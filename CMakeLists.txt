@@ -14,7 +14,7 @@ list(APPEND CMAKE_MODULE_PATH "${toolbelt_SOURCE_DIR}/src")
 include(toolbelt)
 
 if(RUN_CLANG_TIDY)
-  set(CMAKE_CXX_CLANG_TIDY clang-tidy)
+  set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-extra-arg-before=-std=c++23")
 endif()
 
 set(LIBRARY_NAME libevlist)

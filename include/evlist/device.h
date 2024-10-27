@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <format>
 #include <optional>
+#include <ranges>
 #include <vector>
 
 namespace evlist {
@@ -61,7 +62,7 @@ public:
     [[nodiscard]] const std::vector<std::pair<int, std::string>> &
     getCapabilities() const;
 
-    std::partial_ordering operator<=>(const InputDevice &eventDevice) const;
+    auto operator<=>(const InputDevice &eventDevice) const;
 
 private:
     fs::path device;
@@ -108,6 +109,23 @@ private:
     size_t _max_by_id_size{MIN_SPACES};
     size_t _max_by_path_size{MIN_SPACES};
 };
+
+inline auto InputDevice::operator<=>(const InputDevice &eventDevice) const {
+    auto s1_partitions = partition(device.string());
+    auto s2_partitions = partition(eventDevice.device.string());
+
+    for (auto [a, b] : std::views::zip(s1_partitions, s2_partitions)) {
+        if (a != b && !a.empty() && !b.empty()) {
+            if (std::isdigit(a[0]) != 0 && std::isdigit(b[0]) != 0) {
+                return std::stoi(a) <=> std::stoi(b);
+            }
+            return a <=> b;
+        }
+    }
+
+    return device.string() <=> eventDevice.device.string();
+}
+
 }  // namespace evlist
 
 template <>

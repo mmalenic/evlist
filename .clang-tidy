@@ -8,16 +8,8 @@ Checks: >
   -fuchsia-overloaded-operator,
   -llvmlibc-restrict-system-libc-headers,
   -llvmlibc-inline-function-decl,
-#  -llvmlibc-restrict-system-libc-headers,
-#  -cppcoreguidelines-macro-usage,
-#  -fuchsia-default-arguments-calls,
-#  -cppcoreguidelines-pro-type-reinterpret-cast,
-#  -llvm-header-guard,
-#  -cppcoreguidelines-avoid-c-arrays,
-#  -modernize-avoid-c-arrays,
-#  -hicpp-avoid-c-arrays,
-#  -hicpp-deprecated-headers,
-#  -modernize-deprecated-headers
+  -bugprone-easily-swappable-parameters,
+  -boost-use-ranges,
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.'
-ExtraArgs: ['-std=c++23']
+ExtraArgs: ['-std=gnu++23']

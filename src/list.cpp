@@ -32,11 +32,12 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
-#include <exception>
 #include <expected>
 #include <filesystem>
+#include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -52,8 +53,6 @@ evlist::InputDeviceLister::InputDeviceLister()
       sysClass{"/sys/class/input"},
       namePath{"device/name"},
       eventCodeToName{getEventCodeToName()},
-      maxNameSize{0},
-      maxPathSize{0},
       inputDevices{*listInputDevices()} {}
 
 std::expected<evlist::InputDevices, std::filesystem::filesystem_error>
@@ -102,7 +101,8 @@ evlist::InputDeviceLister::listInputDevices() {
             devices.push_back(device);
         }
     }
-    sort(devices.begin(), devices.end());
+
+    std::ranges::sort(devices, std::less{});
 
     auto inputDevices = InputDevices{devices};
     inputDevices.add_max_name_size(max_name_size);
@@ -130,7 +130,6 @@ std::
             }
         }
     } catch (fs::filesystem_error &err) {
-        // NOLINT
         return std::unexpected{err};
     }
     return {};
@@ -144,6 +143,7 @@ evlist::InputDeviceLister::getCapabilities(const fs::path &device) const {
         std::fopen(device.c_str(), "re"),
         [](auto *file) {
             if (file != nullptr) {
+                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
                 return std::fclose(file);
             }
             return EOF;
@@ -154,6 +154,7 @@ evlist::InputDeviceLister::getCapabilities(const fs::path &device) const {
         return {};
     }
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg,misc-include-cleaner)
     ioctl(fileno(file.get()), EVIOCGBIT(0, EV_MAX), bit.data());
 
     std::vector<std::pair<int, std::string>> vec{};

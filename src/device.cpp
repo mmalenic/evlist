@@ -24,11 +24,9 @@
 
 #include <algorithm>
 #include <cctype>
-#include <compare>
 #include <cstddef>
 #include <filesystem>
 #include <optional>
-#include <ranges>
 #include <string>
 #include <utility>
 #include <vector>
@@ -89,24 +87,6 @@ std::vector<std::string> evlist::InputDevice::partition(std::string str) {
     }
 
     return result;
-}
-
-std::partial_ordering evlist::InputDevice::operator<=>(
-    const InputDevice &eventDevice
-) const {
-    auto s1_partitions = partition(device.string());
-    auto s2_partitions = partition(eventDevice.device.string());
-
-    for (auto [a, b] : std::views::zip(s1_partitions, s2_partitions)) {
-        if (a != b && !a.empty() && !b.empty()) {
-            if (std::isdigit(a[0]) != 0 && std::isdigit(b[0]) != 0) {
-                return std::stoi(a) <=> std::stoi(b);
-            }
-            return a <=> b;
-        }
-    }
-
-    return device.string() <=> eventDevice.device.string();
 }
 
 evlist::InputDevices::InputDevices(std::vector<InputDevice> devices)
