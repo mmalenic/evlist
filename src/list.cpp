@@ -12,7 +12,9 @@
 #include <cstring>
 #include <expected>
 #include <filesystem>
+#include <fstream>
 #include <functional>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <optional>
@@ -148,7 +150,12 @@ evlist::InputDeviceLister::getCapabilities(const fs::path &device) const {
 
 std::string evlist::InputDeviceLister::getName(const fs::path &device) {
     const fs::path fullPath = sysClass / device.filename() / namePath;
-    std::string name = fullPath.string();
+
+    std::ifstream file{fullPath};
+    std::string name{
+        (std::istreambuf_iterator(file)), std::istreambuf_iterator<char>()
+    };
+    name.erase(std::ranges::remove(name, '\n').cbegin(), name.cend());
 
     maxNameSize = std::max(name.length(), maxNameSize);
 
