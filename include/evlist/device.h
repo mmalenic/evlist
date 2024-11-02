@@ -89,10 +89,10 @@ public:
      */
     explicit InputDevices(std::vector<InputDevice> input_devices);
 
-    void add_max_name_size(size_t max_name_size);
-    void add_max_device_size(size_t max_device_size);
-    void add_max_by_id_size(size_t max_by_id_size);
-    void add_max_by_path_size(size_t max_by_path_size);
+    InputDevices &with_max_name_size(size_t max_name_size);
+    InputDevices &with_max_device_size(size_t max_device_size);
+    InputDevices &with_max_by_id_size(size_t max_by_id_size);
+    InputDevices &with_max_by_path_size(size_t max_by_path_size);
 
     [[nodiscard]] std::vector<InputDevice> devices() const;
     [[nodiscard]] size_t max_name_size() const;

@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-const evlist::fs::path &evlist::InputDevice::getDevice() const {
+const evlist::fs::path& evlist::InputDevice::getDevice() const {
     return device;
 }
 
@@ -26,19 +26,19 @@ evlist::InputDevice::InputDevice(
       name{std::move(name)},
       capabilities{std::move(capabilities)} {}
 
-const std::optional<std::string> &evlist::InputDevice::getById() const {
+const std::optional<std::string>& evlist::InputDevice::getById() const {
     return byId;
 }
 
-const std::optional<std::string> &evlist::InputDevice::getByPath() const {
+const std::optional<std::string>& evlist::InputDevice::getByPath() const {
     return byPath;
 }
 
-const std::optional<std::string> &evlist::InputDevice::getName() const {
+const std::optional<std::string>& evlist::InputDevice::getName() const {
     return name;
 }
 
-const std::vector<std::pair<int, std::string>> &
+const std::vector<std::pair<int, std::string>>&
 evlist::InputDevice::getCapabilities() const {
     return capabilities;
 }
@@ -70,20 +70,32 @@ std::vector<std::string> evlist::InputDevice::partition(std::string str) {
 evlist::InputDevices::InputDevices(std::vector<InputDevice> devices)
     : _devices{std::move(devices)} {}
 
-void evlist::InputDevices::add_max_name_size(std::size_t max_name_size) {
+evlist::InputDevices& evlist::InputDevices::with_max_name_size(
+    std::size_t max_name_size
+) {
     _max_name_size += max_name_size;
+    return *this;
 }
 
-void evlist::InputDevices::add_max_device_size(std::size_t max_device_size) {
+evlist::InputDevices& evlist::InputDevices::with_max_device_size(
+    std::size_t max_device_size
+) {
     _max_device_size += max_device_size;
+    return *this;
 }
 
-void evlist::InputDevices::add_max_by_id_size(std::size_t max_by_id_size) {
+evlist::InputDevices& evlist::InputDevices::with_max_by_id_size(
+    std::size_t max_by_id_size
+) {
     _max_by_id_size += max_by_id_size;
+    return *this;
 }
 
-void evlist::InputDevices::add_max_by_path_size(std::size_t max_by_path_size) {
+evlist::InputDevices& evlist::InputDevices::with_max_by_path_size(
+    std::size_t max_by_path_size
+) {
     _max_by_path_size += max_by_path_size;
+    return *this;
 }
 
 std::vector<evlist::InputDevice> evlist::InputDevices::devices() const {

@@ -76,10 +76,10 @@ evlist::InputDeviceLister::listInputDevices() {
     std::ranges::sort(devices, std::less{});
 
     auto inputDevices = InputDevices{devices};
-    inputDevices.add_max_name_size(max_name_size);
-    inputDevices.add_max_device_size(max_device_size);
-    inputDevices.add_max_by_id_size(max_by_id_size);
-    inputDevices.add_max_by_path_size(max_by_path_size);
+    inputDevices.with_max_name_size(max_name_size)
+        .with_max_device_size(max_device_size)
+        .with_max_by_id_size(max_by_id_size)
+        .with_max_by_path_size(max_by_path_size);
 
     return inputDevices;
 }
