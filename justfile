@@ -14,10 +14,13 @@ run build_type='Debug' *options='': (build build_type options)
 test build_type='Debug' *options='-o build_testing=True': (build build_type options)
     cd build/{{ capitalize(build_type) }} && ctest
 
+# Run pre-commit and other lints.
 lint:
     pre-commit run --all-files
 
+# Run clang tidy on code.
 check build_type='Debug' *options='-o build_testing=True -o run_clang_tidy=True': lint (build build_type options)
 
+# Remove the build directory.
 clean:
     rm -r build

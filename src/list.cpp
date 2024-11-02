@@ -26,15 +26,6 @@
 #define ULONG_BITS (CHAR_BIT * sizeof(unsigned long))
 #define STRINGIFY(x) #x
 
-evlist::InputDeviceLister::InputDeviceLister()
-    : inputDirectory{"/dev/input"},
-      byId{inputDirectory / "by-id"},
-      byPath{inputDirectory / "by-path"},
-      sysClass{"/sys/class/input"},
-      namePath{"device/name"},
-      eventCodeToName{getEventCodeToName()},
-      inputDevices{*listInputDevices()} {}
-
 std::expected<evlist::InputDevices, std::filesystem::filesystem_error>
 evlist::InputDeviceLister::listInputDevices() {
     std::size_t max_name_size = 0;
@@ -90,10 +81,6 @@ evlist::InputDeviceLister::listInputDevices() {
     inputDevices.add_max_by_id_size(max_by_id_size);
     inputDevices.add_max_by_path_size(max_by_path_size);
 
-    return inputDevices;
-}
-
-const evlist::InputDevices &evlist::InputDeviceLister::getInputDevices() const {
     return inputDevices;
 }
 
@@ -157,12 +144,10 @@ std::string evlist::InputDeviceLister::getName(const fs::path &device) {
     };
     name.erase(std::ranges::remove(name, '\n').cbegin(), name.cend());
 
-    maxNameSize = std::max(name.length(), maxNameSize);
-
     return name;
 }
 
-std::map<int, std::string> evlist::InputDeviceLister::getEventCodeToName() {
+std::map<int, std::string> evlist::InputDeviceLister::event_code_names() {
     return {
         {EV_SYN, STRINGIFY(EV_SYN)},
         {EV_KEY, STRINGIFY(EV_KEY)},

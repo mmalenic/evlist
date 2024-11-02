@@ -16,7 +16,7 @@ public:
     /**
      * Create an event device lister.
      */
-    InputDeviceLister();
+    explicit InputDeviceLister() = default;
 
     /**
      * list input devices.
@@ -24,23 +24,13 @@ public:
      */
     std::expected<InputDevices, fs::filesystem_error> listInputDevices();
 
-    /**
-     * Get event devices.
-     * @return event devices
-     */
-    [[nodiscard]] const InputDevices &getInputDevices() const;
-
 private:
-    fs::path inputDirectory;
-    fs::path byId;
-    fs::path byPath;
-    fs::path sysClass;
-    fs::path namePath;
-    std::map<int, std::string> eventCodeToName;
-
-    size_t maxNameSize{0};
-    size_t maxPathSize{0};
-    InputDevices inputDevices;
+    fs::path inputDirectory{"/dev/input"};
+    fs::path byId{inputDirectory / "by-id"};
+    fs::path byPath{inputDirectory / "by-path"};
+    fs::path sysClass{"/sys/class/input"};
+    fs::path namePath{"device/name"};
+    std::map<int, std::string> eventCodeToName{event_code_names()};
 
     /**
      * Check the symlink in path to see if they point to entry.
@@ -55,7 +45,7 @@ private:
      * Create the event codes to name map.
      * @return event codes to name map
      */
-    [[nodiscard]] static std::map<int, std::string> getEventCodeToName();
+    [[nodiscard]] static std::map<int, std::string> event_code_names();
 
     /**
      * Get name.
