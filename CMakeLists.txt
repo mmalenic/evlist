@@ -18,9 +18,11 @@ if(RUN_CLANG_TIDY)
 endif()
 
 set(LIBRARY_NAME libevlist)
-add_library(${LIBRARY_NAME} include/evlist/device.h include/evlist/list.h
-                            src/device.cpp src/list.cpp)
+add_library(
+  ${LIBRARY_NAME} include/evlist/device.h include/evlist/list.h
+                  include/evlist/cli.h src/device.cpp src/list.cpp src/cli.cpp)
 target_include_directories(${LIBRARY_NAME} PUBLIC include)
+toolbelt_add_dep(${LIBRARY_NAME} CLI11 LINK_COMPONENTS CLI11::CLI11)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARY_NAME})
