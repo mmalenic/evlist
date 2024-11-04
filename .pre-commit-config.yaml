@@ -25,3 +25,8 @@ repos:
     hooks:
       - id: clang-format
         types_or: [c++, c]
+  - repo: https://github.com/cpplint/cpplint
+    rev: 2.0.0
+    hooks:
+      - id: cpplint
+        args: ['--filter=-whitespace/indent,-whitespace/parens,-legal/copyright,-build/header_guard,-build/c++17']

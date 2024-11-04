@@ -1,7 +1,10 @@
-#ifndef EVLIST_TEST_H
-#define EVLIST_TEST_H
+#ifndef EVLIST_UTILS_TEST_H
+#define EVLIST_UTILS_TEST_H
 
 #include <gtest/gtest.h>
+
+#include <string>
+#include <vector>
 
 #include "evlist/device.h"
 #include "evlist/list.h"
@@ -30,7 +33,7 @@ void checkDevices(auto &&getDevice) {
     }));
 }
 
-std::vector<std::pair<int, std::string>> createCapabilities();
+std::vector<std::pair<uint32_t, std::string>> createCapabilities();
 }  // namespace evlist_test
 
-#endif  // EVLIST_TEST_H
+#endif  // EVLIST_UTILS_TEST_H

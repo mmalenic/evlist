@@ -2,13 +2,12 @@
 #define EVLIST_LIST_H
 
 #include <expected>
-#include <filesystem>
 #include <map>
 #include <optional>
 #include <string>
 #include <vector>
 
-#include "device.h"
+#include "evlist/device.h"
 
 namespace evlist {
 class InputDeviceLister {
@@ -25,12 +24,12 @@ public:
     std::expected<InputDevices, fs::filesystem_error> listInputDevices();
 
 private:
-    fs::path inputDirectory{"/dev/input"};
-    fs::path byId{inputDirectory / "by-id"};
-    fs::path byPath{inputDirectory / "by-path"};
-    fs::path sysClass{"/sys/class/input"};
-    fs::path namePath{"device/name"};
-    std::map<int, std::string> eventCodeToName{event_code_names()};
+    std::string inputDirectory{"/dev/input"};
+    std::string byId{inputDirectory + "/by-id"};
+    std::string byPath{inputDirectory + "/by-path"};
+    std::string sysClass{"/sys/class/input"};
+    std::string namePath{"device/name"};
+    std::map<uint32_t, std::string> eventCodeToName{event_code_names()};
 
     /**
      * Check the symlink in path to see if they point to entry.
@@ -45,7 +44,7 @@ private:
      * Create the event codes to name map.
      * @return event codes to name map
      */
-    [[nodiscard]] static std::map<int, std::string> event_code_names();
+    [[nodiscard]] static std::map<uint32_t, std::string> event_code_names();
 
     /**
      * Get name.
@@ -57,7 +56,7 @@ private:
      * Get capabilities. The underlying ioctl calls require elevated privileges.
      * @return name
      */
-    [[nodiscard]] std::vector<std::pair<int, std::string>> getCapabilities(
+    [[nodiscard]] std::vector<std::pair<uint32_t, std::string>> getCapabilities(
         const fs::path &device
     ) const;
 };

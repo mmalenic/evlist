@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -18,7 +19,7 @@ evlist::InputDevice::InputDevice(
     std::optional<std::string> byId,
     std::optional<std::string> byPath,
     std::optional<std::string> name,
-    std::vector<std::pair<int, std::string>> capabilities
+    std::vector<std::pair<uint32_t, std::string>> capabilities
 )
     : device{std::move(device)},
       byId{std::move(byId)},
@@ -38,7 +39,7 @@ const std::optional<std::string>& evlist::InputDevice::getName() const {
     return name;
 }
 
-const std::vector<std::pair<int, std::string>>&
+const std::vector<std::pair<uint32_t, std::string>>&
 evlist::InputDevice::getCapabilities() const {
     return capabilities;
 }

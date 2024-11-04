@@ -18,12 +18,12 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <string>
 #include <utility>
 #include <vector>
 
 #include "evlist/device.h"
 
-#define ULONG_BITS (CHAR_BIT * sizeof(unsigned long))
 #define STRINGIFY(x) #x
 
 std::expected<evlist::InputDevices, std::filesystem::filesystem_error>
@@ -102,7 +102,7 @@ std::
     return {};
 }
 
-std::vector<std::pair<int, std::string>>
+std::vector<std::pair<uint32_t, std::string>>
 evlist::InputDeviceLister::getCapabilities(const fs::path &device) const {
     std::array<std::uint64_t, EV_MAX> bit{};
 
@@ -124,9 +124,9 @@ evlist::InputDeviceLister::getCapabilities(const fs::path &device) const {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg,misc-include-cleaner)
     ioctl(fileno(file.get()), EVIOCGBIT(0, EV_MAX), bit.data());
 
-    std::vector<std::pair<int, std::string>> vec{};
+    std::vector<std::pair<uint32_t, std::string>> vec{};
     for (const auto &type : eventCodeToName) {
-        if ((bit.at(type.first / ULONG_BITS) & 1UL << type.first % ULONG_BITS
+        if ((bit.at(type.first / ULONG_WIDTH) & 1UL << type.first % ULONG_WIDTH
             ) != 0U) {
             vec.emplace_back(type);
         }
@@ -147,7 +147,7 @@ std::string evlist::InputDeviceLister::getName(const fs::path &device) {
     return name;
 }
 
-std::map<int, std::string> evlist::InputDeviceLister::event_code_names() {
+std::map<uint32_t, std::string> evlist::InputDeviceLister::event_code_names() {
     return {
         {EV_SYN, STRINGIFY(EV_SYN)},
         {EV_KEY, STRINGIFY(EV_KEY)},

@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <string>
 #include <vector>
 
 #include "evlist/device.h"

@@ -32,7 +32,7 @@ if(BUILD_TESTING)
   add_executable(
     ${TEST_EXECUTABLE_NAME} test/list_test.cpp test/device_test.cpp
                             test/utils/evlist_test.h test/utils/evlist_test.cpp)
-  target_include_directories(${TEST_EXECUTABLE_NAME} PUBLIC utils)
+  target_include_directories(${TEST_EXECUTABLE_NAME} PUBLIC test)
 
   toolbelt_setup_gtest(${TEST_EXECUTABLE_NAME} ADD_LIBRARIES ${LIBRARY_NAME})
 endif()

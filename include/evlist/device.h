@@ -5,6 +5,7 @@
 #include <format>
 #include <optional>
 #include <ranges>
+#include <string>
 #include <vector>
 
 namespace evlist {
@@ -28,7 +29,7 @@ public:
         std::optional<std::string> byId,
         std::optional<std::string> byPath,
         std::optional<std::string> name,
-        std::vector<std::pair<int, std::string>> capabilities
+        std::vector<std::pair<uint32_t, std::string>> capabilities
     );
 
     /**
@@ -59,22 +60,20 @@ public:
      * Get capabilities.
      * @return capabilities
      */
-    [[nodiscard]] const std::vector<std::pair<int, std::string>> &
+    [[nodiscard]] const std::vector<std::pair<uint32_t, std::string>> &
     getCapabilities() const;
 
-    auto operator<=>(const InputDevice &eventDevice) const;
+    /**
+     * Partition a string into continuous segments of numbers of characters.
+     */
+    [[nodiscard]] static std::vector<std::string> partition(std::string str);
 
 private:
     fs::path device;
     std::optional<std::string> byId;
     std::optional<std::string> byPath;
     std::optional<std::string> name;
-    std::vector<std::pair<int, std::string>> capabilities;
-
-    /**
-     * Partition a string into continuous segments of numbers of characters.
-     */
-    [[nodiscard]] static std::vector<std::string> partition(std::string str);
+    std::vector<std::pair<uint32_t, std::string>> capabilities;
 };
 
 /**
@@ -110,9 +109,12 @@ private:
     size_t _max_by_path_size{MIN_SPACES};
 };
 
-inline auto InputDevice::operator<=>(const InputDevice &eventDevice) const {
-    auto s1_partitions = partition(device.string());
-    auto s2_partitions = partition(eventDevice.device.string());
+inline auto operator<=>(const InputDevice &lhs, const InputDevice &rhs) {
+    auto lhs_device = lhs.getDevice().string();
+    auto rhs_device = rhs.getDevice().string();
+
+    auto s1_partitions = InputDevice::partition(lhs_device);
+    auto s2_partitions = InputDevice::partition(rhs_device);
 
     for (auto [a, b] : std::views::zip(s1_partitions, s2_partitions)) {
         if (a != b && !a.empty() && !b.empty()) {
@@ -123,7 +125,7 @@ inline auto InputDevice::operator<=>(const InputDevice &eventDevice) const {
         }
     }
 
-    return device.string() <=> eventDevice.device.string();
+    return lhs_device <=> rhs_device;
 }
 
 }  // namespace evlist
@@ -135,7 +137,8 @@ struct std::formatter<evlist::InputDevices> {
     }
 
     template <typename Context>
-    constexpr auto format(evlist::InputDevices const &devices, Context &ctx)
+    // NOLINTNEXTLINE(runtime/references)
+    constexpr auto format(const evlist::InputDevices &devices, Context &ctx)
         const {
         auto format = [&ctx, &devices](
                           auto name,
