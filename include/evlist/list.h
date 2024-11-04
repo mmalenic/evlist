@@ -21,15 +21,15 @@ public:
      * list input devices.
      * @return input devices list
      */
-    std::expected<InputDevices, fs::filesystem_error> listInputDevices();
+    std::expected<InputDevices, fs::filesystem_error> list_input_devices();
 
 private:
-    std::string inputDirectory{"/dev/input"};
-    std::string byId{inputDirectory + "/by-id"};
-    std::string byPath{inputDirectory + "/by-path"};
-    std::string sysClass{"/sys/class/input"};
-    std::string namePath{"device/name"};
-    std::map<uint32_t, std::string> eventCodeToName{event_code_names()};
+    std::string input_directory_{"/dev/input"};
+    std::string by_id_{input_directory_ + "/by-id"};
+    std::string by_path_{input_directory_ + "/by-path"};
+    std::string sys_class_{"/sys/class/input"};
+    std::string name_path_{"device/name"};
+    std::map<uint32_t, std::string> event_names_{event_names()};
 
     /**
      * Check the symlink in path to see if they point to entry.
@@ -38,25 +38,25 @@ private:
      * @return
      */
     static std::expected<std::optional<fs::path>, fs::filesystem_error>
-    checkSymlink(const fs::path &entry, const fs::path &path) noexcept;
+    check_symlink(const fs::path &entry, const fs::path &path) noexcept;
 
     /**
      * Create the event codes to name map.
      * @return event codes to name map
      */
-    [[nodiscard]] static std::map<uint32_t, std::string> event_code_names();
+    [[nodiscard]] static std::map<uint32_t, std::string> event_names();
 
     /**
      * Get name.
      * @return name
      */
-    [[nodiscard]] std::string getName(const fs::path &device);
+    [[nodiscard]] std::string name(const fs::path &device) const;
 
     /**
      * Get capabilities. The underlying ioctl calls require elevated privileges.
      * @return name
      */
-    [[nodiscard]] std::vector<std::pair<uint32_t, std::string>> getCapabilities(
+    [[nodiscard]] std::vector<std::pair<uint32_t, std::string>> capabilities(
         const fs::path &device
     ) const;
 };

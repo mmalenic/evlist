@@ -7,5 +7,5 @@
 int main() {
     auto lister = evlist::InputDeviceLister{};
 
-    std::cout << std::format("{}", *lister.listInputDevices());
+    std::cout << std::format("{}", *lister.list_input_devices());
 }

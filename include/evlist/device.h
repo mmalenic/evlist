@@ -19,15 +19,15 @@ public:
     /**
      * Create event device.
      * @param device device path
-     * @param byId by id path
-     * @param byPath by path path
+     * @param by_id by id path
+     * @param by_path by path path
      * @param name device name
      * @param capabilities capabilities
      */
     InputDevice(
         fs::path device,
-        std::optional<std::string> byId,
-        std::optional<std::string> byPath,
+        std::optional<std::string> by_id,
+        std::optional<std::string> by_path,
         std::optional<std::string> name,
         std::vector<std::pair<uint32_t, std::string>> capabilities
     );
@@ -36,32 +36,32 @@ public:
      * Get device.
      * @return device
      */
-    [[nodiscard]] const fs::path &getDevice() const;
+    [[nodiscard]] const fs::path &device() const;
 
     /**
      * Get by id.
      * @return by id
      */
-    [[nodiscard]] const std::optional<std::string> &getById() const;
+    [[nodiscard]] const std::optional<std::string> &by_id() const;
 
     /**
      * Get by path.
      * @return by path
      */
-    [[nodiscard]] const std::optional<std::string> &getByPath() const;
+    [[nodiscard]] const std::optional<std::string> &by_path() const;
 
     /**
      * Get name.
      * @return name
      */
-    [[nodiscard]] const std::optional<std::string> &getName() const;
+    [[nodiscard]] const std::optional<std::string> &name() const;
 
     /**
      * Get capabilities.
      * @return capabilities
      */
     [[nodiscard]] const std::vector<std::pair<uint32_t, std::string>> &
-    getCapabilities() const;
+    capabilities() const;
 
     /**
      * Partition a string into continuous segments of numbers of characters.
@@ -69,11 +69,11 @@ public:
     [[nodiscard]] static std::vector<std::string> partition(std::string str);
 
 private:
-    fs::path device;
-    std::optional<std::string> byId;
-    std::optional<std::string> byPath;
-    std::optional<std::string> name;
-    std::vector<std::pair<uint32_t, std::string>> capabilities;
+    fs::path device_;
+    std::optional<std::string> by_id_;
+    std::optional<std::string> by_path_;
+    std::optional<std::string> name_;
+    std::vector<std::pair<uint32_t, std::string>> capabilities_;
 };
 
 /**
@@ -102,26 +102,26 @@ public:
 private:
     size_t MIN_SPACES{1};
 
-    std::vector<InputDevice> _devices;
-    size_t _max_name_size{MIN_SPACES};
-    size_t _max_device_size{MIN_SPACES};
-    size_t _max_by_id_size{MIN_SPACES};
-    size_t _max_by_path_size{MIN_SPACES};
+    std::vector<InputDevice> devices_;
+    size_t max_name_size_{MIN_SPACES};
+    size_t max_device_size_{MIN_SPACES};
+    size_t max_by_id_size_{MIN_SPACES};
+    size_t max_by_path_size_{MIN_SPACES};
 };
 
 inline auto operator<=>(const InputDevice &lhs, const InputDevice &rhs) {
-    auto lhs_device = lhs.getDevice().string();
-    auto rhs_device = rhs.getDevice().string();
+    auto lhs_device = lhs.device().string();
+    auto rhs_device = rhs.device().string();
 
     auto s1_partitions = InputDevice::partition(lhs_device);
     auto s2_partitions = InputDevice::partition(rhs_device);
 
-    for (auto [a, b] : std::views::zip(s1_partitions, s2_partitions)) {
-        if (a != b && !a.empty() && !b.empty()) {
-            if (std::isdigit(a[0]) != 0 && std::isdigit(b[0]) != 0) {
-                return std::stoi(a) <=> std::stoi(b);
+    for (auto [lhs, rhs] : std::views::zip(s1_partitions, s2_partitions)) {
+        if (lhs != rhs && !lhs.empty() && !rhs.empty()) {
+            if (std::isdigit(lhs[0]) != 0 && std::isdigit(rhs[0]) != 0) {
+                return std::stoi(lhs) <=> std::stoi(rhs);
             }
-            return a <=> b;
+            return lhs <=> rhs;
         }
     }
 
@@ -165,11 +165,11 @@ struct std::formatter<evlist::InputDevices> {
         format("NAME", "DEVICE", "BY_ID", "BY_PATH", "CAPABILITIES");
 
         for (evlist::InputDevice const &device : devices.devices()) {
-            auto capabilities = device.getCapabilities();
+            auto capabilities = device.capabilities();
             std::string capabilities_str{};
             if (!capabilities.empty()) {
                 capabilities_str += "[";
-                for (auto [id, name] : device.getCapabilities()) {
+                for (auto [id, name] : device.capabilities()) {
                     capabilities_str += std::format("({}, {}), ", id, name);
                 }
 
@@ -178,10 +178,10 @@ struct std::formatter<evlist::InputDevices> {
             }
 
             format(
-                device.getName().value_or(""),
-                device.getDevice().string(),
-                device.getById().value_or(""),
-                device.getByPath().value_or(""),
+                device.name().value_or(""),
+                device.device().string(),
+                device.by_id().value_or(""),
+                device.by_path().value_or(""),
                 capabilities_str
             );
         }

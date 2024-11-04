@@ -13,18 +13,18 @@ namespace evlist_test {
 
 namespace fs = std::filesystem;
 
-void checkDevices(auto &&getDevice) {
+void check_devices(auto &&get_device) {
     evlist::InputDevices const devices =
-        evlist::InputDeviceLister{}.listInputDevices().value();
+        evlist::InputDeviceLister{}.list_input_devices().value();
 
     std::vector<bool> results{};
     for (auto &device : devices.devices()) {
-        auto name = getDevice(device);
+        auto name = get_device(device);
         if (name.has_value()) {
             const fs::path path{name.value()};
             results.push_back(
-                fs::is_symlink(path) && fs::read_symlink(path).filename() ==
-                                            device.getDevice().filename()
+                fs::is_symlink(path) &&
+                fs::read_symlink(path).filename() == device.device().filename()
             );
         }
     }
@@ -33,7 +33,7 @@ void checkDevices(auto &&getDevice) {
     }));
 }
 
-std::vector<std::pair<uint32_t, std::string>> createCapabilities();
+std::vector<std::pair<uint32_t, std::string>> create_capabilities();
 }  // namespace evlist_test
 
 #endif  // EVLIST_UTILS_TEST_H

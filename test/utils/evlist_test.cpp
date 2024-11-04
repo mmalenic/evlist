@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-std::vector<std::pair<uint32_t, std::string>> evlist_test::createCapabilities(
+std::vector<std::pair<uint32_t, std::string>> evlist_test::create_capabilities(
 ) {
     return {
         std::make_pair(EV_SYN, std::to_string(EV_SYN)),
