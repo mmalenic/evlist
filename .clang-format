@@ -5,3 +5,4 @@ AlignAfterOpenBracket: BlockIndent
 BinPackArguments: false
 BinPackParameters: false
 AccessModifierOffset: -4
+SpacesBeforeTrailingComments: 1

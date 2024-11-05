@@ -60,6 +60,6 @@ private:
         const fs::path &device
     ) const;
 };
-}  // namespace evlist
+} // namespace evlist
 
-#endif  // EVLIST_LIST_H
+#endif // EVLIST_LIST_H

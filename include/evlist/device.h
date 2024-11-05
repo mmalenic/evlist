@@ -128,7 +128,7 @@ inline auto operator<=>(const InputDevice &lhs, const InputDevice &rhs) {
     return lhs_device <=> rhs_device;
 }
 
-}  // namespace evlist
+} // namespace evlist
 
 template <>
 struct std::formatter<evlist::InputDevices> {
@@ -190,4 +190,4 @@ struct std::formatter<evlist::InputDevices> {
     }
 };
 
-#endif  // EVLIST_DEVICE_H
+#endif // EVLIST_DEVICE_H

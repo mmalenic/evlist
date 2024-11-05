@@ -29,4 +29,11 @@ repos:
     rev: 2.0.0
     hooks:
       - id: cpplint
-        args: ['--filter=-whitespace/indent,-whitespace/parens,-legal/copyright,-build/header_guard,-build/c++17']
+        args: ['--filter=
+          -whitespace/indent,
+          -whitespace/parens,
+          -whitespace/comments,
+          -legal/copyright,
+          -build/header_guard,
+          -build/c++17,
+        ']
