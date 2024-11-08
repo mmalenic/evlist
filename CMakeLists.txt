@@ -3,6 +3,7 @@ set(CMAKE_CXX_STANDARD 23)
 project(evlist)
 
 include(FetchContent)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 # Fetch content from this repo.
 FetchContent_Declare(
   toolbelt

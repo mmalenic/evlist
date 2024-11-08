@@ -11,7 +11,7 @@ rebuild build_type='Debug':
     cd build/{{ capitalize(build_type) }} && cmake --build .
 
 # Build and run evlist.
-run build_type='Release' args='--help' *build_options='': (build build_type build_options)
+run args='--help' build_type='Release' *build_options='': (build build_type build_options)
     cd build/{{ capitalize(build_type) }} && ./evlist {{args}}
 
 # Build and test evlist.

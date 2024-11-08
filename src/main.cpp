@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
     auto cli = evlist::Cli{};
     cli.parse(argc, argv);
 
-    auto lister = evlist::InputDeviceLister{};
-
-    std::cout << std::format("{}", *lister.list_input_devices());
+    // auto lister = evlist::InputDeviceLister{};
+    //
+    // std::cout << std::format("{}", *lister.list_input_devices());
 }

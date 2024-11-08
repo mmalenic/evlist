@@ -100,7 +100,7 @@ public:
     [[nodiscard]] size_t max_by_path_size() const;
 
 private:
-    size_t MIN_SPACES{1};
+    static constexpr size_t MIN_SPACES{1};
 
     std::vector<InputDevice> devices_;
     size_t max_name_size_{MIN_SPACES};

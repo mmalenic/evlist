@@ -11,7 +11,7 @@ namespace evlist {
 /**
  * The format to output devices.
  */
-enum class Format { WHITESPACE, CSV };
+enum class Format { TABLE, CSV };
 
 /**
  * The filter to apply to outputted devices.
@@ -45,14 +45,58 @@ public:
     [[nodiscard]] const std::map<Filter, std::string>& filter() const;
 
 private:
+    static constexpr uint8_t INDENT_BY{30};
+    static constexpr uint8_t FORMAT_INDENT_BY{8};
+    static constexpr uint8_t FILTER_INDENT_BY{8};
+
     CLI::App app_;
 
-    Format format_{Format::WHITESPACE};
+    Format format_{Format::TABLE};
+    std::map<Format, std::string> format_descriptions_{format_descriptions()};
+
     std::map<Filter, std::string> filter_;
+    std::map<Filter, std::string> filter_descriptions_{filter_descriptions()};
 
     static std::map<std::string, Format> format_mappings();
+    static std::map<Format, std::string> format_descriptions();
+
     static std::map<std::string, Filter> filter_mappings();
+    static std::map<Filter, std::string> filter_descriptions();
+
+    template <typename T>
+    static std::string format_enum(
+        std::string value_descriptor,
+        std::string enum_description,
+        uint8_t first_ident,
+        const std::map<T, std::string>& descriptions
+    );
 };
+
+template <typename T>
+std::string Cli::format_enum(
+    std::string value_descriptor,
+    std::string enum_description,
+    uint8_t first_ident,
+    const std::map<T, std::string>& descriptions
+) {
+    auto out_description = std::format(
+        "<{}>{: <{}}{}\n\n{: <{}}Possible values:\n",
+        value_descriptor,
+        "",
+        first_ident,
+        enum_description,
+        "",
+        INDENT_BY
+    );
+    for (const auto [_, description] : descriptions) {
+        out_description.append(
+            std::format("{: <{}}{}\n", "", INDENT_BY, description)
+        );
+    }
+
+    return out_description;
+}
+
 } // namespace evlist
 
 #endif // EVLIST_CLI_H
