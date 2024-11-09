@@ -15,7 +15,7 @@ list(APPEND CMAKE_MODULE_PATH "${toolbelt_SOURCE_DIR}/src")
 include(toolbelt)
 
 if(RUN_CLANG_TIDY)
-  set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-extra-arg-before=-std=c++23")
+  set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 endif()
 
 set(LIBRARY_NAME libevlist)
@@ -24,9 +24,17 @@ add_library(
                   include/evlist/cli.h src/device.cpp src/list.cpp src/cli.cpp)
 target_include_directories(${LIBRARY_NAME} PUBLIC include)
 toolbelt_add_dep(${LIBRARY_NAME} CLI11 LINK_COMPONENTS CLI11::CLI11)
-
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARY_NAME})
+
+file(STRINGS "LICENSE" LICENSE)
+list(GET LICENSE 0 LICENSE_NAME)
+list(GET LICENSE 2 LICENSE_COPYRIGHT)
+target_compile_definitions(${LIBRARY_NAME}
+                           PUBLIC EVLIST_LICENSE="${LICENSE_NAME}")
+target_compile_definitions(${LIBRARY_NAME}
+                           PUBLIC EVLIST_COPYRIGHT="${LICENSE_COPYRIGHT}")
+target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_VERSION="0.1.0")
 
 if(BUILD_TESTING)
   enable_testing()

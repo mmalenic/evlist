@@ -10,6 +10,18 @@ evlist::Cli::Cli()
 int evlist::Cli::parse(int argc, char** argv) {
     argv = app_.ensure_utf8(argv);
 
+    app_.add_flag_callback(
+        "-v,--version",
+        [] {
+            std::cout << std::format(
+                "evlist {}\n\n{}\n{}\n",
+                EVLIST_VERSION,
+                EVLIST_LICENSE,
+                EVLIST_COPYRIGHT
+            );
+        },
+        "Print version"
+    );
     app_.add_option("-o,--format", format_)
         ->transform(CLI::CheckedTransformer{format_mappings(), CLI::ignore_case}
         )
