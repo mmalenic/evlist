@@ -22,9 +22,13 @@
 #include <utility>
 #include <vector>
 
+#include "evlist/cli.h"
 #include "evlist/device.h"
 
 #define STRINGIFY(x) #x
+
+evlist::InputDeviceLister::InputDeviceLister(Format output_format)
+    : output_format_{output_format} {}
 
 std::expected<evlist::InputDevices, std::filesystem::filesystem_error>
 evlist::InputDeviceLister::list_input_devices() {
@@ -75,7 +79,7 @@ evlist::InputDeviceLister::list_input_devices() {
 
     std::ranges::sort(devices, std::less{});
 
-    auto inputDevices = InputDevices{devices};
+    auto inputDevices = InputDevices{output_format_, devices};
     inputDevices.with_max_name_size(max_name_size)
         .with_max_device_size(max_device_size)
         .with_max_by_id_size(max_by_id_size)

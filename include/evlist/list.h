@@ -15,7 +15,12 @@ public:
     /**
      * Create an event device lister.
      */
-    explicit InputDeviceLister() = default;
+    InputDeviceLister() = default;
+
+    /**
+     * Create an event device lister.
+     */
+    explicit InputDeviceLister(Format output_format);
 
     /**
      * list input devices.
@@ -24,6 +29,8 @@ public:
     std::expected<InputDevices, fs::filesystem_error> list_input_devices();
 
 private:
+    Format output_format_{Format::TABLE};
+
     std::string input_directory_{"/dev/input"};
     std::string by_id_{input_directory_ + "/by-id"};
     std::string by_path_{input_directory_ + "/by-path"};

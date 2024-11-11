@@ -7,9 +7,14 @@
 
 int main(int argc, char** argv) {
     auto cli = evlist::Cli{};
-    cli.parse(argc, argv);
+    auto exit = cli.parse(argc, argv);
+    if (exit.should_exit) {
+        return exit.exit_code;
+    }
 
-    // auto lister = evlist::InputDeviceLister{};
-    //
-    // std::cout << std::format("{}", *lister.list_input_devices());
+    auto lister = evlist::InputDeviceLister{cli.format()};
+
+    std::cout << std::format("{}", *lister.list_input_devices());
+
+    return 0;
 }

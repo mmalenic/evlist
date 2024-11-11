@@ -1,18 +1,23 @@
 #include "evlist/cli.h"
 
+#include <format>
 #include <iostream>
 #include <map>
 #include <string>
 
+#include "CLI/CLI.hpp"
+
 evlist::Cli::Cli()
     : app_{"lists and formats devices under /dev/input.", "evlist"} {}
 
-int evlist::Cli::parse(int argc, char** argv) {
+evlist::ShouldExit evlist::Cli::parse(int argc, char** argv) {
     argv = app_.ensure_utf8(argv);
 
+    auto should_exit = false;
     app_.add_flag_callback(
         "-v,--version",
-        [] {
+        [&should_exit] {
+            should_exit = true;
             std::cout << std::format(
                 "evlist {}\n\n{}\n{}\n",
                 EVLIST_VERSION,
@@ -41,9 +46,18 @@ int evlist::Cli::parse(int argc, char** argv) {
             filter_descriptions_
         ));
 
-    CLI11_PARSE(app_, argc, argv);
+    auto code = 0;
+    try {
+        app_.parse(argc, argv);
+    } catch (const CLI::ParseError& e) {
+        code = app_.exit(e);
+        should_exit = true;
+    }
 
-    return 0;
+    return ShouldExit{
+        .should_exit = should_exit,
+        .exit_code = code,
+    };
 }
 
 evlist::Format evlist::Cli::format() const { return format_; }

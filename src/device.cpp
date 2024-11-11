@@ -10,6 +10,8 @@
 #include <utility>
 #include <vector>
 
+#include "evlist/cli.h"
+
 const evlist::fs::path& evlist::InputDevice::device() const { return device_; }
 
 evlist::InputDevice::InputDevice(
@@ -69,6 +71,11 @@ std::vector<std::string> evlist::InputDevice::partition(std::string str) {
 evlist::InputDevices::InputDevices(std::vector<InputDevice> devices)
     : devices_{std::move(devices)} {}
 
+evlist::InputDevices::InputDevices(
+    Format output_format, std::vector<InputDevice> input_devices
+)
+    : devices_{std::move(input_devices)}, output_format_{output_format} {}
+
 evlist::InputDevices& evlist::InputDevices::with_max_name_size(
     std::size_t max_name_size
 ) {
@@ -115,4 +122,8 @@ std::size_t evlist::InputDevices::max_by_id_size() const {
 
 std::size_t evlist::InputDevices::max_by_path_size() const {
     return max_by_path_size_;
+}
+
+evlist::Format evlist::InputDevices::output_format() const {
+    return output_format_;
 }

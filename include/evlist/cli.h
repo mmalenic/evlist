@@ -11,12 +11,20 @@ namespace evlist {
 /**
  * The format to output devices.
  */
-enum class Format { TABLE, CSV };
+enum class Format : uint8_t { TABLE, CSV };
 
 /**
  * The filter to apply to outputted devices.
  */
-enum class Filter { DEVICE_PATH, NAME, BY_ID, BY_PATH, CAPABILITIES };
+enum class Filter : uint8_t { DEVICE_PATH, NAME, BY_ID, BY_PATH, CAPABILITIES };
+
+/**
+ * Whether the app should exit.
+ */
+struct ShouldExit {
+    bool should_exit;
+    int exit_code;
+};
 
 class Cli {
 public:
@@ -30,7 +38,7 @@ public:
      * @param argv argv
      * @return exit code
      */
-    int parse(int argc, char** argv);
+    ShouldExit parse(int argc, char** argv);
 
     /**
      * Get the format.
@@ -50,7 +58,6 @@ private:
     static constexpr uint8_t FILTER_INDENT_BY{8};
 
     CLI::App app_;
-
     Format format_{Format::TABLE};
     std::map<Format, std::string> format_descriptions_{format_descriptions()};
 
@@ -88,7 +95,7 @@ std::string Cli::format_enum(
         "",
         INDENT_BY
     );
-    for (const auto [_, description] : descriptions) {
+    for (const auto& [_, description] : descriptions) {
         out_description.append(
             std::format("{: <{}}{}\n", "", INDENT_BY, description)
         );

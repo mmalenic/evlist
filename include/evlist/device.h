@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "evlist/cli.h"
+
 namespace evlist {
 namespace fs = std::filesystem;
 
@@ -82,11 +84,18 @@ private:
 class InputDevices {
 public:
     /**
-     * Create input devices.
+     * Create input devices with the default format.
      *
      * @param input_devices list of devices.
      */
     explicit InputDevices(std::vector<InputDevice> input_devices);
+
+    /**
+     * Create an event device lister.
+     */
+    explicit InputDevices(
+        Format output_format, std::vector<InputDevice> input_devices
+    );
 
     InputDevices &with_max_name_size(size_t max_name_size);
     InputDevices &with_max_device_size(size_t max_device_size);
@@ -99,9 +108,12 @@ public:
     [[nodiscard]] size_t max_by_id_size() const;
     [[nodiscard]] size_t max_by_path_size() const;
 
+    [[nodiscard]] Format output_format() const;
+
 private:
     static constexpr size_t MIN_SPACES{1};
 
+    Format output_format_{Format::TABLE};
     std::vector<InputDevice> devices_;
     size_t max_name_size_{MIN_SPACES};
     size_t max_device_size_{MIN_SPACES};
@@ -140,26 +152,56 @@ struct std::formatter<evlist::InputDevices> {
     // NOLINTNEXTLINE(runtime/references)
     constexpr auto format(const evlist::InputDevices &devices, Context &ctx)
         const {
-        auto format = [&ctx, &devices](
-                          auto name,
+        auto csv_escape_quotes = [](const std::string &str) {
+            std::string out = {};
+            out.reserve(str.length());
+
+            for (const auto character : str) {
+                if (character == '"') {
+                    out.push_back('"');
+                }
+                out.push_back(character);
+            }
+
+            return out;
+        };
+
+        auto format = [&csv_escape_quotes, &ctx, &devices](
+                          std::string name,
                           auto device,
                           auto by_id,
                           auto by_path,
                           auto capabilities
                       ) {
-            std::format_to(
-                ctx.out(),
-                "{: <{}}{: <{}}{: <{}}{: <{}}{}\n",
-                name,
-                devices.max_name_size(),
-                device,
-                devices.max_device_size(),
-                by_id,
-                devices.max_by_id_size(),
-                by_path,
-                devices.max_by_path_size(),
-                capabilities
-            );
+            switch (devices.output_format()) {
+                case evlist::Format::TABLE:
+                    std::format_to(
+                        ctx.out(),
+                        "{:<{}}{: <{}}{: <{}}{: <{}}{}\n",
+                        name,
+                        devices.max_name_size(),
+                        device,
+                        devices.max_device_size(),
+                        by_id,
+                        devices.max_by_id_size(),
+                        by_path,
+                        devices.max_by_path_size(),
+                        capabilities
+                    );
+                    break;
+                case evlist::Format::CSV:
+                    std::format_to(
+                        ctx.out(),
+                        R"("{}","{}","{}","{}","{}")"
+                        "\n",
+                        csv_escape_quotes(name),
+                        csv_escape_quotes(device),
+                        csv_escape_quotes(by_id),
+                        csv_escape_quotes(by_path),
+                        csv_escape_quotes(capabilities)
+                    );
+                    break;
+            }
         };
 
         format("NAME", "DEVICE", "BY_ID", "BY_PATH", "CAPABILITIES");
