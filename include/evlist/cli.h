@@ -1,6 +1,7 @@
 #ifndef EVLIST_CLI_H
 #define EVLIST_CLI_H
 
+#include <expected>
 #include <map>
 #include <string>
 
@@ -18,17 +19,9 @@ enum class Format : uint8_t { TABLE, CSV };
  */
 enum class Filter : uint8_t { DEVICE_PATH, NAME, BY_ID, BY_PATH, CAPABILITIES };
 
-/**
- * Whether the app should exit.
- */
-struct ShouldExit {
-    bool should_exit;
-    int exit_code;
-};
-
 class Cli {
 public:
-    Cli();
+    Cli() = default;
 
     /**
      * Parse the CLI, exiting the program if there are any errors. This handles
@@ -38,7 +31,7 @@ public:
      * @param argv argv
      * @return exit code
      */
-    ShouldExit parse(int argc, char** argv);
+    std::expected<bool, int> parse(int argc, char** argv);
 
     /**
      * Get the format.
@@ -57,7 +50,6 @@ private:
     static constexpr uint8_t FORMAT_INDENT_BY{8};
     static constexpr uint8_t FILTER_INDENT_BY{8};
 
-    CLI::App app_;
     Format format_{Format::TABLE};
     std::map<Format, std::string> format_descriptions_{format_descriptions()};
 

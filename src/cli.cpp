@@ -1,5 +1,6 @@
 #include "evlist/cli.h"
 
+#include <expected>
 #include <format>
 #include <iostream>
 #include <map>
@@ -7,14 +8,12 @@
 
 #include "CLI/CLI.hpp"
 
-evlist::Cli::Cli()
-    : app_{"lists and formats devices under /dev/input.", "evlist"} {}
-
-evlist::ShouldExit evlist::Cli::parse(int argc, char** argv) {
-    argv = app_.ensure_utf8(argv);
+std::expected<bool, int> evlist::Cli::parse(int argc, char** argv) {
+    CLI::App app{"lists and formats devices under /dev/input.", "evlist"};
+    argv = app.ensure_utf8(argv);
 
     auto should_exit = false;
-    app_.add_flag_callback(
+    app.add_flag_callback(
         "-v,--version",
         [&should_exit] {
             should_exit = true;
@@ -27,7 +26,7 @@ evlist::ShouldExit evlist::Cli::parse(int argc, char** argv) {
         },
         "Print version"
     );
-    app_.add_option("-o,--format", format_)
+    app.add_option("-o,--format", format_)
         ->transform(CLI::CheckedTransformer{format_mappings(), CLI::ignore_case}
         )
         ->option_text(format_enum(
@@ -36,7 +35,7 @@ evlist::ShouldExit evlist::Cli::parse(int argc, char** argv) {
             FORMAT_INDENT_BY,
             format_descriptions_
         ));
-    app_.add_option("-f,--filter", filter_)
+    app.add_option("-f,--filter", filter_)
         ->transform(CLI::CheckedTransformer{filter_mappings(), CLI::ignore_case}
         )
         ->option_text(format_enum(
@@ -46,18 +45,13 @@ evlist::ShouldExit evlist::Cli::parse(int argc, char** argv) {
             filter_descriptions_
         ));
 
-    auto code = 0;
     try {
-        app_.parse(argc, argv);
+        app.parse(argc, argv);
     } catch (const CLI::ParseError& e) {
-        code = app_.exit(e);
-        should_exit = true;
+        return std::unexpected{app.exit(e)};
     }
 
-    return ShouldExit{
-        .should_exit = should_exit,
-        .exit_code = code,
-    };
+    return {should_exit};
 }
 
 evlist::Format evlist::Cli::format() const { return format_; }

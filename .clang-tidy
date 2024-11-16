@@ -11,8 +11,7 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -boost-use-ranges,
   -abseil-string-find-str-contains,
-  -llvm-header-guard,
-  -altera-struct-pack-align
+  -llvm-header-guard
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.'
-ExtraArgs: ['-std=gnu++23']
+ExtraArgs: ['-std=c++23']
