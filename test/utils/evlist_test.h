@@ -33,7 +33,7 @@ void check_devices(auto &&get_device) {
     }));
 }
 
-std::vector<std::pair<uint32_t, std::string>> create_capabilities();
+std::vector<std::string> create_capabilities();
 } // namespace evlist_test
 
 #endif // EVLIST_UTILS_TEST_H

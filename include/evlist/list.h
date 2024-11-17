@@ -63,8 +63,7 @@ private:
      * Get capabilities. The underlying ioctl calls require elevated privileges.
      * @return name
      */
-    [[nodiscard]] std::vector<std::pair<uint32_t, std::string>> capabilities(
-        const fs::path &device
+    [[nodiscard]] std::vector<std::string> capabilities(const fs::path &device
     ) const;
 };
 } // namespace evlist

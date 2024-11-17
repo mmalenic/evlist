@@ -106,19 +106,20 @@ std::
     return {};
 }
 
-std::vector<std::pair<uint32_t, std::string>>
-evlist::InputDeviceLister::capabilities(const fs::path &device) const {
+std::vector<std::string> evlist::InputDeviceLister::capabilities(
+    const fs::path &device
+) const {
     std::array<std::uint64_t, EV_MAX> bit{};
 
-    auto file = std::unique_ptr<FILE, decltype(&fclose)>{
-        std::fopen(device.c_str(), "re"),
-        [](auto *file) {
-            if (file != nullptr) {
-                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-                return std::fclose(file);
-            }
-            return EOF;
+    auto deleter = [](auto *file) {
+        if (file != nullptr) {
+            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+            return std::fclose(file);
         }
+        return EOF;
+    };
+    auto file = std::unique_ptr<FILE, decltype(deleter)>{
+        std::fopen(device.c_str(), "re"), deleter
     };
 
     if (file == nullptr) {
@@ -128,11 +129,11 @@ evlist::InputDeviceLister::capabilities(const fs::path &device) const {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg,misc-include-cleaner)
     ioctl(fileno(file.get()), EVIOCGBIT(0, EV_MAX), bit.data());
 
-    std::vector<std::pair<uint32_t, std::string>> out{};
+    std::vector<std::string> out{};
     for (const auto &type : event_names_) {
         if ((bit.at(type.first / ULONG_WIDTH) & 1UL << type.first % ULONG_WIDTH
             ) != 0U) {
-            out.emplace_back(type);
+            out.emplace_back(type.second);
         }
     }
 

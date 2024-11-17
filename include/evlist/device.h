@@ -31,7 +31,7 @@ public:
         std::optional<std::string> by_id,
         std::optional<std::string> by_path,
         std::optional<std::string> name,
-        std::vector<std::pair<uint32_t, std::string>> capabilities
+        std::vector<std::string> capabilities
     );
 
     /**
@@ -62,8 +62,7 @@ public:
      * Get capabilities.
      * @return capabilities
      */
-    [[nodiscard]] const std::vector<std::pair<uint32_t, std::string>> &
-    capabilities() const;
+    [[nodiscard]] const std::vector<std::string> &capabilities() const;
 
     /**
      * Partition a string into continuous segments of numbers of characters.
@@ -75,7 +74,7 @@ private:
     std::optional<std::string> by_id_;
     std::optional<std::string> by_path_;
     std::optional<std::string> name_;
-    std::vector<std::pair<uint32_t, std::string>> capabilities_;
+    std::vector<std::string> capabilities_;
 };
 
 /**
@@ -115,6 +114,7 @@ private:
 
     Format output_format_{Format::TABLE};
     std::vector<InputDevice> devices_;
+
     size_t max_name_size_{MIN_SPACES};
     size_t max_device_size_{MIN_SPACES};
     size_t max_by_id_size_{MIN_SPACES};
@@ -211,8 +211,8 @@ struct std::formatter<evlist::InputDevices> {
             std::string capabilities_str{};
             if (!capabilities.empty()) {
                 capabilities_str += "[";
-                for (auto [id, name] : device.capabilities()) {
-                    capabilities_str += std::format("({}, {}), ", id, name);
+                for (auto name : device.capabilities()) {
+                    capabilities_str += std::format("{}, ", name);
                 }
 
                 capabilities_str.erase(capabilities_str.length() - 2);

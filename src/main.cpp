@@ -6,7 +6,8 @@
 #include "evlist/list.h"
 
 int main(int argc, char** argv) {
-    auto exit = evlist::Cli{}.parse(argc, argv);
+    auto cli = evlist::Cli{};
+    auto exit = cli.parse(argc, argv);
     if (!exit.has_value()) {
         return exit.error();
     }
@@ -14,8 +15,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    auto devices =
-        evlist::InputDeviceLister{evlist::Format::CSV}.list_input_devices();
+    auto devices = evlist::InputDeviceLister{cli.format()}.list_input_devices();
     if (!devices.has_value()) {
         const auto& err = devices.error();
         std::cout << std::format("failed to list devices: {}", err.what());
