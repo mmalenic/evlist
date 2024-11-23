@@ -20,7 +20,9 @@ public:
     /**
      * Create an event device lister.
      */
-    explicit InputDeviceLister(Format output_format);
+    InputDeviceLister(
+        Format output_format, std::map<Filter, std::string> filter
+    );
 
     /**
      * list input devices.
@@ -31,6 +33,7 @@ public:
 
 private:
     Format output_format_{Format::TABLE};
+    std::map<Filter, std::string> filter_;
 
     std::string input_directory_{"/dev/input"};
     std::string by_id_{input_directory_ + "/by-id"};

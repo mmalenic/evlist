@@ -19,6 +19,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "evlist/cli.h"
@@ -26,8 +27,10 @@
 
 #define STRINGIFY(x) #x
 
-evlist::InputDeviceLister::InputDeviceLister(Format output_format)
-    : output_format_{output_format} {}
+evlist::InputDeviceLister::InputDeviceLister(
+    Format output_format, std::map<Filter, std::string> filter
+)
+    : output_format_{output_format}, filter_{std::move(filter)} {}
 
 std::expected<evlist::InputDevices, std::filesystem::filesystem_error>
 evlist::InputDeviceLister::list_input_devices() const {

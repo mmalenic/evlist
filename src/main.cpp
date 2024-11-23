@@ -1,6 +1,7 @@
 
 #include <format>
 #include <iostream>
+#include <utility>
 
 #include "evlist/cli.h"
 #include "evlist/list.h"
@@ -15,7 +16,9 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    auto devices = evlist::InputDeviceLister{cli.format()}.list_input_devices();
+    auto devices =
+        evlist::InputDeviceLister{cli.format(), std::move(cli).into_filter()}
+            .list_input_devices();
     if (!devices.has_value()) {
         const auto& err = devices.error();
         std::cout << std::format("failed to list devices: {}", err.what());

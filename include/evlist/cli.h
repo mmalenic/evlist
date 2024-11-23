@@ -45,6 +45,12 @@ public:
      */
     [[nodiscard]] const std::map<Filter, std::string>& filter() const;
 
+    /**
+     * Get the filter, consuming self.
+     * @return filter
+     */
+    [[nodiscard]] std::map<Filter, std::string> into_filter() &&;
+
 private:
     static constexpr uint8_t INDENT_BY{30};
     static constexpr uint8_t FORMAT_INDENT_BY{8};
