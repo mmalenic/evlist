@@ -27,20 +27,22 @@ std::expected<bool, int> evlist::Cli::parse(int argc, char** argv) {
         "Print version"
     );
     app.add_option("-o,--format", format_)
-        ->transform(CLI::CheckedTransformer{format_mappings(), CLI::ignore_case}
-        )
+        ->transform(CLI::Transformer{format_mappings(), CLI::ignore_case})
         ->option_text(format_enum(
             "FORMAT",
             "Format to output devices in",
             FORMAT_INDENT_BY,
             format_descriptions_
         ));
+
     app.add_option("-f,--filter", filter_)
-        ->transform(CLI::CheckedTransformer{filter_mappings(), CLI::ignore_case}
-        )
+        ->transform(CLI::Transformer{filter_mappings(), CLI::ignore_case})
+        ->delimiter('=')
         ->option_text(format_enum(
-            "FILTER",
-            "Filter output rows by the column value",
+            "KEY=VALUE",
+            "Filter output rows by the column value. This "
+            "option can be specified multiple times, and takes a key=value "
+            "format where each key is one of the following",
             FILTER_INDENT_BY,
             filter_descriptions_
         ));

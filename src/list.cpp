@@ -19,7 +19,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "evlist/cli.h"
@@ -31,7 +30,7 @@ evlist::InputDeviceLister::InputDeviceLister(Format output_format)
     : output_format_{output_format} {}
 
 std::expected<evlist::InputDevices, std::filesystem::filesystem_error>
-evlist::InputDeviceLister::list_input_devices() {
+evlist::InputDeviceLister::list_input_devices() const {
     std::size_t max_name_size = 0;
     std::size_t max_device_size = 0;
     std::size_t max_by_id_size = 0;
@@ -130,10 +129,9 @@ std::vector<std::string> evlist::InputDeviceLister::capabilities(
     ioctl(fileno(file.get()), EVIOCGBIT(0, EV_MAX), bit.data());
 
     std::vector<std::string> out{};
-    for (const auto &type : event_names_) {
-        if ((bit.at(type.first / ULONG_WIDTH) & 1UL << type.first % ULONG_WIDTH
-            ) != 0U) {
-            out.emplace_back(type.second);
+    for (const auto &[first, second] : event_names_) {
+        if ((bit.at(first / ULONG_WIDTH) & 1UL << first % ULONG_WIDTH) != 0U) {
+            out.emplace_back(second);
         }
     }
 

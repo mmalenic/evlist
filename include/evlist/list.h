@@ -26,7 +26,8 @@ public:
      * list input devices.
      * @return input devices list
      */
-    std::expected<InputDevices, fs::filesystem_error> list_input_devices();
+    [[nodiscard]] std::expected<InputDevices, fs::filesystem_error>
+    list_input_devices() const;
 
 private:
     Format output_format_{Format::TABLE};

@@ -48,7 +48,7 @@ public:
 private:
     static constexpr uint8_t INDENT_BY{30};
     static constexpr uint8_t FORMAT_INDENT_BY{8};
-    static constexpr uint8_t FILTER_INDENT_BY{8};
+    static constexpr uint8_t FILTER_INDENT_BY{5};
 
     Format format_{Format::TABLE};
     std::map<Format, std::string> format_descriptions_{format_descriptions()};
