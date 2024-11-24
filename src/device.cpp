@@ -4,14 +4,18 @@
 #include <cctype>
 #include <cstddef>
 #include <filesystem>
+#include <map>
 #include <optional>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "evlist/cli.h"
 
-const evlist::fs::path& evlist::InputDevice::device() const { return device_; }
+const evlist::fs::path& evlist::InputDevice::device_path() const {
+    return device_;
+}
 
 evlist::InputDevice::InputDevice(
     fs::path device,
@@ -52,14 +56,14 @@ std::vector<std::string> evlist::InputDevice::partition(std::string str) {
     });
 
     std::vector<std::string> result{};
-    result.push_back({str[0]});
+    result.emplace_back(std::string{str[0]});
     for (auto i = 1; i < str.length(); i++) {
         auto prev = str[i - 1];
         auto curr = str[i];
         if (std::isdigit(prev) != 0 && std::isdigit(curr) != 0) {
             result[result.size() - 1] += curr;
         } else {
-            result.push_back({curr});
+            result.emplace_back(std::string{curr});
         }
     }
 
@@ -73,6 +77,43 @@ evlist::InputDevices::InputDevices(
     Format output_format, std::vector<InputDevice> input_devices
 )
     : devices_{std::move(input_devices)}, output_format_{output_format} {}
+
+evlist::InputDevices& evlist::InputDevices::filter(
+    const std::map<Filter, std::string>& filter
+) {
+    auto filtered_devices = std::vector<InputDevice>{};
+    for (const auto& [key, value] : filter) {
+        for (auto device : devices_) {
+            auto values = values_for_filter(device, key);
+            if (values.contains(value)) {
+                filtered_devices.emplace_back(std::move(device));
+            }
+        }
+    }
+
+    this->devices_ = filtered_devices;
+    return *this;
+}
+
+std::set<std::string> evlist::InputDevices::values_for_filter(
+    const InputDevice& device, Filter filter
+) {
+    switch (filter) {
+        case Filter::DEVICE_PATH:
+            return {device.device_path().c_str()};
+        case Filter::NAME:
+            return {device.name().value_or("")};
+        case Filter::BY_ID:
+            return {device.by_id().value_or("")};
+        case Filter::BY_PATH:
+            return {device.by_path().value_or("")};
+        case Filter::CAPABILITIES:
+            const auto& capabilities = device.capabilities();
+            return {capabilities.cbegin(), capabilities.cend()};
+    }
+
+    return {};
+}
 
 evlist::InputDevices& evlist::InputDevices::with_max_name_size(
     std::size_t max_name_size

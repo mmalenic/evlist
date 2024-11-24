@@ -3,8 +3,10 @@
 
 #include <filesystem>
 #include <format>
+#include <map>
 #include <optional>
 #include <ranges>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -38,7 +40,7 @@ public:
      * Get device.
      * @return device
      */
-    [[nodiscard]] const fs::path &device() const;
+    [[nodiscard]] const fs::path &device_path() const;
 
     /**
      * Get by id.
@@ -92,9 +94,15 @@ public:
     /**
      * Create an event device lister.
      */
-    explicit InputDevices(
-        Format output_format, std::vector<InputDevice> input_devices
-    );
+    InputDevices(Format output_format, std::vector<InputDevice> input_devices);
+
+    /**
+     * Filter the devices.
+     *
+     * @param filter filter by
+     * @return InputDevices
+     */
+    InputDevices &filter(const std::map<Filter, std::string> &filter);
 
     InputDevices &with_max_name_size(size_t max_name_size);
     InputDevices &with_max_device_size(size_t max_device_size);
@@ -119,11 +127,15 @@ private:
     size_t max_device_size_{MIN_SPACES};
     size_t max_by_id_size_{MIN_SPACES};
     size_t max_by_path_size_{MIN_SPACES};
+
+    static std::set<std::string> values_for_filter(
+        const InputDevice &device, Filter filter
+    );
 };
 
 inline auto operator<=>(const InputDevice &lhs, const InputDevice &rhs) {
-    auto lhs_device = lhs.device().string();
-    auto rhs_device = rhs.device().string();
+    auto lhs_device = lhs.device_path().string();
+    auto rhs_device = rhs.device_path().string();
 
     auto s1_partitions = InputDevice::partition(lhs_device);
     auto s2_partitions = InputDevice::partition(rhs_device);
@@ -204,9 +216,9 @@ struct std::formatter<evlist::InputDevices> {
             }
         };
 
-        format("NAME", "DEVICE", "BY_ID", "BY_PATH", "CAPABILITIES");
+        format("NAME", "DEVICE_PATH", "BY_ID", "BY_PATH", "CAPABILITIES");
 
-        for (evlist::InputDevice const &device : devices.devices()) {
+        for (const auto &device : devices.devices()) {
             auto capabilities = device.capabilities();
             std::string capabilities_str{};
             if (!capabilities.empty()) {
@@ -221,7 +233,7 @@ struct std::formatter<evlist::InputDevices> {
 
             format(
                 device.name().value_or(""),
-                device.device().string(),
+                device.device_path().string(),
                 device.by_id().value_or(""),
                 device.by_path().value_or(""),
                 capabilities_str

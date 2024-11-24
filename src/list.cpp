@@ -9,7 +9,6 @@
 #include <climits>
 #include <cstdint>
 #include <cstdio>
-#include <cstring>
 #include <expected>
 #include <filesystem>
 #include <fstream>
@@ -54,7 +53,7 @@ evlist::InputDeviceLister::list_input_devices() const {
                 return std::unexpected{by_path_symlink.error()};
             }
 
-            InputDevice const device = {
+            InputDevice device = {
                 entry.path(),
                 *by_id_symlink,
                 *by_path_symlink,
@@ -75,7 +74,7 @@ evlist::InputDeviceLister::list_input_devices() const {
                 by_path_symlink->value_or(fs::path{}).string().length()
             );
 
-            devices.push_back(device);
+            devices.emplace_back(std::move(device));
         }
     }
 
@@ -86,6 +85,10 @@ evlist::InputDeviceLister::list_input_devices() const {
         .with_max_device_size(max_device_size)
         .with_max_by_id_size(max_by_id_size)
         .with_max_by_path_size(max_by_path_size);
+
+    if (!filter_.empty()) {
+        inputDevices.filter(filter_);
+    }
 
     return inputDevices;
 }

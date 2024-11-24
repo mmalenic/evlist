@@ -23,18 +23,18 @@ TEST(InputDeviceListerTest, ElevatedContainsAllDevices) {
                 std::string::npos) {
             auto iter{devices.devices().begin()};
             for (const auto &device : devices.devices()) {
-                if (device.device().string() == entry.path().string()) {
-                    results.push_back(true);
+                if (device.device_path().string() == entry.path().string()) {
+                    results.emplace_back(true);
                     break;
                 }
             }
             if (iter == devices.devices().end()) {
-                results.push_back(false);
+                results.emplace_back(false);
             }
         }
     }
     ASSERT_TRUE(std::ranges::all_of(
-        results.begin(), results.end(), [](const bool value) { return value; }
+        results.begin(), results.end(), [](bool value) { return value; }
     ));
 }
 

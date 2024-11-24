@@ -14,7 +14,7 @@ namespace evlist_test {
 namespace fs = std::filesystem;
 
 void check_devices(auto &&get_device) {
-    evlist::InputDevices const devices =
+    const evlist::InputDevices devices =
         evlist::InputDeviceLister{}.list_input_devices().value();
 
     std::vector<bool> results{};
@@ -22,9 +22,9 @@ void check_devices(auto &&get_device) {
         auto name = get_device(device);
         if (name.has_value()) {
             const fs::path path{name.value()};
-            results.push_back(
-                fs::is_symlink(path) &&
-                fs::read_symlink(path).filename() == device.device().filename()
+            results.emplace_back(
+                fs::is_symlink(path) && fs::read_symlink(path).filename() ==
+                                            device.device_path().filename()
             );
         }
     }
