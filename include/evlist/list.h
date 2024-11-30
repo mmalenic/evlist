@@ -10,6 +10,7 @@
 #include "evlist/device.h"
 
 namespace evlist {
+
 class InputDeviceLister {
 public:
     /**
@@ -21,7 +22,9 @@ public:
      * Create an event device lister.
      */
     InputDeviceLister(
-        Format output_format, std::map<Filter, std::string> filter
+        Format output_format,
+        bool use_regex,
+        std::map<Filter, std::string> filter
     );
 
     /**
@@ -33,6 +36,7 @@ public:
 
 private:
     Format output_format_{Format::TABLE};
+    bool use_regex_{false};
     std::map<Filter, std::string> filter_;
 
     std::string input_directory_{"/dev/input"};

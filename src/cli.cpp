@@ -27,6 +27,7 @@ std::expected<bool, int> evlist::Cli::parse(int argc, char** argv) {
         },
         "Print version"
     );
+
     app.add_option("-o,--format", format_)
         ->transform(CLI::Transformer{format_mappings(), CLI::ignore_case})
         ->option_text(format_enum(
@@ -48,6 +49,12 @@ std::expected<bool, int> evlist::Cli::parse(int argc, char** argv) {
             filter_descriptions_
         ));
 
+    app.add_flag(
+        "-r,--use-regex",
+        use_regex_,
+        "Pass this to use a regex when filtering values in `--filter` options"
+    );
+
     try {
         app.parse(argc, argv);
     } catch (const CLI::ParseError& e) {
@@ -58,6 +65,8 @@ std::expected<bool, int> evlist::Cli::parse(int argc, char** argv) {
 }
 
 evlist::Format evlist::Cli::format() const { return format_; }
+
+bool evlist::Cli::use_regex() const { return use_regex_; }
 
 const std::map<evlist::Filter, std::string>& evlist::Cli::filter() const {
     return filter_;

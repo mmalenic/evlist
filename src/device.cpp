@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <map>
 #include <optional>
-#include <set>
+#include <regex>
 #include <string>
 #include <utility>
 #include <vector>
@@ -79,14 +79,19 @@ evlist::InputDevices::InputDevices(
     : devices_{std::move(input_devices)}, output_format_{output_format} {}
 
 evlist::InputDevices& evlist::InputDevices::filter(
-    const std::map<Filter, std::string>& filter
+    const std::map<Filter, std::string>& filter, bool use_regex
 ) {
     auto filtered_devices = std::vector<InputDevice>{};
     for (const auto& [key, value] : filter) {
         for (auto device : devices_) {
-            auto values = values_for_filter(device, key);
-            if (values.contains(value)) {
-                filtered_devices.emplace_back(std::move(device));
+            if (use_regex) {
+                if (filter_regex(device, key, value)) {
+                    filtered_devices.emplace_back(std::move(device));
+                }
+            } else {
+                if (filter_equality(device, key, value)) {
+                    filtered_devices.emplace_back(std::move(device));
+                }
             }
         }
     }
@@ -95,24 +100,25 @@ evlist::InputDevices& evlist::InputDevices::filter(
     return *this;
 }
 
-std::set<std::string> evlist::InputDevices::values_for_filter(
-    const InputDevice& device, Filter filter
+bool evlist::InputDevices::filter_regex(
+    const InputDevice& device, Filter filter, const std::string& value
 ) {
-    switch (filter) {
-        case Filter::DEVICE_PATH:
-            return {device.device_path().c_str()};
-        case Filter::NAME:
-            return {device.name().value_or("")};
-        case Filter::BY_ID:
-            return {device.by_id().value_or("")};
-        case Filter::BY_PATH:
-            return {device.by_path().value_or("")};
-        case Filter::CAPABILITIES:
-            const auto& capabilities = device.capabilities();
-            return {capabilities.cbegin(), capabilities.cend()};
+    if (!regexes.contains(value)) {
+        regexes.emplace(value, std::regex{value});
     }
+    auto& regex = regexes[value];
 
-    return {};
+    return filter_device(device, filter, [&regex](const auto& compare) {
+        return std::regex_search(compare, regex);
+    });
+}
+
+bool evlist::InputDevices::filter_equality(
+    const InputDevice& device, Filter filter, const std::string& value
+) {
+    return filter_device(device, filter, [&value](const auto& compare) {
+        return compare == value;
+    });
 }
 
 evlist::InputDevices& evlist::InputDevices::with_max_name_size(

@@ -27,9 +27,11 @@
 #define STRINGIFY(x) #x
 
 evlist::InputDeviceLister::InputDeviceLister(
-    Format output_format, std::map<Filter, std::string> filter
+    Format output_format, bool use_regex, std::map<Filter, std::string> filter
 )
-    : output_format_{output_format}, filter_{std::move(filter)} {}
+    : output_format_{output_format},
+      use_regex_{use_regex},
+      filter_{std::move(filter)} {}
 
 std::expected<evlist::InputDevices, std::filesystem::filesystem_error>
 evlist::InputDeviceLister::list_input_devices() const {
@@ -87,7 +89,7 @@ evlist::InputDeviceLister::list_input_devices() const {
         .with_max_by_path_size(max_by_path_size);
 
     if (!filter_.empty()) {
-        inputDevices.filter(filter_);
+        inputDevices.filter(filter_, use_regex_);
     }
 
     return inputDevices;

@@ -6,6 +6,7 @@
 #include <map>
 #include <optional>
 #include <ranges>
+#include <regex>
 #include <set>
 #include <string>
 #include <vector>
@@ -13,6 +14,7 @@
 #include "evlist/cli.h"
 
 namespace evlist {
+
 namespace fs = std::filesystem;
 
 /**
@@ -100,9 +102,12 @@ public:
      * Filter the devices.
      *
      * @param filter filter by
+     * @param use_regex whether to compare using a regex
      * @return InputDevices
      */
-    InputDevices &filter(const std::map<Filter, std::string> &filter);
+    InputDevices &filter(
+        const std::map<Filter, std::string> &filter, bool use_regex
+    );
 
     InputDevices &with_max_name_size(size_t max_name_size);
     InputDevices &with_max_device_size(size_t max_device_size);
@@ -128,10 +133,48 @@ private:
     size_t max_by_id_size_{MIN_SPACES};
     size_t max_by_path_size_{MIN_SPACES};
 
-    static std::set<std::string> values_for_filter(
-        const InputDevice &device, Filter filter
+    std::map<std::string, std::regex> regexes;
+
+    bool filter_regex(
+        const InputDevice &device, Filter filter, const std::string &value
+    );
+    static bool filter_equality(
+        const InputDevice &device, Filter filter, const std::string &value
+    );
+    static bool filter_device(
+        const InputDevice &device,
+        Filter filter,
+        std::invocable<const std::string &> auto comparison
     );
 };
+
+bool InputDevices::filter_device(
+    const InputDevice &device,
+    Filter filter,
+    std::invocable<const std::string &> auto comparison
+) {
+    switch (filter) {
+        case Filter::DEVICE_PATH:
+            return comparison(device.device_path().c_str());
+        case Filter::NAME:
+            return comparison(device.name().value_or(""));
+        case Filter::BY_ID:
+            return comparison(device.by_id().value_or(""));
+        case Filter::BY_PATH:
+            return comparison(device.by_path().value_or(""));
+        case Filter::CAPABILITIES:
+            const auto &capabilities = device.capabilities();
+            return std::ranges::any_of(
+                capabilities.cbegin(),
+                capabilities.cend(),
+                [&comparison](const auto &capability) {
+                    return comparison(capability);
+                }
+            );
+    }
+
+    return true;
+}
 
 inline auto operator<=>(const InputDevice &lhs, const InputDevice &rhs) {
     auto lhs_device = lhs.device_path().string();

@@ -17,7 +17,9 @@ int main(int argc, char** argv) {
     }
 
     auto devices =
-        evlist::InputDeviceLister{cli.format(), std::move(cli).into_filter()}
+        evlist::InputDeviceLister{
+            cli.format(), cli.use_regex(), std::move(cli).into_filter()
+        }
             .list_input_devices();
     if (!devices.has_value()) {
         const auto& err = devices.error();

@@ -40,6 +40,12 @@ public:
     [[nodiscard]] Format format() const;
 
     /**
+     * Get the use regex flag.
+     * @return use regex
+     */
+    [[nodiscard]] bool use_regex() const;
+
+    /**
      * Get the filter.
      * @return filter
      */
@@ -61,6 +67,8 @@ private:
 
     std::map<Filter, std::string> filter_;
     std::map<Filter, std::string> filter_descriptions_{filter_descriptions()};
+
+    bool use_regex_{false};
 
     static std::map<std::string, Format> format_mappings();
     static std::map<Format, std::string> format_descriptions();
