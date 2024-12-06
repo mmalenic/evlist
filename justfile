@@ -2,8 +2,12 @@
 profile:
     conan profile detect -e
 
+# Update the lock file.
+update:
+    conan lock create .
+
 # Build evlist.
-build build_type='Debug' *build_options='': profile
+build build_type='Debug' *build_options='': profile clean-cache
     conan build . -s build_type={{ capitalize(build_type) }} -s compiler.cppstd=23 {{build_options}} --build=missing
 
 # Rebuild evlist using the existing CMake directory.
@@ -27,4 +31,8 @@ check build_type='Debug' *build_options='-o build_testing=True -o run_clang_tidy
 
 # Remove the build directory.
 clean:
-    rm -r build
+    rm -rf build
+
+# Clean the CMakeCache.txt only.
+clean-cache:
+    rm -f build/Debug/CMakeCache.txt && rm -f build/Release/CMakeCache.txt

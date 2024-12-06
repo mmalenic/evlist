@@ -20,8 +20,8 @@ class EvListRecipe(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
 
-        tc.variables["BUILD_TESTING"] = self.options.build_testing
-        tc.variables["RUN_CLANG_TIDY"] = self.options.run_clang_tidy
+        tc.variables["BUILD_TESTING"] = self.options["build_testing"]
+        tc.variables["RUN_CLANG_TIDY"] = self.options["run_clang_tidy"]
 
         tc.generate()
 
