@@ -27,7 +27,9 @@
 #define STRINGIFY(x) #x
 
 evlist::InputDeviceLister::InputDeviceLister(
-    Format output_format, bool use_regex, std::map<Filter, std::string> filter
+    Format output_format,
+    bool use_regex,
+    std::vector<std::pair<Filter, std::string>> filter
 )
     : output_format_{output_format},
       use_regex_{use_regex},

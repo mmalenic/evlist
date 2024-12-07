@@ -4,6 +4,8 @@
 #include <expected>
 #include <map>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "CLI/CLI.hpp"
 
@@ -49,13 +51,14 @@ public:
      * Get the filter.
      * @return filter
      */
-    [[nodiscard]] const std::map<Filter, std::string>& filter() const;
+    [[nodiscard]] const std::vector<std::pair<Filter, std::string>>& filter(
+    ) const;
 
     /**
      * Get the filter, consuming self.
      * @return filter
      */
-    [[nodiscard]] std::map<Filter, std::string> into_filter() &&;
+    [[nodiscard]] std::vector<std::pair<Filter, std::string>> into_filter() &&;
 
 private:
     static constexpr uint8_t INDENT_BY{30};
@@ -65,7 +68,7 @@ private:
     Format format_{Format::TABLE};
     std::map<Format, std::string> format_descriptions_{format_descriptions()};
 
-    std::map<Filter, std::string> filter_;
+    std::vector<std::pair<Filter, std::string>> filter_;
     std::map<Filter, std::string> filter_descriptions_{filter_descriptions()};
 
     bool use_regex_{false};

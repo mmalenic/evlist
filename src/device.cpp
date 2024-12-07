@@ -79,24 +79,36 @@ evlist::InputDevices::InputDevices(
     : devices_{std::move(input_devices)}, output_format_{output_format} {}
 
 evlist::InputDevices& evlist::InputDevices::filter(
-    const std::map<Filter, std::string>& filter, bool use_regex
+    const std::vector<std::pair<Filter, std::string>>& filter, bool use_regex
 ) {
-    auto filtered_devices = std::vector<InputDevice>{};
-    for (const auto& [key, value] : filter) {
-        for (auto device : devices_) {
-            if (use_regex) {
-                if (filter_regex(device, key, value)) {
-                    filtered_devices.emplace_back(std::move(device));
+    auto capacity = devices_.size();
+    auto devices = std::move(devices_);
+    this->devices_ = {};
+    this->devices_.reserve(capacity);
+
+    for (auto device : devices) {
+        auto keep_device = std::ranges::all_of(
+            filter,
+            [&use_regex, &device, this](const auto& filter) {
+                if (use_regex) {
+                    if (filter_regex(device, filter.first, filter.second)) {
+                        return true;
+                    }
+                } else {
+                    if (filter_equality(device, filter.first, filter.second)) {
+                        return true;
+                    }
                 }
-            } else {
-                if (filter_equality(device, key, value)) {
-                    filtered_devices.emplace_back(std::move(device));
-                }
+
+                return false;
             }
+        );
+
+        if (keep_device) {
+            this->devices_.emplace_back(std::move(device));
         }
     }
 
-    this->devices_ = filtered_devices;
     return *this;
 }
 

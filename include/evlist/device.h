@@ -7,8 +7,8 @@
 #include <optional>
 #include <ranges>
 #include <regex>
-#include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "evlist/cli.h"
@@ -73,6 +73,8 @@ public:
      */
     [[nodiscard]] static std::vector<std::string> partition(std::string str);
 
+    bool operator==(const InputDevice &other) const = default;
+
 private:
     fs::path device_;
     std::optional<std::string> by_id_;
@@ -106,7 +108,8 @@ public:
      * @return InputDevices
      */
     InputDevices &filter(
-        const std::map<Filter, std::string> &filter, bool use_regex
+        const std::vector<std::pair<Filter, std::string>> &filter,
+        bool use_regex
     );
 
     InputDevices &with_max_name_size(size_t max_name_size);
@@ -165,8 +168,7 @@ bool InputDevices::filter_device(
         case Filter::CAPABILITIES:
             const auto &capabilities = device.capabilities();
             return std::ranges::any_of(
-                capabilities.cbegin(),
-                capabilities.cend(),
+                capabilities,
                 [&comparison](const auto &capability) {
                     return comparison(capability);
                 }

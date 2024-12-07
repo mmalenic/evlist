@@ -5,6 +5,7 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "evlist/device.h"
@@ -24,7 +25,7 @@ public:
     InputDeviceLister(
         Format output_format,
         bool use_regex,
-        std::map<Filter, std::string> filter
+        std::vector<std::pair<Filter, std::string>> filter
     );
 
     /**
@@ -37,7 +38,7 @@ public:
 private:
     Format output_format_{Format::TABLE};
     bool use_regex_{false};
-    std::map<Filter, std::string> filter_;
+    std::vector<std::pair<Filter, std::string>> filter_;
 
     std::string input_directory_{"/dev/input"};
     std::string by_id_{input_directory_ + "/by-id"};

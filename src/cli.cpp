@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "CLI/CLI.hpp"
 
@@ -68,11 +69,13 @@ evlist::Format evlist::Cli::format() const { return format_; }
 
 bool evlist::Cli::use_regex() const { return use_regex_; }
 
-const std::map<evlist::Filter, std::string>& evlist::Cli::filter() const {
+const std::vector<std::pair<evlist::Filter, std::string>>& evlist::Cli::filter(
+) const {
     return filter_;
 }
 
-std::map<evlist::Filter, std::string> evlist::Cli::into_filter() && {
+std::vector<std::pair<evlist::Filter, std::string>> evlist::Cli::into_filter(
+) && {
     return std::move(filter_);
 }
 

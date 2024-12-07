@@ -28,6 +28,7 @@ void check_devices(auto &&get_device) {
             );
         }
     }
+
     ASSERT_TRUE(all_of(results.begin(), results.end(), [](bool value) {
         return value;
     }));
