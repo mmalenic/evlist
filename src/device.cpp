@@ -19,15 +19,15 @@ const evlist::fs::path& evlist::InputDevice::device_path() const {
 
 evlist::InputDevice::InputDevice(
     fs::path device,
+    std::string name,
     std::optional<std::string> by_id,
     std::optional<std::string> by_path,
-    std::optional<std::string> name,
     std::vector<std::string> capabilities
 )
     : device_{std::move(device)},
+      name_{std::move(name)},
       by_id_{std::move(by_id)},
       by_path_{std::move(by_path)},
-      name_{std::move(name)},
       capabilities_{std::move(capabilities)} {}
 
 const std::optional<std::string>& evlist::InputDevice::by_id() const {
@@ -38,9 +38,7 @@ const std::optional<std::string>& evlist::InputDevice::by_path() const {
     return by_path_;
 }
 
-const std::optional<std::string>& evlist::InputDevice::name() const {
-    return name_;
-}
+const std::string& evlist::InputDevice::name() const { return name_; }
 
 const std::vector<std::string>& evlist::InputDevice::capabilities() const {
     return capabilities_;
@@ -76,7 +74,16 @@ evlist::InputDevices::InputDevices(std::vector<InputDevice> devices)
 evlist::InputDevices::InputDevices(
     Format output_format, std::vector<InputDevice> input_devices
 )
-    : devices_{std::move(input_devices)}, output_format_{output_format} {}
+    : output_format_{output_format} {
+    for (const auto& device : input_devices) {
+        with_max_name_size(device.name().length());
+        with_max_device_size(device.device_path().string().length());
+        with_max_by_id_size(device.by_id().value_or("").length());
+        with_max_by_path_size(device.by_path().value_or("").length());
+    }
+
+    with_input_devices(std::move(input_devices));
+}
 
 evlist::InputDevices& evlist::InputDevices::filter(
     const std::vector<std::pair<Filter, std::string>>& filter, bool use_regex
@@ -136,28 +143,39 @@ bool evlist::InputDevices::filter_equality(
 evlist::InputDevices& evlist::InputDevices::with_max_name_size(
     std::size_t max_name_size
 ) {
-    max_name_size_ += max_name_size;
+    max_name_size_ =
+        std::ranges::max(max_name_size_, max_name_size + MIN_SPACES);
     return *this;
 }
 
 evlist::InputDevices& evlist::InputDevices::with_max_device_size(
     std::size_t max_device_size
 ) {
-    max_device_size_ += max_device_size;
+    max_device_size_ =
+        std::ranges::max(max_device_size_, max_device_size + MIN_SPACES);
     return *this;
 }
 
 evlist::InputDevices& evlist::InputDevices::with_max_by_id_size(
     std::size_t max_by_id_size
 ) {
-    max_by_id_size_ += max_by_id_size;
+    max_by_id_size_ =
+        std::ranges::max(max_by_id_size_, max_by_id_size + MIN_SPACES);
     return *this;
 }
 
 evlist::InputDevices& evlist::InputDevices::with_max_by_path_size(
     std::size_t max_by_path_size
 ) {
-    max_by_path_size_ += max_by_path_size;
+    max_by_path_size_ =
+        std::ranges::max(max_by_path_size_, max_by_path_size + MIN_SPACES);
+    return *this;
+}
+
+evlist::InputDevices& evlist::InputDevices::with_input_devices(
+    std::vector<InputDevice> input_devices
+) {
+    devices_ = std::move(input_devices);
     return *this;
 }
 

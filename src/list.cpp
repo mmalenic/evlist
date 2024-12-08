@@ -37,17 +37,10 @@ evlist::InputDeviceLister::InputDeviceLister(
 
 std::expected<evlist::InputDevices, std::filesystem::filesystem_error>
 evlist::InputDeviceLister::list_input_devices() const {
-    std::size_t max_name_size = 0;
-    std::size_t max_device_size = 0;
-    std::size_t max_by_id_size = 0;
-    std::size_t max_by_path_size = 0;
-
     std::vector<InputDevice> devices{};
     for (const auto &entry : fs::directory_iterator(input_directory_)) {
         if (entry.is_character_file() &&
             entry.path().filename().string().contains("event")) {
-            auto name = this->name(entry.path());
-
             auto by_id_symlink = check_symlink(entry, by_id_);
             if (!by_id_symlink.has_value()) {
                 return std::unexpected{by_id_symlink.error()};
@@ -59,25 +52,11 @@ evlist::InputDeviceLister::list_input_devices() const {
 
             InputDevice device = {
                 entry.path(),
+                this->name(entry.path()),
                 *by_id_symlink,
                 *by_path_symlink,
-                this->name(entry.path()),
                 capabilities(entry.path())
             };
-
-            max_name_size = std::ranges::max(max_name_size, name.length());
-            max_device_size = std::ranges::max(
-                max_device_size, entry.path().string().length()
-            );
-            max_by_id_size = std::ranges::max(
-                max_by_id_size,
-                by_id_symlink->value_or(fs::path{}).string().length()
-            );
-            max_by_path_size = std::ranges::max(
-                max_by_path_size,
-                by_path_symlink->value_or(fs::path{}).string().length()
-            );
-
             devices.emplace_back(std::move(device));
         }
     }
@@ -85,10 +64,6 @@ evlist::InputDeviceLister::list_input_devices() const {
     std::ranges::sort(devices, std::less{});
 
     auto inputDevices = InputDevices{output_format_, devices};
-    inputDevices.with_max_name_size(max_name_size)
-        .with_max_device_size(max_device_size)
-        .with_max_by_id_size(max_by_id_size)
-        .with_max_by_path_size(max_by_path_size);
 
     if (!filter_.empty()) {
         inputDevices.filter(filter_, use_regex_);

@@ -32,9 +32,9 @@ public:
      */
     InputDevice(
         fs::path device,
+        std::string name,
         std::optional<std::string> by_id,
         std::optional<std::string> by_path,
-        std::optional<std::string> name,
         std::vector<std::string> capabilities
     );
 
@@ -60,7 +60,7 @@ public:
      * Get name.
      * @return name
      */
-    [[nodiscard]] const std::optional<std::string> &name() const;
+    [[nodiscard]] const std::string &name() const;
 
     /**
      * Get capabilities.
@@ -77,9 +77,9 @@ public:
 
 private:
     fs::path device_;
+    std::string name_;
     std::optional<std::string> by_id_;
     std::optional<std::string> by_path_;
-    std::optional<std::string> name_;
     std::vector<std::string> capabilities_;
 };
 
@@ -88,6 +88,12 @@ private:
  */
 class InputDevices {
 public:
+    static constexpr std::string_view HEADER_NAME = "NAME";
+    static constexpr std::string_view HEADER_DEVICE_PATH = "DEVICE_PATH";
+    static constexpr std::string_view HEADER_BY_ID = "BY_ID";
+    static constexpr std::string_view HEADER_BY_PATH = "BY_PATH";
+    static constexpr std::string_view HEADER_CAPABILITIES = "CAPABILITIES";
+
     /**
      * Create input devices with the default format.
      *
@@ -116,6 +122,7 @@ public:
     InputDevices &with_max_device_size(size_t max_device_size);
     InputDevices &with_max_by_id_size(size_t max_by_id_size);
     InputDevices &with_max_by_path_size(size_t max_by_path_size);
+    InputDevices &with_input_devices(std::vector<InputDevice> input_devices);
 
     [[nodiscard]] std::vector<InputDevice> devices() const;
     [[nodiscard]] size_t max_name_size() const;
@@ -126,15 +133,14 @@ public:
     [[nodiscard]] Format output_format() const;
 
 private:
-    static constexpr size_t MIN_SPACES{1};
-
     Format output_format_{Format::TABLE};
     std::vector<InputDevice> devices_;
 
-    size_t max_name_size_{MIN_SPACES};
-    size_t max_device_size_{MIN_SPACES};
-    size_t max_by_id_size_{MIN_SPACES};
-    size_t max_by_path_size_{MIN_SPACES};
+    std::size_t MIN_SPACES{1};
+    std::size_t max_name_size_{HEADER_NAME.length() + MIN_SPACES};
+    std::size_t max_device_size_{HEADER_DEVICE_PATH.length() + MIN_SPACES};
+    std::size_t max_by_id_size_{HEADER_BY_ID.length() + MIN_SPACES};
+    std::size_t max_by_path_size_{HEADER_BY_PATH.length() + MIN_SPACES};
 
     std::map<std::string, std::regex> regexes;
 
@@ -160,7 +166,7 @@ bool InputDevices::filter_device(
         case Filter::DEVICE_PATH:
             return comparison(device.device_path().c_str());
         case Filter::NAME:
-            return comparison(device.name().value_or(""));
+            return comparison(device.name());
         case Filter::BY_ID:
             return comparison(device.by_id().value_or(""));
         case Filter::BY_PATH:
@@ -209,7 +215,7 @@ struct std::formatter<evlist::InputDevices> {
     // NOLINTNEXTLINE(runtime/references)
     constexpr auto format(const evlist::InputDevices &devices, Context &ctx)
         const {
-        auto csv_escape_quotes = [](const std::string &str) {
+        auto csv_escape_quotes = [](std::string_view str) {
             std::string out = {};
             out.reserve(str.length());
 
@@ -224,11 +230,11 @@ struct std::formatter<evlist::InputDevices> {
         };
 
         auto format = [&csv_escape_quotes, &ctx, &devices](
-                          std::string name,
-                          auto device,
-                          auto by_id,
-                          auto by_path,
-                          auto capabilities
+                          std::string_view name,
+                          std::string_view device,
+                          std::string_view by_id,
+                          std::string_view by_path,
+                          std::string_view capabilities
                       ) {
             switch (devices.output_format()) {
                 case evlist::Format::TABLE:
@@ -261,7 +267,13 @@ struct std::formatter<evlist::InputDevices> {
             }
         };
 
-        format("NAME", "DEVICE_PATH", "BY_ID", "BY_PATH", "CAPABILITIES");
+        format(
+            evlist::InputDevices::HEADER_NAME,
+            evlist::InputDevices::HEADER_DEVICE_PATH,
+            evlist::InputDevices::HEADER_BY_ID,
+            evlist::InputDevices::HEADER_BY_PATH,
+            evlist::InputDevices::HEADER_CAPABILITIES
+        );
 
         for (const auto &device : devices.devices()) {
             auto capabilities = device.capabilities();
@@ -277,7 +289,7 @@ struct std::formatter<evlist::InputDevices> {
             }
 
             format(
-                device.name().value_or(""),
+                device.name(),
                 device.device_path().string(),
                 device.by_id().value_or(""),
                 device.by_path().value_or(""),
