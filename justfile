@@ -36,3 +36,8 @@ clean:
 # Clean the CMakeCache.txt only.
 clean-cache:
     rm -f build/Debug/CMakeCache.txt && rm -f build/Release/CMakeCache.txt
+
+# Generate documentation.
+doc:
+    git clone --depth 1 --branch v2.3.4 https://github.com/jothepro/doxygen-awesome-css.git build/doxygen-awesome-css || true
+    doxygen

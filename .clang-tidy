@@ -12,6 +12,6 @@ Checks: >
   -boost-use-ranges,
   -abseil-string-find-str-contains,
   -llvm-header-guard
-WarningsAsErrors: '*'
-HeaderFilterRegex: '.'
-ExtraArgs: ['-std=c++23']
+WarningsAsErrors: "*"
+HeaderFilterRegex: "."
+ExtraArgs: ["-std=c++23"]
