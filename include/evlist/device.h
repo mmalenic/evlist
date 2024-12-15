@@ -1,3 +1,9 @@
+/**
+ * @file device.h
+ *
+ * Contains definitions for input device containers.
+ */
+
 #ifndef EVLIST_DEVICE_H
 #define EVLIST_DEVICE_H
 
@@ -13,22 +19,28 @@
 
 #include "evlist/cli.h"
 
+/**
+ * The namespace for this project.
+ */
 namespace evlist {
 
 namespace fs = std::filesystem;
 
 /**
- * Store the paths for event devices.
+ * Store data such as paths and names of input event devices.
  */
 class InputDevice {
 public:
     /**
-     * Create event device.
-     * @param device device path
-     * @param by_id by id path
-     * @param by_path by path path
-     * @param name device name
-     * @param capabilities capabilities
+     * Create the input event device.
+     *
+     * @param device the device path under `/dev/input/`
+     * @param by_id the by-id path under `/dev/input/by-id/`
+     * @param by_path by-path path under `/dev/input/by-path/`
+     * @param name the device name
+     * @param capabilities the device capabilities obtained by querying
+     *        [ioctl using
+     * EVIOCGBIT](https://www.kernel.org/doc/html/latest/input/ff.html#querying-device-capabilities).
      */
     InputDevice(
         fs::path device,
@@ -39,40 +51,56 @@ public:
     );
 
     /**
-     * Get device.
+     * Get the device.
+     *
      * @return device
      */
     [[nodiscard]] const fs::path &device_path() const;
 
     /**
-     * Get by id.
-     * @return by id
+     * Get the by-id path.
+     *
+     * @return by-id path
      */
     [[nodiscard]] const std::optional<std::string> &by_id() const;
 
     /**
-     * Get by path.
-     * @return by path
+     * Get the by-path path.
+     *
+     * @return by-path path
      */
     [[nodiscard]] const std::optional<std::string> &by_path() const;
 
     /**
-     * Get name.
+     * Get the name.
+     *
      * @return name
      */
     [[nodiscard]] const std::string &name() const;
 
     /**
-     * Get capabilities.
+     * Get the capabilities.
+     *
      * @return capabilities
      */
     [[nodiscard]] const std::vector<std::string> &capabilities() const;
 
     /**
-     * Partition a string into continuous segments of numbers of characters.
+     * Partition a string into segments of numbers and characters, where
+     * continuous numbers are part of the same partition. This is used to
+     * support natural sorting of `evlist::InputDevices`.
+     *
+     * @param str input string
+     * @return a vector of partitioned strings
      */
     [[nodiscard]] static std::vector<std::string> partition(std::string str);
 
+    /**
+     * Compare equality by each field in the input device.
+     *
+     * @param other compare to
+     * @return whether devices are equal
+     */
     bool operator==(const InputDevice &other) const = default;
 
 private:
@@ -84,52 +112,153 @@ private:
 };
 
 /**
- * A list of input devices used for formatting.
+ * A list of `evlist::InputDevice`.
  */
 class InputDevices {
 public:
+    /**
+     * The name of the header for the device name.
+     */
     static constexpr std::string_view HEADER_NAME = "NAME";
+
+    /**s
+     * The name of the header for the device path.
+     */
     static constexpr std::string_view HEADER_DEVICE_PATH = "DEVICE_PATH";
+
+    /**
+     * The name of the header for the by-id path.
+     */
     static constexpr std::string_view HEADER_BY_ID = "BY_ID";
+
+    /**
+     * The name of the header for the by-path path.
+     */
     static constexpr std::string_view HEADER_BY_PATH = "BY_PATH";
+
+    /**
+     * The name of the header for the capabilities.
+     */
     static constexpr std::string_view HEADER_CAPABILITIES = "CAPABILITIES";
 
     /**
      * Create input devices with the default format.
      *
-     * @param input_devices list of devices.
+     * @param input_devices list of devices
      */
     explicit InputDevices(std::vector<InputDevice> input_devices);
 
     /**
-     * Create an event device lister.
+     * Create input devices.
+     *
+     * @param output_format the output format
+     * @param input_devices list of devices
      */
     InputDevices(Format output_format, std::vector<InputDevice> input_devices);
 
     /**
-     * Filter the devices.
+     * Filter the devices so that only devices matching the filter remain.
      *
-     * @param filter filter by
-     * @param use_regex whether to compare using a regex
-     * @return InputDevices
+     * @param filter filter by a vector of pairs of the filter type and string.
+     *        This will only include devices that equal the string for a given
+     *        filter. Capabilities include devices where all the capabilities
+     *        match the filters.
+     * @param use_regex whether to compare using a regex instead of equality
+     * @return filtered input devices
      */
     InputDevices &filter(
         const std::vector<std::pair<Filter, std::string>> &filter,
         bool use_regex
     );
 
-    InputDevices &with_max_name_size(size_t max_name_size);
-    InputDevices &with_max_device_size(size_t max_device_size);
-    InputDevices &with_max_by_id_size(size_t max_by_id_size);
-    InputDevices &with_max_by_path_size(size_t max_by_path_size);
+    /**
+     * Set the maximum length of the device name field used for formatting
+     * `evlist::Format` table output.
+     *
+     * @param max_name_size new max name size
+     * @return this instance of `InputDevices`
+     */
+    InputDevices &with_max_name(size_t max_name_size);
+
+    /**
+     * Set the maximum length of the device path field used for formatting
+     * `evlist::Format` table output.
+     *
+     * @param max_device_size new max device size
+     * @return this instance of `InputDevices`
+     */
+    InputDevices &with_max_device_path(size_t max_device_size);
+
+    /**
+     * Set the maximum length of the by-id field used for formatting
+     * `evlist::Format` table output.
+     *
+     * @param max_by_id_size new max device size
+     * @return this instance of `InputDevices`
+     */
+    InputDevices &with_max_by_id(size_t max_by_id_size);
+
+    /**
+     * Set the maximum length of the by-path field used for formatting
+     * `evlist::Format` table output.
+     *
+     * @param max_by_path_size new max device size
+     * @return this instance of `InputDevices`
+     */
+    InputDevices &with_max_by_path(size_t max_by_path_size);
+
+    /**
+     * Set the underlying input devices.
+     *
+     * @param input_devices new input devices
+     * @return this instance of `InputDevices`
+     */
     InputDevices &with_input_devices(std::vector<InputDevice> input_devices);
 
+    /**
+     * Get the input devices.
+     *
+     * @return input devices
+     */
     [[nodiscard]] std::vector<InputDevice> devices() const;
-    [[nodiscard]] size_t max_name_size() const;
-    [[nodiscard]] size_t max_device_size() const;
-    [[nodiscard]] size_t max_by_id_size() const;
-    [[nodiscard]] size_t max_by_path_size() const;
 
+    /**
+     * Get the maximum length of the device name field used for formatting
+     * `evlist::Format` table output.
+     *
+     * @return max length of device name field
+     */
+    [[nodiscard]] size_t max_name() const;
+
+    /**
+     * Get the maximum length of the device name field used for formatting
+     * `evlist::Format` table output.
+     *
+     * @return max length of device path field
+     */
+    [[nodiscard]] size_t max_device_path() const;
+
+    /**
+     * Get the maximum length of the by-id field used for formatting
+     * `evlist::Format` table output.
+     *
+     * @return max length of by-id field
+     */
+    [[nodiscard]] size_t max_by_id() const;
+
+    /**
+     * Get the maximum length of the by-path field used for formatting
+     * `evlist::Format` table output.
+     *
+     * @return max length of by-path field
+     */
+    [[nodiscard]] size_t max_by_path() const;
+
+    /**
+     * Get the output format.
+     *
+     * @return output format
+     */
     [[nodiscard]] Format output_format() const;
 
 private:
@@ -184,6 +313,16 @@ bool InputDevices::filter_device(
     return true;
 }
 
+/**
+ * Compare two input devices using natural sorting where multi-digit numbers
+ * are treated as a single number.
+ *
+ * @param lhs compare with left input device
+ * @param rhs compare with right input device
+ * @return the
+ * [`std::strong_ordering`](https://en.cppreference.com/w/cpp/utility/compare/strong_ordering)
+ *         sort order
+ */
 inline auto operator<=>(const InputDevice &lhs, const InputDevice &rhs) {
     auto lhs_device = lhs.device_path().string();
     auto rhs_device = rhs.device_path().string();
@@ -205,12 +344,31 @@ inline auto operator<=>(const InputDevice &lhs, const InputDevice &rhs) {
 
 } // namespace evlist
 
+/**
+ * Defines the
+ * [`std:formatter`](https://en.cppreference.com/w/cpp/utility/format/formatter)
+ * for formatting `evlist::InputDevices`.
+ */
 template <>
 struct std::formatter<evlist::InputDevices> {
+    /**
+     * Parse the input devices by beginning a new iterator from the context.
+     *
+     * @param ctx formatting context
+     * @return output iterator
+     */
     static constexpr auto parse(const std::format_parse_context &ctx) {
         return ctx.begin();
     }
 
+    /**
+     * Format the input devices based on the output `Format`.
+     *
+     * @tparam Context context type
+     * @param devices input devices
+     * @param ctx context parameter
+     * @return iterator after formatting
+     */
     template <typename Context>
     // NOLINTNEXTLINE(runtime/references)
     constexpr auto format(const evlist::InputDevices &devices, Context &ctx)
@@ -242,13 +400,13 @@ struct std::formatter<evlist::InputDevices> {
                         ctx.out(),
                         "{:<{}}{: <{}}{: <{}}{: <{}}{}\n",
                         name,
-                        devices.max_name_size(),
+                        devices.max_name(),
                         device,
-                        devices.max_device_size(),
+                        devices.max_device_path(),
                         by_id,
-                        devices.max_by_id_size(),
+                        devices.max_by_id(),
                         by_path,
-                        devices.max_by_path_size(),
+                        devices.max_by_path(),
                         capabilities
                     );
                     break;

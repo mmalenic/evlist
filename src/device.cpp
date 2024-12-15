@@ -76,10 +76,10 @@ evlist::InputDevices::InputDevices(
 )
     : output_format_{output_format} {
     for (const auto& device : input_devices) {
-        with_max_name_size(device.name().length());
-        with_max_device_size(device.device_path().string().length());
-        with_max_by_id_size(device.by_id().value_or("").length());
-        with_max_by_path_size(device.by_path().value_or("").length());
+        with_max_name(device.name().length());
+        with_max_device_path(device.device_path().string().length());
+        with_max_by_id(device.by_id().value_or("").length());
+        with_max_by_path(device.by_path().value_or("").length());
     }
 
     with_input_devices(std::move(input_devices));
@@ -140,7 +140,7 @@ bool evlist::InputDevices::filter_equality(
     });
 }
 
-evlist::InputDevices& evlist::InputDevices::with_max_name_size(
+evlist::InputDevices& evlist::InputDevices::with_max_name(
     std::size_t max_name_size
 ) {
     max_name_size_ =
@@ -148,7 +148,7 @@ evlist::InputDevices& evlist::InputDevices::with_max_name_size(
     return *this;
 }
 
-evlist::InputDevices& evlist::InputDevices::with_max_device_size(
+evlist::InputDevices& evlist::InputDevices::with_max_device_path(
     std::size_t max_device_size
 ) {
     max_device_size_ =
@@ -156,7 +156,7 @@ evlist::InputDevices& evlist::InputDevices::with_max_device_size(
     return *this;
 }
 
-evlist::InputDevices& evlist::InputDevices::with_max_by_id_size(
+evlist::InputDevices& evlist::InputDevices::with_max_by_id(
     std::size_t max_by_id_size
 ) {
     max_by_id_size_ =
@@ -164,7 +164,7 @@ evlist::InputDevices& evlist::InputDevices::with_max_by_id_size(
     return *this;
 }
 
-evlist::InputDevices& evlist::InputDevices::with_max_by_path_size(
+evlist::InputDevices& evlist::InputDevices::with_max_by_path(
     std::size_t max_by_path_size
 ) {
     max_by_path_size_ =
@@ -183,19 +183,15 @@ std::vector<evlist::InputDevice> evlist::InputDevices::devices() const {
     return devices_;
 }
 
-std::size_t evlist::InputDevices::max_name_size() const {
-    return max_name_size_;
-}
+std::size_t evlist::InputDevices::max_name() const { return max_name_size_; }
 
-std::size_t evlist::InputDevices::max_device_size() const {
+std::size_t evlist::InputDevices::max_device_path() const {
     return max_device_size_;
 }
 
-std::size_t evlist::InputDevices::max_by_id_size() const {
-    return max_by_id_size_;
-}
+std::size_t evlist::InputDevices::max_by_id() const { return max_by_id_size_; }
 
-std::size_t evlist::InputDevices::max_by_path_size() const {
+std::size_t evlist::InputDevices::max_by_path() const {
     return max_by_path_size_;
 }
 

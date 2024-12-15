@@ -1,3 +1,9 @@
+/**
+ * @file list.h
+ *
+ * Contains definitions for listing input devices on the system.
+ */
+
 #ifndef EVLIST_LIST_H
 #define EVLIST_LIST_H
 
@@ -10,17 +16,27 @@
 
 #include "evlist/device.h"
 
+/**
+ * The namespace for this project.
+ */
 namespace evlist {
 
+/**
+ * List all input devices on the system.
+ */
 class InputDeviceLister {
 public:
     /**
-     * Create an event device lister.
+     * Create an event device lister with default values.
      */
     InputDeviceLister() = default;
 
     /**
      * Create an event device lister.
+     *
+     * @param output_format output format to
+     * @param use_regex whether to compare filters using regex
+     * @param filter filter output devices by
      */
     InputDeviceLister(
         Format output_format,
@@ -29,8 +45,11 @@ public:
     );
 
     /**
-     * list input devices.
-     * @return input devices list
+     * List all input devices on the system, applying filters if they
+     * were specified.
+     *
+     * @return the input devices list or a filesystem error if any error
+     *         occurred
      */
     [[nodiscard]] std::expected<InputDevices, fs::filesystem_error>
     list_input_devices() const;
@@ -47,31 +66,11 @@ private:
     std::string name_path_{"device/name"};
     std::map<uint32_t, std::string> event_names_{event_names()};
 
-    /**
-     * Check the symlink in path to see if they point to entry.
-     * @param entry
-     * @param path
-     * @return
-     */
     static std::expected<std::optional<fs::path>, fs::filesystem_error>
     check_symlink(const fs::path &entry, const fs::path &path) noexcept;
-
-    /**
-     * Create the event codes to name map.
-     * @return event codes to name map
-     */
     [[nodiscard]] static std::map<uint32_t, std::string> event_names();
 
-    /**
-     * Get name.
-     * @return name
-     */
     [[nodiscard]] std::string name(const fs::path &device) const;
-
-    /**
-     * Get capabilities. The underlying ioctl calls require elevated privileges.
-     * @return name
-     */
     [[nodiscard]] std::vector<std::string> capabilities(const fs::path &device
     ) const;
 };
