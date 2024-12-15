@@ -41,3 +41,6 @@ clean-cache:
 doc:
     git clone --depth 1 --branch v2.3.4 https://github.com/jothepro/doxygen-awesome-css.git build/doxygen-awesome-css || true
     doxygen
+
+ci-install:
+    pip install pre-commit
