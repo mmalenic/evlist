@@ -6,71 +6,71 @@
 #include <string>
 #include <vector>
 
+#include "common/common.h"
 #include "evlist/cli.h"
-#include "utils/evlist_test.h"
 
 #define STRINGIFY(x) #x
 
 TEST(InputDeviceTest, OrderWithAndWithoutSymlinks) {
     const evlist::InputDevice less{
-        "/dev/input/event0", "", "", "", evlist_test::create_capabilities()
+        "/dev/input/event0", "", "", "", evlist::create_capabilities()
     };
     const evlist::InputDevice greater{
-        "/dev/input/event3", {}, {}, "", evlist_test::create_capabilities()
+        "/dev/input/event3", {}, {}, "", evlist::create_capabilities()
     };
     ASSERT_LT(less, greater);
 }
 
 TEST(InputDeviceTest, OrderBothWithSymlinks) {
     const evlist::InputDevice less{
-        "/dev/input/event3", "", "", "", evlist_test::create_capabilities()
+        "/dev/input/event3", "", "", "", evlist::create_capabilities()
     };
     const evlist::InputDevice greater{
-        "/dev/input/event4", "", "", "", evlist_test::create_capabilities()
+        "/dev/input/event4", "", "", "", evlist::create_capabilities()
     };
     ASSERT_LT(less, greater);
 }
 
 TEST(InputDeviceTest, OrderBothWithoutSymlinks) {
     const evlist::InputDevice less{
-        "/dev/input/event3", {}, {}, "", evlist_test::create_capabilities()
+        "/dev/input/event3", {}, {}, "", evlist::create_capabilities()
     };
     const evlist::InputDevice greater{
-        "/dev/input/event4", {}, {}, "", evlist_test::create_capabilities()
+        "/dev/input/event4", {}, {}, "", evlist::create_capabilities()
     };
     ASSERT_LT(less, greater);
 }
 
 TEST(InputDeviceTest, OrderBothNaturalSort) {
     const evlist::InputDevice less{
-        "/dev/input/event3", {}, {}, "", evlist_test::create_capabilities()
+        "/dev/input/event3", {}, {}, "", evlist::create_capabilities()
     };
     const evlist::InputDevice greater{
-        "/dev/input/event10", {}, {}, "", evlist_test::create_capabilities()
+        "/dev/input/event10", {}, {}, "", evlist::create_capabilities()
     };
 
     ASSERT_LT(less, greater);
 }
 
 TEST(InputDeviceTest, Filter) {
-    auto capabilities_first = evlist_test::create_capabilities();
+    auto capabilities_first = evlist::create_capabilities();
     capabilities_first.emplace_back(STRINGIFY(EV_LED));
     const evlist::InputDevice first{
-        "/dev/input/event3", {"by_id_3"}, {"by_path_3"}, "3", capabilities_first
+        "/dev/input/event3", "3", {"by_id_3"}, {"by_path_3"}, capabilities_first
     };
     const evlist::InputDevice second{
         "/dev/input/event10",
+        "10",
         {"by_id_10"},
         {"by_path_10"},
-        "10",
-        evlist_test::create_capabilities()
+        evlist::create_capabilities()
     };
     const evlist::InputDevice third{
         "/dev/input/event11",
+        "11",
         {"by_id_2_10"},
         {"by_path_2_10"},
-        "11",
-        evlist_test::create_capabilities()
+        evlist::create_capabilities()
     };
 
     auto path = evlist::InputDevices{std::vector{first, second, third}};
@@ -185,7 +185,7 @@ TEST(InputDeviceTest, Filter) {
 
 TEST(InputDeviceTest, Format) {
     std::string input{"event"};
-    auto capabilities = evlist_test::create_capabilities();
+    auto capabilities = evlist::create_capabilities();
 
     const evlist::InputDevices devices_table{
         evlist::Format::TABLE, {{input, input, input, input, capabilities}}

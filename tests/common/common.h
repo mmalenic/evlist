@@ -9,13 +9,13 @@
 #include "evlist/device.h"
 #include "evlist/list.h"
 
-namespace evlist_test {
+namespace evlist {
 
 namespace fs = std::filesystem;
 
 void check_devices(auto &&get_device) {
-    const evlist::InputDevices devices =
-        evlist::InputDeviceLister{}.list_input_devices().value();
+    const InputDevices devices =
+        InputDeviceLister{}.list_input_devices().value();
 
     std::vector<bool> results{};
     for (auto &device : devices.devices()) {
@@ -23,8 +23,8 @@ void check_devices(auto &&get_device) {
         if (name.has_value()) {
             const fs::path path{name.value()};
             results.emplace_back(
-                fs::is_symlink(path) && fs::read_symlink(path).filename() ==
-                                            device.device_path().filename()
+                fs::is_symlink(path) & fs::read_symlink(path).filename() ==
+                                           device.device_path().filename()
             );
         }
     }
@@ -35,6 +35,6 @@ void check_devices(auto &&get_device) {
 }
 
 std::vector<std::string> create_capabilities();
-} // namespace evlist_test
+} // namespace evlist
 
 #endif // EVLIST_UTILS_TEST_H

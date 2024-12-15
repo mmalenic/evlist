@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "common/common.h"
 #include "evlist/device.h"
-#include "utils/evlist_test.h"
 
 namespace fs = std::filesystem;
 
@@ -39,9 +39,9 @@ TEST(InputDeviceListerTest, ElevatedContainsAllDevices) {
 }
 
 TEST(InputDeviceListerTest, ElevatedContainsAllIdSymlinks) {
-    evlist_test::check_devices([](auto &device) { return device.by_id(); });
+    evlist::check_devices([](auto &device) { return device.by_id(); });
 }
 
 TEST(InputDeviceListerTest, ElevatedContainsAllPathSymlinks) {
-    evlist_test::check_devices([](auto &device) { return device.by_path(); });
+    evlist::check_devices([](auto &device) { return device.by_path(); });
 }

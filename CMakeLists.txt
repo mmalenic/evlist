@@ -41,9 +41,8 @@ if(BUILD_TESTING)
   set(TEST_EXECUTABLE_NAME evlisttest)
 
   add_executable(
-    ${TEST_EXECUTABLE_NAME}
-    tests/list_test.cpp tests/device_test.cpp tests/utils/evlist_test.h
-    tests/utils/evlist_test.cpp)
+    ${TEST_EXECUTABLE_NAME} tests/list_test.cpp tests/device_test.cpp
+                            tests/common/common.h tests/common/common.cpp)
   target_include_directories(${TEST_EXECUTABLE_NAME} PUBLIC tests)
 
   toolbelt_setup_gtest(${TEST_EXECUTABLE_NAME} ADD_LIBRARIES ${LIBRARY_NAME})
