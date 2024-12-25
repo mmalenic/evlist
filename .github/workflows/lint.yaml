@@ -11,9 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: mmalenic/evlist@main
-      - run: sudo apt-get update
-          sudo apt-get install just
-      - run: just ci-install
       - run: pre-commit run --all-files
       - run: gcc --version
       - run: cmake --version

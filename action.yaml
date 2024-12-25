@@ -7,14 +7,16 @@ runs:
       with:
         python-version: 3.13
     - name: install just
-      run: sudo apt-get update
+      run: |
+        sudo apt-get update
         sudo apt-get install just
       shell: bash
     - name: install python dependencies
       run: pip install pre-commit conan
       shell: bash
     - name: install clang
-      run: wget https://apt.llvm.org/llvm.sh
+      run: |
+        wget https://apt.llvm.org/llvm.sh
         chmod +x llvm.sh
         sudo ./llvm.sh $CLANG_VERSION
         sudo apt-get install clang-$CLANG_VERSION clang-tidy-$CLANG_VERSION
@@ -22,7 +24,8 @@ runs:
       env:
         CLANG_VERSION: 19
     - name: install gcc
-      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+      run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get update
         sudo apt-get install gcc-$GCC_VERSION g++-$GCC_VERSION
       shell: bash
