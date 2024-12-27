@@ -15,7 +15,11 @@ list(APPEND CMAKE_MODULE_PATH "${toolbelt_SOURCE_DIR}/src")
 include(toolbelt)
 
 if(RUN_CLANG_TIDY)
-  set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+  if(DEFINED CLANG_TIDY_EXECUTABLE)
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXECUTABLE}")
+  else()
+    set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+  endif ()
 endif()
 
 set(LIBRARY_NAME libevlist)
@@ -35,6 +39,11 @@ target_compile_definitions(${LIBRARY_NAME}
 target_compile_definitions(${LIBRARY_NAME}
                            PUBLIC EVLIST_COPYRIGHT="${LICENSE_COPYRIGHT}")
 target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_VERSION="0.1.0")
+
+message (${CMAKE_C_COMPILER})
+message (${CMAKE_CXX_COMPILER})
+message (${CMAKE_CXX_COMPILER_AR})
+message (${CMAKE_CXX_COMPILER_RANLIB})
 
 if(BUILD_TESTING)
   enable_testing()

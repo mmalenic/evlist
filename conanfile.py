@@ -10,8 +10,16 @@ class EvListRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps"
 
-    options = {"build_testing": [True, False], "run_clang_tidy": [True, False]}
-    default_options = {"build_testing": False, "run_clang_tidy": False}
+    options = {
+        "build_testing": [True, False],
+        "run_clang_tidy": [True, False],
+        "clang_tidy_executable": [None, "ANY"],
+    }
+    default_options = {
+        "build_testing": False,
+        "run_clang_tidy": False,
+        "clang_tidy_executable": None,
+    }
 
     def validate(self):
         if self.settings.compiler.cppstd:
@@ -22,8 +30,12 @@ class EvListRecipe(ConanFile):
 
         tc.variables["BUILD_TESTING"] = self.options["build_testing"]
         tc.variables["RUN_CLANG_TIDY"] = self.options["run_clang_tidy"]
+        tc.variables["CLANG_TIDY_EXECUTABLE"] = self.options["clang_tidy_executable"]
 
         tc.generate()
+
+    def package_info(self):
+        self.conf_info.define("tools.build:compiler_executables", {"cpp": "clang++-19"})
 
     def layout(self):
         cmake_layout(self)

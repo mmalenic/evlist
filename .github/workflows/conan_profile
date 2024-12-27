@@ -1,0 +1,4 @@
+include(default)
+
+[conf]
+tools.build:compiler_executables={'c': '{{ os.getenv("C_EXECUTABLE") }}', 'cpp': '{{ os.getenv("CPP_EXECUTABLE") }}'}

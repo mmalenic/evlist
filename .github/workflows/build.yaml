@@ -1,0 +1,24 @@
+name: build
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: dependencies
+        uses: mmalenic/evlist@main
+      - id: build-clang
+        run: just build Release -s compiler=clang -s compiler.version=${{ steps.dependencies.outputs.clang-version }} -pr ./.github/workflows/conan_profile
+        env:
+          C_EXECUTABLE: clang-${{ steps.dependencies.outputs.clang-version }}
+          CPP_EXECUTABLE: clang++-${{ steps.dependencies.outputs.clang-version }}
+      - id: build-gcc
+        run: just build Release -s compiler=gcc -s compiler.version=${{ steps.dependencies.outputs.gcc-version }} -pr ./.github/workflows/conan_profile
+        env:
+          C_EXECUTABLE: gcc-${{ steps.dependencies.outputs.gcc-version }}
+          CPP_EXECUTABLE: g++-${{ steps.dependencies.outputs.gcc-version }}

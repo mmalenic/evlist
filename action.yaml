@@ -1,33 +1,51 @@
 name: "Workflow setup for evlist"
 description: "Setup workflow dependencies for evlist"
+inputs:
+  clang-version:
+    description: 'clang version to install'
+    required: true
+    default: '19'
+  gcc-version:
+    description: 'gcc version to install'
+    required: true
+    default: '14'
+outputs:
+  clang-version:
+    description: 'clang version that was installed'
+    value: ${{ steps.clang.outputs.clang-version }}
+  gcc-version:
+    description: 'gcc version that was installed'
+    value: ${{ steps.gcc.outputs.gcc-version }}
 runs:
   using: "composite"
   steps:
     - uses: actions/setup-python@v5
       with:
         python-version: 3.13
-    - name: install just
+    - id: just
       run: |
         sudo apt-get update
         sudo apt-get install just
       shell: bash
-    - name: install python dependencies
+    - id: python
       run: pip install pre-commit conan
       shell: bash
-    - name: install clang
+    - id: clang
       run: |
         wget https://apt.llvm.org/llvm.sh
         chmod +x llvm.sh
         sudo ./llvm.sh $CLANG_VERSION
         sudo apt-get install clang-$CLANG_VERSION clang-tidy-$CLANG_VERSION
+        echo "clang-version=$(echo $CLANG_VERSION)" >> $GITHUB_OUTPUT
       shell: bash
       env:
-        CLANG_VERSION: 19
-    - name: install gcc
+        CLANG_VERSION: ${{ inputs.clang-version }}
+    - id: gcc
       run: |
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get update
         sudo apt-get install gcc-$GCC_VERSION g++-$GCC_VERSION
+        echo "gcc-version=$(echo $GCC_VERSION)" >> $GITHUB_OUTPUT
       shell: bash
       env:
-        GCC_VERSION: 14
+        GCC_VERSION: ${{ inputs.gcc-version }}
