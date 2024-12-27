@@ -36,10 +36,10 @@ target_compile_definitions(${LIBRARY_NAME}
                            PUBLIC EVLIST_COPYRIGHT="${LICENSE_COPYRIGHT}")
 target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_VERSION="0.1.0")
 
-message (${CMAKE_C_COMPILER})
-message (${CMAKE_CXX_COMPILER})
-message (${CMAKE_CXX_COMPILER_AR})
-message (${CMAKE_CXX_COMPILER_RANLIB})
+message(${CMAKE_C_COMPILER})
+message(${CMAKE_CXX_COMPILER})
+message(${CMAKE_CXX_COMPILER_AR})
+message(${CMAKE_CXX_COMPILER_RANLIB})
 
 if(BUILD_TESTING)
   enable_testing()

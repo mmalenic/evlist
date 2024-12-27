@@ -17,6 +17,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <utility>
 #include <vector>
@@ -130,7 +131,9 @@ std::string evlist::InputDeviceLister::name(const fs::path &device) const {
     std::string name{
         (std::istreambuf_iterator(file)), std::istreambuf_iterator<char>()
     };
-    name.erase(std::ranges::remove(name, '\n').cbegin(), name.cend());
+    name.erase(
+        std::ranges::begin(std::ranges::remove(name, '\n')), name.cend()
+    );
 
     return name;
 }

@@ -2,19 +2,19 @@ name: "Workflow setup for evlist"
 description: "Setup workflow dependencies for evlist"
 inputs:
   clang-version:
-    description: 'clang version to install'
+    description: "clang version to install"
     required: true
-    default: '19'
+    default: "19"
   gcc-version:
-    description: 'gcc version to install'
+    description: "gcc version to install"
     required: true
-    default: '14'
+    default: "14"
 outputs:
   clang-version:
-    description: 'clang version that was installed'
+    description: "clang version that was installed"
     value: ${{ steps.clang.outputs.clang-version }}
   gcc-version:
-    description: 'gcc version that was installed'
+    description: "gcc version that was installed"
     value: ${{ steps.gcc.outputs.gcc-version }}
 runs:
   using: "composite"

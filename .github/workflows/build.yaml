@@ -8,17 +8,19 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [{ c: clang, cpp: clang++ }, { c: gcc, cpp: g++ }]
     steps:
       - uses: actions/checkout@v4
       - id: dependencies
         uses: mmalenic/evlist@main
-      - id: build-clang
-        run: just build Release -s compiler=clang -s compiler.version=${{ steps.dependencies.outputs.clang-version }} -pr ./.github/workflows/conan_profile
+      - id: build-${{ matrix.compiler }}
+        run: >
+          just build Release
+          -s compiler=${{ matrix.compiler.cpp }}
+          -s compiler.version=${{ steps.dependencies.outputs.${{ matrix.compiler.cpp }}-version }}
+          -pr ./.github/workflows/conan_profile
         env:
-          C_EXECUTABLE: clang-${{ steps.dependencies.outputs.clang-version }}
-          CPP_EXECUTABLE: clang++-${{ steps.dependencies.outputs.clang-version }}
-      - id: build-gcc
-        run: just build Release -s compiler=gcc -s compiler.version=${{ steps.dependencies.outputs.gcc-version }} -pr ./.github/workflows/conan_profile
-        env:
-          C_EXECUTABLE: gcc-${{ steps.dependencies.outputs.gcc-version }}
-          CPP_EXECUTABLE: g++-${{ steps.dependencies.outputs.gcc-version }}
+          C_EXECUTABLE: ${{ matrix.compiler.c }}-${{ steps.dependencies.outputs.${{ matrix.compiler.c }}-version }}
+          CPP_EXECUTABLE: ${{ matrix.compiler.cpp }}++-${{ steps.dependencies.outputs.${{ matrix.compiler.c }}-version }}

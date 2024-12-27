@@ -8,6 +8,7 @@
 #define EVLIST_CLI_H
 
 #include <expected>
+#include <format>
 #include <map>
 #include <string>
 #include <utility>
@@ -127,8 +128,8 @@ private:
 
     template <typename T>
     static std::string format_enum(
-        std::string value_descriptor,
-        std::string enum_description,
+        const std::string& value_descriptor,
+        const std::string& enum_description,
         uint8_t first_ident,
         const std::map<T, std::string>& descriptions
     );
@@ -136,8 +137,8 @@ private:
 
 template <typename T>
 std::string Cli::format_enum(
-    std::string value_descriptor,
-    std::string enum_description,
+    const std::string& value_descriptor,
+    const std::string& enum_description,
     uint8_t first_ident,
     const std::map<T, std::string>& descriptions
 ) {
