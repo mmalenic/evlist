@@ -13,12 +13,10 @@ class EvListRecipe(ConanFile):
     options = {
         "build_testing": [True, False],
         "run_clang_tidy": [True, False],
-        "clang_tidy_executable": [None, "ANY"],
     }
     default_options = {
         "build_testing": False,
         "run_clang_tidy": False,
-        "clang_tidy_executable": None,
     }
 
     def validate(self):
@@ -30,7 +28,6 @@ class EvListRecipe(ConanFile):
 
         tc.variables["BUILD_TESTING"] = self.options["build_testing"]
         tc.variables["RUN_CLANG_TIDY"] = self.options["run_clang_tidy"]
-        tc.variables["CLANG_TIDY_EXECUTABLE"] = self.options["clang_tidy_executable"]
 
         tc.generate()
 
