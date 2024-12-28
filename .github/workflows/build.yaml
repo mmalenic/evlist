@@ -19,8 +19,8 @@ jobs:
         run: >
           just build Release
           -s compiler=${{ matrix.compiler.c }}
-          -s compiler.version=${{ format('steps.dependencies.outputs.{0}-version', matrix.compiler.c) }}
+          -s compiler.version=${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
           -pr ./.github/workflows/conan_profile
         env:
-          C_EXECUTABLE: ${{ matrix.compiler.c }}-${{ format('steps.dependencies.outputs.{0}-version', matrix.compiler.c) }}
-          CPP_EXECUTABLE: ${{ matrix.compiler.cpp }}-${{ format('steps.dependencies.outputs.{0}-version', matrix.compiler.c) }}
+          C_EXECUTABLE: ${{ matrix.compiler.c }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
+          CPP_EXECUTABLE: ${{ matrix.compiler.cpp }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
