@@ -1,4 +1,4 @@
-name: build
+name: test
 on:
   push:
     branches:
@@ -15,9 +15,10 @@ jobs:
       - uses: actions/checkout@v4
       - id: dependencies
         uses: mmalenic/evlist@main
-      - id: build
+      - id: test
         run: >
-          just build Release
+          just test Release
+          -o build_testing=True
           -s compiler=${{ matrix.compiler.c }}
           -s compiler.version=${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
           -pr ./.github/workflows/conan_profile
