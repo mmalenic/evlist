@@ -15,8 +15,14 @@ list(APPEND CMAKE_MODULE_PATH "${toolbelt_SOURCE_DIR}/src")
 include(toolbelt)
 
 if(RUN_CLANG_TIDY)
-  set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+  if(DEFINED CLANG_TIDY_EXECUTABLE)
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXECUTABLE}")
+  else()
+    set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+  endif()
 endif()
+
+message("${CMAKE_CXX_CLANG_TIDY}")
 
 set(LIBRARY_NAME libevlist)
 add_library(
