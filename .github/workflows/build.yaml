@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - id: dependencies
         uses: mmalenic/evlist@main
-      - id: build-${{ matrix.compiler.c }}
+      - id: build
         run: >
           just build Release
           -s compiler=${{ matrix.compiler.c }}
