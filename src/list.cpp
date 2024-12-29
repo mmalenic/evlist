@@ -39,6 +39,7 @@ evlist::InputDeviceLister::InputDeviceLister(
 std::expected<evlist::InputDevices, std::filesystem::filesystem_error>
 evlist::InputDeviceLister::list_input_devices() const {
     std::vector<InputDevice> devices{};
+
     for (const auto &entry : fs::directory_iterator(input_directory_)) {
         if (entry.is_character_file() &&
             entry.path().filename().string().contains("event")) {

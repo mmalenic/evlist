@@ -20,7 +20,11 @@ run args='--help' build_type='Release' *build_options='': (build build_type buil
 
 # Build and test evlist.
 test build_type='Debug' *build_options='-o build_testing=True': (build build_type build_options)
-    cd build/{{ capitalize(build_type) }} && ctest
+    cd build/{{ capitalize(build_type) }} && ./evlisttest --gtest_filter=-InputDeviceLister*
+
+# Build an test evlist integration tests
+test-integration build_type='Debug' *build_options='-o build_testing=True': (build build_type build_options)
+    cd build/{{ capitalize(build_type) }} && sudo ./evlisttest --gtest_filter=InputDeviceLister*
 
 # Run pre-commit and other lints.
 lint:
