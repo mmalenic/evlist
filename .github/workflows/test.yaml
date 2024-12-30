@@ -25,4 +25,4 @@ jobs:
         env:
           C_EXECUTABLE: ${{ matrix.compiler.c }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
           CPP_EXECUTABLE: ${{ matrix.compiler.cpp }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-          CXX_FLAGS: ${{ matrix.compiler.c == 'clang' && '['-fsanitize=address,undefined,leak,integer', '-Wall', '-Wextra', '-Wpedantic', '-Werror']' || '' }}
+          CXX_FLAGS: ${{ matrix.compiler.c == 'clang' && '["-fsanitize=address,undefined,leak,integer", "-Wall", "-Wextra", "-Wpedantic", "-Werror"]' || '' }}
