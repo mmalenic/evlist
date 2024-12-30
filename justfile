@@ -36,13 +36,13 @@ test-integration build_type='Debug' *build_options='-o build_testing=True': (bui
 valgrind := "valgrind --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1"
 
 # Build and test evlist using address sanitization and valgrind memcheck
-memcheck build_type='Debug': (build build_type)
+memcheck build_type='Debug' *build_options='': (build build_type build_options)
     cd build/{{ capitalize(build_type) }} && \
     valgrind  {{ valgrind }} \
     ./evlisttest --gtest_filter=-InputDeviceLister*
 
 # Build and test evlist integration tests
-integration-memcheck build_type='Debug': (build build_type)
+integration-memcheck build_type='Debug' *build_options='': (build build_type build_options)
     cd build/{{ capitalize(build_type) }} && \
     sudo {{ valgrind }} \
     ./evlisttest --gtest_filter=InputDeviceLister*
