@@ -22,10 +22,10 @@ runs:
     - uses: actions/setup-python@v5
       with:
         python-version: 3.13
-    - id: just
+    - id: apt
       run: |
         sudo apt-get update
-        sudo apt-get install just
+        sudo apt-get install just valgrind
       shell: bash
     - id: python
       run: pip install pre-commit conan

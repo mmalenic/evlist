@@ -14,6 +14,12 @@ build build_type='Debug' *build_options='': profile clean-cache
 rebuild build_type='Debug':
     cd build/{{ capitalize(build_type) }} && cmake --build .
 
+# Build using address sanitization and all checks. Expects clang as the compiler.
+build-asan build_type='Debug' *build_options='''-o build_testing=True -s compiler=clang -s compiler.version=19 \
+    -c tools.build:compiler_executables="{'cpp': 'clang++', 'c': 'clang'}" \
+    -c tools.build:cxxflags="['-fsanitize=address,undefined,leak,integer', '-Wall', '-Wextra', '-Wpedantic', '-Werror']"''': \
+    (build build_type build_options)
+
 # Build and run evlist.
 run args='--help' build_type='Release' *build_options='': (build build_type build_options)
     cd build/{{ capitalize(build_type) }} && ./evlist {{args}}
@@ -25,6 +31,21 @@ test build_type='Debug' *build_options='-o build_testing=True': (build build_typ
 # Build an test evlist integration tests
 test-integration build_type='Debug' *build_options='-o build_testing=True': (build build_type build_options)
     cd build/{{ capitalize(build_type) }} && sudo ./evlisttest --gtest_filter=InputDeviceLister*
+
+# Default valgrind command
+valgrind := "valgrind --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1"
+
+# Build and test evlist using address sanitization and valgrind memcheck
+memcheck build_type='Debug': (build build_type)
+    cd build/{{ capitalize(build_type) }} && \
+    valgrind  {{ valgrind }} \
+    ./evlisttest --gtest_filter=-InputDeviceLister*
+
+# Build and test evlist integration tests
+integration-memcheck build_type='Debug': (build build_type)
+    cd build/{{ capitalize(build_type) }} && \
+    sudo {{ valgrind }} \
+    ./evlisttest --gtest_filter=InputDeviceLister*
 
 # Run pre-commit and other lints.
 lint:

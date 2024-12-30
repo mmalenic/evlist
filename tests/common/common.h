@@ -23,8 +23,8 @@ void check_devices(auto &&get_device) {
         if (name.has_value()) {
             const fs::path path{name.value()};
             results.emplace_back(
-                fs::is_symlink(path) & fs::read_symlink(path).filename() ==
-                                           device.device_path().filename()
+                fs::is_symlink(path) && fs::read_symlink(path).filename() ==
+                                            device.device_path().filename()
             );
         }
     }

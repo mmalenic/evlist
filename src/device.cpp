@@ -55,7 +55,7 @@ std::vector<std::string> evlist::InputDevice::partition(std::string str) {
 
     std::vector<std::string> result{};
     result.emplace_back(std::string{str[0]});
-    for (auto i = 1; i < str.length(); i++) {
+    for (std::size_t i = 1; i < str.length(); i++) {
         auto prev = str[i - 1];
         auto curr = str[i];
         if (std::isdigit(prev) != 0 && std::isdigit(curr) != 0) {
