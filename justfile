@@ -8,17 +8,11 @@ update:
 
 # Build evlist.
 build build_type='Debug' *build_options='': profile clean-cache
-    conan build . -s build_type={{ capitalize(build_type) }} -s compiler.cppstd=23 {{build_options}} --build=missing
+    conan build . -s build_type={{ capitalize(build_type) }} -s compiler.cppstd=23 {{build_options}} --build=*
 
 # Rebuild evlist using the existing CMake directory.
 rebuild build_type='Debug':
     cd build/{{ capitalize(build_type) }} && cmake --build .
-
-# Build using address sanitization and all checks. Expects clang as the compiler.
-build-asan build_type='Debug' *build_options='''-o build_testing=True -s compiler=clang -s compiler.version=19 \
-    -c tools.build:compiler_executables="{'cpp': 'clang++', 'c': 'clang'}" \
-    -c tools.build:cxxflags="['-fsanitize=address,undefined,leak,integer', '-Wall', '-Wextra', '-Wpedantic', '-Werror']"''': \
-    (build build_type build_options)
 
 # Build and run evlist.
 run args='--help' build_type='Release' *build_options='': (build build_type build_options)
@@ -38,7 +32,7 @@ valgrind := "valgrind --leak-check=full --show-leak-kinds=all --errors-for-leak-
 # Build and test evlist using address sanitization and valgrind memcheck
 memcheck build_type='Debug' *build_options='': (build build_type build_options)
     cd build/{{ capitalize(build_type) }} && \
-    valgrind  {{ valgrind }} \
+    {{ valgrind }} \
     ./evlisttest --gtest_filter=-InputDeviceLister*
 
 # Build and test evlist integration tests
