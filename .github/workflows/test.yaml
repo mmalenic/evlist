@@ -5,11 +5,6 @@ on:
       - main
   pull_request:
 
-env:
-  C_EXECUTABLE: ${{ matrix.compiler.c }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-  CPP_EXECUTABLE: ${{ matrix.compiler.cpp }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-  CLANG_VERSION: ${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -22,6 +17,8 @@ jobs:
         uses: mmalenic/evlist@main
       - id: clang-ref
         run: echo "clang-ref=$(clang-$CLANG_VERSION --version | grep -Po '\d.\d.\d' | head -1)" >> $GITHUB_OUTPUT
+        env:
+          CLANG_VERSION: ${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
       - id: checkout-llvm
         uses: actions/checkout@v4
         with:
@@ -48,6 +45,8 @@ jobs:
           -s compiler.version=$CLANG_VERSION
           -pr ./.github/workflows/conan_profile
         env:
+          C_EXECUTABLE: ${{ matrix.compiler.c }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
+          CPP_EXECUTABLE: ${{ matrix.compiler.cpp }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
           CXX_FLAGS: '["-Wall", "-Wextra", "-Wpedantic", "-Werror"]'
       - id: test-asan
         run: >
@@ -57,6 +56,8 @@ jobs:
           -s compiler.version=$CLANG_VERSION
           -pr ./.github/workflows/conan_profile
         env:
+          C_EXECUTABLE: ${{ matrix.compiler.c }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
+          CPP_EXECUTABLE: ${{ matrix.compiler.cpp }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
           CXX_FLAGS: >
             ${{ matrix.compiler.c == 'clang' && format('[
             "-fsanitize=address,undefined,leak,integer", "-nostdinc++", "-stdlib=libc++", "-lc++abi", "-v",
@@ -71,6 +72,8 @@ jobs:
           -s compiler.version=$CLANG_VERSION
           -pr ./.github/workflows/conan_profile
         env:
+          C_EXECUTABLE: ${{ matrix.compiler.c }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
+          CPP_EXECUTABLE: ${{ matrix.compiler.cpp }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
           CXX_FLAGS: >
             ${{ matrix.compiler.c == 'clang' && format('[
             "-fsanitize=memory", "-nostdinc++", "-stdlib=libc++", "-lc++abi", "-v", "-I{0}/include",
