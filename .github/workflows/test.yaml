@@ -8,6 +8,7 @@ on:
 env:
   C_EXECUTABLE: ${{ matrix.compiler.c }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
   CPP_EXECUTABLE: ${{ matrix.compiler.cpp }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
+  CLANG_VERSION: ${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
 
 jobs:
   ci:
@@ -19,21 +20,59 @@ jobs:
       - uses: actions/checkout@v4
       - id: dependencies
         uses: mmalenic/evlist@main
+      - id: clang-ref
+        run: echo "clang-ref=$(clang-$CLANG_VERSION --version | grep -Po '\d.\d.\d' | head -1)" >> $GITHUB_OUTPUT
+      - id: checkout-llvm
+        uses: actions/checkout@v4
+        with:
+          repository: llvm/llvm-project
+          ref: ${{ steps.clang-ref.outputs.clang-ref }}
+          path: ./llvm
+      - id: build-asan
+        run: |
+          cmake -G Ninja -S runtimes -B build_asan -DCMAKE_BUILD_TYPE=Debug -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" -DLLVM_USE_SANITIZER="Address;Undefined"
+          ninja -C build cxx cxxabi
+          echo "build-asan=$(realpath build_asan)" >> $GITHUB_OUTPUT
+        working-directory: ./llvm
+      - id: build-msan
+        run: |
+          cmake -G Ninja -S runtimes -B build_msan -DCMAKE_BUILD_TYPE=Debug -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" -DLLVM_USE_SANITIZER="MemoryWithOrigins"
+          ninja -C build cxx cxxabi
+          echo "build-asan=$(realpath build_msan)" >> $GITHUB_OUTPUT
+        working-directory: ./llvm
       - id: test-valgrind
         run: >
           just memcheck Debug
           -o build_testing=True
           -s compiler=${{ matrix.compiler.c }}
-          -s compiler.version=${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
+          -s compiler.version=$CLANG_VERSION
           -pr ./.github/workflows/conan_profile
         env:
-          CXX_FLAGS: '[]'
+          CXX_FLAGS: '["-Wall", "-Wextra", "-Wpedantic", "-Werror"]'
       - id: test-asan
         run: >
           just test Debug
           -o build_testing=True
           -s compiler=${{ matrix.compiler.c }}
-          -s compiler.version=${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
+          -s compiler.version=$CLANG_VERSION
           -pr ./.github/workflows/conan_profile
         env:
-          CXX_FLAGS: ${{ matrix.compiler.c == 'clang' && '["-fsanitize=address,undefined,leak,integer", "-Wall", "-Wextra", "-Wpedantic"]' || '[]' }}
+          CXX_FLAGS: >
+            ${{ matrix.compiler.c == 'clang' && format('[
+            "-fsanitize=address,undefined,leak,integer", "-nostdinc++", "-stdlib=libc++", "-lc++abi", "-v",
+            "-I{0}/include", "-I{0}/include/c++/v1",
+            "-Wl,--rpath={0}/lib"
+            ]', steps.build-asan.outputs.build-asan) || '[]' }}
+      - id: test-msan
+        run: >
+          just test Debug
+          -o build_testing=True
+          -s compiler=${{ matrix.compiler.c }}
+          -s compiler.version=$CLANG_VERSION
+          -pr ./.github/workflows/conan_profile
+        env:
+          CXX_FLAGS: >
+            ${{ matrix.compiler.c == 'clang' && format('[
+            "-fsanitize=memory", "-nostdinc++", "-stdlib=libc++", "-lc++abi", "-v", "-I{0}/include",
+            "-I{0}/include/c++/v1", "-Wl,--rpath={0}/lib"
+            ]', steps.build-msan.outputs.build-msan) || '[]' }}

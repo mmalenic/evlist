@@ -25,11 +25,20 @@ runs:
     - id: apt
       run: |
         sudo apt-get update
-        sudo apt-get install just valgrind
+        sudo apt-get install just valgrind ninja-build
       shell: bash
     - id: python
       run: pip install pre-commit conan
       shell: bash
+    - id: gcc
+      run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get update
+        sudo apt-get install gcc-$GCC_VERSION g++-$GCC_VERSION
+        echo "gcc-version=$(echo $GCC_VERSION)" >> $GITHUB_OUTPUT
+      shell: bash
+      env:
+        GCC_VERSION: ${{ inputs.gcc-version }}
     - id: clang
       run: |
         wget https://apt.llvm.org/llvm.sh
@@ -40,12 +49,3 @@ runs:
       shell: bash
       env:
         CLANG_VERSION: ${{ inputs.clang-version }}
-    - id: gcc
-      run: |
-        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-        sudo apt-get update
-        sudo apt-get install gcc-$GCC_VERSION g++-$GCC_VERSION
-        echo "gcc-version=$(echo $GCC_VERSION)" >> $GITHUB_OUTPUT
-      shell: bash
-      env:
-        GCC_VERSION: ${{ inputs.gcc-version }}
