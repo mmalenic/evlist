@@ -100,3 +100,15 @@ test-asan filter='*' clang_version='19': (build-msan clang_version) \
 # Remove the built asan directory.
 clean-asan: clean-cache
     rm -rf llvm-project/build-asan
+
+# Build llvm cxx and cxxabi with the thread sanitizer
+build-tsan clang_version='19': (build-llvm "build-tsan" "libcxx;libcxxabi;libunwind" "Thread" "cxx cxxabi" clang_version)
+
+# Run tests with the thread sanitizer
+test-tsan filter='*' clang_version='19': (build-tsan clang_version) \
+    (test-llvm "build-tsan" "'-fsanitize=thread','-g'" "IGNORED" filter clang_version)
+
+# Remove the built tsan directory.
+clean-tsan: clean-cache
+    rm -rf llvm-project/build-tsan
+
