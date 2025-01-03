@@ -8,7 +8,7 @@ update:
 
 # Build evlist.
 build build_type='Debug' *build_options='': profile clean-cache
-    conan build . -s build_type={{ capitalize(build_type) }} -s compiler.cppstd=23 {{build_options}} --build=*
+    conan build . -s build_type={{ capitalize(build_type) }} -s compiler.cppstd=23 {{build_options}} --build=missing
 
 # Rebuild evlist using the existing CMake directory.
 rebuild build_type='Debug':
@@ -60,3 +60,96 @@ clean-cache:
 doc:
     git clone --depth 1 --branch v2.3.4 https://github.com/jothepro/doxygen-awesome-css.git build/doxygen-awesome-css || true
     doxygen
+
+# Fetch the llvm repo for building sanitized binaries.
+fetch-llvm clang_version='19':
+    #!/usr/bin/env bash
+    set -euxo pipefail
+
+    if [ -d "llvm-project" ]; then
+        echo "llvm already fetched - skipping"
+    else
+        version=$(clang-{{ clang_version }} --version | grep -Po '(\d+).(\d+).(\d+)' | head -1)
+        git clone --depth 1 --branch llvmorg-"$version" https://github.com/llvm/llvm-project.git
+    fi
+
+# Build llvm with options
+build-llvm dir runtimes use_sanitizer targets clang_version='19': (fetch-llvm clang_version)
+    #!/usr/bin/env bash
+    set -euxo pipefail
+
+    cd llvm-project
+
+    if [ -d "{{ dir }}" ]; then
+        echo "llvm at {{ dir }} already built - skipping"
+    else
+        CC=clang-{{ clang_version }} CXX=clang++-{{ clang_version }} \
+            cmake -G Ninja -S runtimes -B {{ dir }} \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DLLVM_ENABLE_RUNTIMES="{{ runtimes }}" \
+            -DLLVM_USE_SANITIZER="{{ use_sanitizer }}"
+        ninja -C {{ dir }} {{ targets }}
+    fi
+
+build-with-clang flags clang_version='19':
+    #!/usr/bin/env bash
+    set -euxo pipefail
+
+    just build Debug -o build_testing=True --build=* \
+        -s compiler=clang \
+        -s compiler.version={{ clang_version }} \
+        -c tools.build:cxxflags="\"{{ flags }}\"" \
+        -c tools.build:cflags="\"{{ flags }}\"" \
+        -c tools.build:compiler_executables="\"{'c':'clang-{{ clang_version }}','cpp':'clang++-{{ clang_version }}'}\""
+
+# Create the ignorelist for sanitizer tests to ignore non-project code.
+create-ignore-list dir:
+    build_dir=$(realpath build/Debug) && mkdir -p build_dir && echo "src:{{ dir }}/*" >> $build_dir/ignorelist.txt
+
+# Build llvm cxx and cxxabi with the memory sanitizer
+build-msan clang_version='19': (build-llvm "build-msan" "libcxx;libcxxabi;libunwind" "MemoryWithOrigins" "cxx cxxabi" clang_version)
+
+# Run tests with the memory sanitizer
+test-msan filter='-InputDeviceLister*' clang_version='19': (build-msan clang_version)
+    #!/usr/bin/env bash
+    set -euxo pipefail
+
+    dir=$(realpath llvm-project/build-msan)
+    just create-ignore-list "$dir"
+
+    flags="[\
+        '-fsanitize=memory','-nostdinc++','-stdlib=libc++','-lc++abi','-fno-omit-frame-pointer',\
+        '-L$dir/lib','-I$dir/include','-I$dir/include/c++/v1','-Wl,--rpath=$dir/lib','-fsanitize-ignorelist=$(realpath build/Debug)/ignorelist.txt'\
+    ]"
+
+    just build-with-clang "$flags" {{ clang_version }}
+
+    cd build/Debug && MSAN_SYMBOLIZER_PATH=llvm-symbolizer-{{ clang_version }} ./evlisttest --gtest_filter={{ filter }}
+
+# Remove the built msan directory.
+clean-msan: clean-cache
+    rm -rf llvm-project/build-msan
+
+# Build llvm cxx and cxxabi with the address sanitizer
+build-asan clang_version='19': (build-llvm "build-asan" "libcxx;libcxxabi;libunwind" "Address;Undefined" "cxx cxxabi" clang_version)
+
+# Run tests with the address sanitizer
+test-asan filter='-InputDeviceLister*' clang_version='19': (build-msan clang_version)
+    #!/usr/bin/env bash
+    set -euxo pipefail
+
+    dir=$(realpath llvm-project/build-asan)
+    just create-ignore-list "$dir"
+
+    flags="[\
+        '-fsanitize=address,undefined,leak,integer','-nostdinc++','-stdlib=libc++','-lc++abi',\
+        '-L$dir/lib','-I$dir/include','-I$dir/include/c++/v1','-Wl,--rpath=$dir/lib','-fsanitize-ignorelist=$(realpath build/Debug)/ignorelist.txt'\
+    ]"
+
+    just build-with-clang "$flags" {{ clang_version }}
+
+    cd build/Debug && ASAN_SYMBOLIZER_PATH=llvm-symbolizer-{{ clang_version }} ./evlisttest --gtest_filter={{ filter }}
+
+# Remove the built asan directory.
+clean-asan: clean-cache
+    rm -rf llvm-project/build-asan

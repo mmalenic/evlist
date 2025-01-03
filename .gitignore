@@ -1,3 +1,4 @@
 /build/
 /cmake-build-*/
 /CMakeUserPresets.json
+/llvm-project/
