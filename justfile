@@ -22,7 +22,7 @@ run args='--help' build_type='Release' *build_options='': (build build_type buil
 
 # Build and test evlist.
 test filter='*': (build 'Debug' '-o build_testing=True')
-    cd build/{{ capitalize(build_type) }} && ./evlisttest --gtest_filter={{ filter }}
+    cd build/Debug && ./evlisttest --gtest_filter={{ filter }}
 
 # Run pre-commit and other lints.
 lint:

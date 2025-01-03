@@ -41,12 +41,6 @@ build-with-clang flags clang_version='19':
         -c tools.build:cflags="\"{{ flags }}\"" \
         -c tools.build:compiler_executables="\"{'c':'clang-{{ clang_version }}','cpp':'clang++-{{ clang_version }}'}\""
 
-# Run tests with the memory sanitizer
-test-valgrind filter='*': (build 'Debug' '-o build_testing=True')
-    cd build/Debug && \
-        valgrind --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1  \
-        ./evlisttest --gtest_filter={{ filter }}
-
 # Create the ignorelist for sanitizer tests to ignore non-project code.
 create-ignore-list dir:
     mkdir -p build/Debug && echo "src:{{ dir }}/*" >> build/Debug/ignorelist.txt
@@ -61,27 +55,36 @@ error-non-empty-log:
         exit 1
     fi
 
-# Build llvm cxx and cxxabi with the memory sanitizer
-build-msan clang_version='19': (build-llvm "build-msan" "libcxx;libcxxabi;libunwind" "MemoryWithOrigins" "cxx cxxabi" clang_version)
-
-# Run tests with the memory sanitizer
-test-msan filter='*' clang_version='19': (build-msan clang_version)
+# Test using an llvm sanitizer build directory.
+test-llvm dir extra_flags symbolizer_path filter='*' clang_version='19':
     #!/usr/bin/env bash
     set -euxo pipefail
 
-    dir=$(realpath llvm-project/build-msan)
+    dir=$(realpath llvm-project/{{ dir }})
     just create-ignore-list "$dir"
 
     flags="[\
-        '-fsanitize=memory','-nostdinc++','-stdlib=libc++','-lc++abi','-fno-omit-frame-pointer',\
-        '-L$dir/lib','-I$dir/include','-I$dir/include/c++/v1','-Wl,--rpath=$dir/lib',\
-        '-fsanitize-ignorelist=$(realpath build/Debug)/ignorelist.txt'\
+        '-nostdinc++','-stdlib=libc++','-lc++abi','-L$dir/lib','-I$dir/include','-I$dir/include/c++/v1',\
+        '-Wl,--rpath=$dir/lib','-fsanitize-ignorelist=$(realpath build/Debug)/ignorelist.txt',{{ extra_flags }}\
     ]"
 
     just build-with-clang "$flags" {{ clang_version }}
 
-    cd build/Debug && MSAN_SYMBOLIZER_PATH=llvm-symbolizer-{{ clang_version }} ./evlisttest --gtest_filter={{ filter }} 2> log
+    cd build/Debug && {{ symbolizer_path }}=llvm-symbolizer-{{ clang_version }} ./evlisttest --gtest_filter={{ filter }} 2> log
     just error-non-empty-log
+
+# Run tests with the memory sanitizer
+test-valgrind filter='*': (build 'Debug' '-o build_testing=True')
+    cd build/Debug && \
+        valgrind --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1  \
+        ./evlisttest --gtest_filter={{ filter }}
+
+# Build llvm cxx and cxxabi with the memory sanitizer
+build-msan clang_version='19': (build-llvm "build-msan" "libcxx;libcxxabi;libunwind" "MemoryWithOrigins" "cxx cxxabi" clang_version)
+
+# Run tests with the memory sanitizer
+test-msan filter='*' clang_version='19': (build-msan clang_version) \
+    (test-llvm "build-msan" "'-fsanitize=memory','-fno-omit-frame-pointer'" "MSAN_SYMBOLIZER_PATH" filter clang_version)
 
 # Remove the built msan directory.
 clean-msan: clean-cache
@@ -91,23 +94,8 @@ clean-msan: clean-cache
 build-asan clang_version='19': (build-llvm "build-asan" "libcxx;libcxxabi;libunwind" "Address;Undefined" "cxx cxxabi" clang_version)
 
 # Run tests with the address sanitizer
-test-asan filter='*' clang_version='19': (build-msan clang_version)
-    #!/usr/bin/env bash
-    set -euxo pipefail
-
-    dir=$(realpath llvm-project/build-asan)
-    just create-ignore-list "$dir"
-
-    flags="[\
-        '-fsanitize=address,undefined,leak,integer','-nostdinc++','-stdlib=libc++','-lc++abi',\
-        '-L$dir/lib','-I$dir/include','-I$dir/include/c++/v1','-Wl,--rpath=$dir/lib',\
-        '-fsanitize-ignorelist=$(realpath build/Debug)/ignorelist.txt'\
-    ]"
-
-    just build-with-clang "$flags" {{ clang_version }}
-
-    cd build/Debug && ASAN_SYMBOLIZER_PATH=llvm-symbolizer-{{ clang_version }} ./evlisttest --gtest_filter={{ filter }}
-    just error-non-empty-log
+test-asan filter='*' clang_version='19': (build-msan clang_version) \
+    (test-llvm "build-asan" "'-fsanitize=address,undefined,leak,integer'" "ASAN_SYMBOLIZER_PATH" filter clang_version)
 
 # Remove the built asan directory.
 clean-asan: clean-cache
