@@ -10,29 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        compiler: [{ c: clang, cpp: clang++ }, { c: gcc, cpp: g++ }]
+        compiler: [clang, gcc]
     steps:
       - uses: actions/checkout@v4
       - id: dependencies
         uses: mmalenic/evlist@main
-      - id: compiler-version
-        run: echo "compiler-version=${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}" >> $GITHUB_OUTPUT
       - id: test
-        run: just test -InputDeviceLister*
-        env:
-          CC: ${{ matrix.compiler.c }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-          CXX: ${{ matrix.compiler.cpp }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-      - id: test-valgrind
-        run: just test-valgrind -InputDeviceLister*
-        env:
-          CC: ${{ matrix.compiler.c }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-          CXX: ${{ matrix.compiler.cpp }}-${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-      - id: test-asan
-        if: ${{ matrix.compiler.c == 'clang' }}
-        run: just test-asan ${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-      - id: test-msan ${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-        if: ${{ matrix.compiler.c == 'clang' }}
-        run: just test-msan -InputDeviceLister* ${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
-      - id: test-tsan
-        if: ${{ matrix.compiler.c == 'clang' }}
-        run: just test-tsan ${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler.c)] }}
+        run: just test_${{ matrix.compiler }} -InputDeviceLister* ${{ steps.dependencies.outputs[format('{0}-version', matrix.compiler)] }}
