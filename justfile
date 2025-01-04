@@ -9,34 +9,55 @@ update:
     conan lock create .
 
 # Build evlist.
-build build_type='Debug' *build_options='': profile clean-cache
-    conan build . -s build_type={{ capitalize(build_type) }} -s compiler.cppstd=23 {{build_options}} --build=*
+build build_type='Debug' $COMPILER_VERSION='' *build_options='': profile clean_cache
+    conan build . --build=* -s build_type={{ capitalize(build_type) }} -s compiler.cppstd=23 {{ build_options }}
+
+# Build with the clang profile
+build_clang build_type='Debug' $COMPILER_VERSION='19' *build_options='': \
+    (build build_type COMPILER_VERSION '-pr ./profiles/clang ' + build_options)
+
+# Build with the gcc profile
+build_gcc build_type='Debug' $COMPILER_VERSION='14' *build_options='': \
+    (build build_type COMPILER_VERSION '-pr ./profiles/gcc ' + build_options)
 
 # Rebuild evlist using the existing CMake directory.
 rebuild build_type='Debug':
     cd build/{{ capitalize(build_type) }} && cmake --build .
 
 # Build and run evlist.
-run args='--help' build_type='Release' *build_options='': (build build_type build_options)
-    cd build/{{ capitalize(build_type) }} && ./evlist {{args}}
+run args='--help' build_type='Release' $COMPILER_VERSION='' *build_options='': \
+    (build build_type COMPILER_VERSION build_options)
+    cd build/{{ capitalize(build_type) }} && ./evlist {{ args }}
+
+_run_tests filter='*':
+    cd build/Debug && ./evlisttest --gtest_filter={{ filter }}
 
 # Build and test evlist.
-test filter='*': (build 'Debug' '-o build_testing=True')
-    cd build/Debug && ./evlisttest --gtest_filter={{ filter }}
+test filter='*' $COMPILER_VERSION='' *build_options='': \
+    (build 'Debug' COMPILER_VERSION '-o "&:build_testing=True" ' + build_options) (_run_tests filter)
+
+# Build and test evlist using the clang profile.
+test_clang filter='*' $COMPILER_VERSION='19' *build_options='': \
+    (build_clang 'Debug' COMPILER_VERSION '-o "&:build_testing=True" ' + build_options) (_run_tests filter)
+
+# Build and test evlist using the gcc profile.
+test_gcc filter='*' $COMPILER_VERSION='14' *build_options='': \
+    (build_gcc 'Debug' COMPILER_VERSION '-o "&:build_testing=True" ' + build_options) (_run_tests filter)
 
 # Run pre-commit and other lints.
 lint:
     pre-commit run --all-files
 
 # Run clang tidy on code.
-check: lint (build 'Debug' '-o build_testing=True -o run_clang_tidy=True')
+check $COMPILER_VERSION='' *build_options='': \
+    lint (build 'Debug' COMPILER_VERSION '-o "&:build_testing=True" -o "&:run_clang_tidy=True" ' + build_options)
 
 # Remove the build directory.
 clean:
     rm -rf build
 
 # Clean the CMakeCache.txt only.
-clean-cache:
+clean_cache:
     rm -f build/Debug/CMakeCache.txt && rm -f build/Release/CMakeCache.txt
 
 # Generate documentation.

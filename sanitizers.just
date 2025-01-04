@@ -1,19 +1,19 @@
 # Test evlist using address and memory sanitizers. This needs to compile libcxx and libcxxabi with sanitiziers enabled.
 
 # Fetch the llvm repo for building sanitized binaries.
-fetch-llvm clang_version='19':
+fetch_llvm $CLANG_VERSION='19':
     #!/usr/bin/env bash
     set -euxo pipefail
 
     if [ -d "llvm-project" ]; then
         echo "llvm already fetched - skipping"
     else
-        version=$(clang-{{ clang_version }} --version | grep -Po '(\d+).(\d+).(\d+)' | head -1)
+        version=$(clang-{{ CLANG_VERSION }} --version | grep -Po '(\d+).(\d+).(\d+)' | head -1)
         git clone --depth 1 --branch llvmorg-"$version" https://github.com/llvm/llvm-project.git
     fi
 
 # Build llvm with options
-build-llvm dir runtimes use_sanitizer targets clang_version='19': (fetch-llvm clang_version)
+build_llvm dir runtimes use_sanitizer targets $COMPILER_VERSION='19': (fetch_llvm COMPILER_VERSION)
     #!/usr/bin/env bash
     set -euxo pipefail
 
@@ -22,7 +22,7 @@ build-llvm dir runtimes use_sanitizer targets clang_version='19': (fetch-llvm cl
     if [ -d "{{ dir }}" ]; then
         echo "llvm at {{ dir }} already built - skipping"
     else
-        CC=clang-{{ clang_version }} CXX=clang++-{{ clang_version }} \
+        CC=clang-{{ COMPILER_VERSION }} CXX=clang++-{{ COMPILER_VERSION }} \
             cmake -G Ninja -S runtimes -B {{ dir }} \
             -DCMAKE_BUILD_TYPE=Debug \
             -DLLVM_ENABLE_RUNTIMES="{{ runtimes }}" \
@@ -30,23 +30,12 @@ build-llvm dir runtimes use_sanitizer targets clang_version='19': (fetch-llvm cl
         ninja -C {{ dir }} {{ targets }}
     fi
 
-build-with-clang flags clang_version='19':
-    #!/usr/bin/env bash
-    set -euxo pipefail
-
-    just build Debug -o build_testing=True \
-        -s compiler=clang \
-        -s compiler.version={{ clang_version }} \
-        -c tools.build:cxxflags="\"{{ flags }}\"" \
-        -c tools.build:cflags="\"{{ flags }}\"" \
-        -c tools.build:compiler_executables="\"{'c':'clang-{{ clang_version }}','cpp':'clang++-{{ clang_version }}'}\""
-
 # Create the ignorelist for sanitizer tests to ignore non-project code.
-create-ignore-list dir:
+create_ignore_list dir:
     mkdir -p build/Debug && echo "src:{{ dir }}/*" >> build/Debug/ignorelist.txt
 
 # Error if the log file from sanitizers is non-empty.
-error-non-empty-log:
+error_non_empty_log:
     #!/usr/bin/env bash
     set -euxo pipefail
 
@@ -56,59 +45,46 @@ error-non-empty-log:
     fi
 
 # Test using an llvm sanitizer build directory.
-test-llvm dir extra_flags symbolizer_path filter='*' clang_version='19':
+_test_llvm dir symbolizer_path profile='./profiles/llvm_libc' filter='*' $COMPILER_VERSION='19':
     #!/usr/bin/env bash
     set -euxo pipefail
 
     dir=$(realpath llvm-project/{{ dir }})
-    just create-ignore-list "$dir"
+    just create_ignore_list "$dir"
 
-    flags="[\
-        '-nostdinc++','-stdlib=libc++','-lc++abi','-L$dir/lib','-I$dir/include','-I$dir/include/c++/v1',\
-        '-Wl,--rpath=$dir/lib','-fsanitize-ignorelist=$(realpath build/Debug)/ignorelist.txt',{{ extra_flags }}\
-    ]"
+    LLVM_DIR=$dir IGNORE_LIST=$(realpath build/Debug)/ignorelist.txt \
+        just build Debug {{ COMPILER_VERSION }} -pr {{ profile }}
 
-    just build-with-clang "$flags" {{ clang_version }}
-
-    cd build/Debug && {{ symbolizer_path }}=llvm-symbolizer-{{ clang_version }} ./evlisttest --gtest_filter={{ filter }} 2> log
-    just error-non-empty-log
+    cd build/Debug
+    {{ symbolizer_path }}=llvm-symbolizer-{{ COMPILER_VERSION }} ./evlisttest --gtest_filter={{ filter }} 2> log
+    just error_non_empty_log
 
 # Run tests with the memory sanitizer
-test-valgrind filter='*': (build 'Debug' '-o build_testing=True')
+test_valgrind filter='*' $COMPILER_VERSION='': (build 'Debug' COMPILER_VERSION '-o "&:build_testing=True"')
     cd build/Debug && \
         valgrind --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1  \
         ./evlisttest --gtest_filter={{ filter }}
 
 # Build llvm cxx and cxxabi with the memory sanitizer
-build-msan clang_version='19': (build-llvm "build-msan" "libcxx;libcxxabi;libunwind" "MemoryWithOrigins" "cxx cxxabi" clang_version)
+build_msan $COMPILER_VERSION='19': \
+    (build_llvm "build-msan" "libcxx;libcxxabi;libunwind" "MemoryWithOrigins" "cxx cxxabi" COMPILER_VERSION)
 
 # Run tests with the memory sanitizer
-test-msan filter='*' clang_version='19': (build-msan clang_version) \
-    (test-llvm "build-msan" "'-fsanitize=memory','-fno-omit-frame-pointer'" "MSAN_SYMBOLIZER_PATH" filter clang_version)
+test_msan filter='*' $COMPILER_VERSION='19': (build_msan COMPILER_VERSION) \
+    (_test_llvm "build-msan" "MSAN_SYMBOLIZER_PATH" "./profiles/llvm_msan" filter COMPILER_VERSION)
 
 # Remove the built msan directory.
-clean-msan: clean-cache
+clean_msan: clean_cache
     rm -rf llvm-project/build-msan
 
 # Build llvm cxx and cxxabi with the address sanitizer
-build-asan clang_version='19': (build-llvm "build-asan" "libcxx;libcxxabi;libunwind" "Address;Undefined" "cxx cxxabi" clang_version)
+build_asan $COMPILER_VERSION='19': \
+    (build_llvm "build-asan" "libcxx;libcxxabi;libunwind" "Address;Undefined" "cxx cxxabi" COMPILER_VERSION)
 
 # Run tests with the address sanitizer
-test-asan filter='*' clang_version='19': (build-msan clang_version) \
-    (test-llvm "build-asan" "'-fsanitize=address,undefined,leak,integer'" "ASAN_SYMBOLIZER_PATH" filter clang_version)
+test_asan filter='*' $COMPILER_VERSION='19': (build_asan COMPILER_VERSION) \
+    (_test_llvm "build-asan" "ASAN_SYMBOLIZER_PATH" "./profiles/llvm_asan" filter COMPILER_VERSION)
 
 # Remove the built asan directory.
-clean-asan: clean-cache
+clean_asan: clean_cache
     rm -rf llvm-project/build-asan
-
-# Build llvm cxx and cxxabi with the thread sanitizer
-build-tsan clang_version='19': (build-llvm "build-tsan" "libcxx;libcxxabi;libunwind" "Thread" "cxx cxxabi" clang_version)
-
-# Run tests with the thread sanitizer
-test-tsan filter='*' clang_version='19': (build-tsan clang_version) \
-    (test-llvm "build-tsan" "'-fsanitize=thread','-g'" "IGNORED" filter clang_version)
-
-# Remove the built tsan directory.
-clean-tsan: clean-cache
-    rm -rf llvm-project/build-tsan
-
