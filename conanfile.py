@@ -11,14 +11,20 @@ class EvListRecipe(ConanFile):
     generators = "CMakeDeps"
 
     options = {
+        # Whether to build test executables.
         "build_testing": [True, False],
+        # Whether to run clang tidy.
         "run_clang_tidy": [True, False],
+        # An optional clang tidy executable.
         "clang_tidy_executable": [None, "ANY"],
+        # Specifies a compiler launcher, such as sccache, which sets CMAKE_<LANG>_COMPILER_LAUNCHER.
+        "compiler_launcher": [None, "ANY"],
     }
     default_options = {
         "build_testing": False,
         "run_clang_tidy": False,
         "clang_tidy_executable": None,
+        "compiler_launcher": None,
     }
 
     def validate(self):
@@ -33,11 +39,11 @@ class EvListRecipe(ConanFile):
 
         if self.options.clang_tidy_executable:
             tc.variables["CLANG_TIDY_EXECUTABLE"] = self.options.clang_tidy_executable
+        if self.options.compiler_launcher:
+            tc.variables["CMAKE_C_COMPILER_LAUNCHER"] = self.options.compiler_launcher
+            tc.variables["CMAKE_CXX_COMPILER_LAUNCHER"] = self.options.compiler_launcher
 
         tc.generate()
-
-    def package_info(self):
-        self.conf_info.define("tools.build:compiler_executables", {"cpp": "clang++-19"})
 
     def layout(self):
         cmake_layout(self)
