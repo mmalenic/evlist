@@ -13,7 +13,7 @@ fetch_llvm $CLANG_VERSION='19':
     fi
 
 # Build llvm with options
-build_llvm dir runtimes use_sanitizer targets $COMPILER_VERSION='19': (fetch_llvm COMPILER_VERSION)
+build_llvm dir runtimes use_sanitizer targets compiler_launcher='' $COMPILER_VERSION='19': (fetch_llvm COMPILER_VERSION)
     #!/usr/bin/env bash
     set -euxo pipefail
 
@@ -26,7 +26,9 @@ build_llvm dir runtimes use_sanitizer targets $COMPILER_VERSION='19': (fetch_llv
             cmake -G Ninja -S runtimes -B {{ dir }} \
             -DCMAKE_BUILD_TYPE=Debug \
             -DLLVM_ENABLE_RUNTIMES="{{ runtimes }}" \
-            -DLLVM_USE_SANITIZER="{{ use_sanitizer }}"
+            -DLLVM_USE_SANITIZER="{{ use_sanitizer }}" \
+            -DCMAKE_C_COMPILER_LAUNCHER="{{ compiler_launcher }}" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER="{{ compiler_launcher }}"
         ninja -C {{ dir }} {{ targets }}
     fi
 
@@ -45,45 +47,50 @@ error_non_empty_log:
     fi
 
 # Test using an llvm sanitizer build directory.
-_test_llvm dir symbolizer_path profile='./profiles/llvm_libc' filter='*' $COMPILER_VERSION='19':
+_test_llvm dir symbolizer_path profile='./profiles/llvm_libc' filter='*' compiler_launcher='' $COMPILER_VERSION='19':
     #!/usr/bin/env bash
     set -euxo pipefail
 
     dir=$(realpath llvm-project/{{ dir }})
     just create_ignore_list "$dir"
 
-    LLVM_DIR=$dir IGNORE_LIST=$(realpath build/Debug)/ignorelist.txt \
-        just build Debug {{ COMPILER_VERSION }} -pr {{ profile }}
+    LLVM_DIR=$dir IGNORE_LIST=$(realpath build/Debug)/ignorelist.txt just build Debug {{ COMPILER_VERSION }} \
+        -pr {{ profile }} '-o "&:build_testing=True" -o "&:compiler_launcher={{ compiler_launcher }}"'
 
     cd build/Debug
     {{ symbolizer_path }}=llvm-symbolizer-{{ COMPILER_VERSION }} ./evlisttest --gtest_filter={{ filter }} 2> log
     just error_non_empty_log
 
 # Run tests with the memory sanitizer
-test_valgrind filter='*' $COMPILER_VERSION='': (build 'Debug' COMPILER_VERSION '-o "&:build_testing=True"')
+test_valgrind filter='*' compiler_launcher='' $COMPILER_VERSION='': \
+    (build 'Debug' COMPILER_VERSION '-o "&:build_testing=True" -o "&:compiler_launcher=' + compiler_launcher + '"')
     cd build/Debug && \
         valgrind --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1  \
         ./evlisttest --gtest_filter={{ filter }}
 
 # Build llvm cxx and cxxabi with the memory sanitizer
-build_msan $COMPILER_VERSION='19': \
-    (build_llvm "build-msan" "libcxx;libcxxabi;libunwind" "MemoryWithOrigins" "cxx cxxabi" COMPILER_VERSION)
+build_msan compiler_launcher='' $COMPILER_VERSION='19': \
+    (build_llvm "build-msan" "libcxx;libcxxabi;libunwind" "MemoryWithOrigins" "cxx cxxabi" \
+    compiler_launcher COMPILER_VERSION)
 
 # Run tests with the memory sanitizer
-test_msan filter='*' $COMPILER_VERSION='19': (build_msan COMPILER_VERSION) \
-    (_test_llvm "build-msan" "MSAN_SYMBOLIZER_PATH" "./profiles/llvm_msan" filter COMPILER_VERSION)
+test_msan filter='*' compiler_launcher='' $COMPILER_VERSION='19': \
+    (build_msan compiler_launcher COMPILER_VERSION) \
+    (_test_llvm "build-msan" "MSAN_SYMBOLIZER_PATH" "./profiles/llvm_msan" filter compiler_launcher COMPILER_VERSION)
 
 # Remove the built msan directory.
 clean_msan: clean_cache
     rm -rf llvm-project/build-msan
 
 # Build llvm cxx and cxxabi with the address sanitizer
-build_asan $COMPILER_VERSION='19': \
-    (build_llvm "build-asan" "libcxx;libcxxabi;libunwind" "Address;Undefined" "cxx cxxabi" COMPILER_VERSION)
+build_asan compiler_launcher='' $COMPILER_VERSION='19': \
+    (build_llvm "build-asan" "libcxx;libcxxabi;libunwind" "Address;Undefined" "cxx cxxabi" \
+    compiler_launcher COMPILER_VERSION)
 
 # Run tests with the address sanitizer
-test_asan filter='*' $COMPILER_VERSION='19': (build_asan COMPILER_VERSION) \
-    (_test_llvm "build-asan" "ASAN_SYMBOLIZER_PATH" "./profiles/llvm_asan" filter COMPILER_VERSION)
+test_asan filter='*' compiler_launcher='' $COMPILER_VERSION='19': \
+    (build_asan compiler_launcher COMPILER_VERSION) \
+    (_test_llvm "build-asan" "ASAN_SYMBOLIZER_PATH" "./profiles/llvm_asan" filter compiler_launcher COMPILER_VERSION)
 
 # Remove the built asan directory.
 clean_asan: clean_cache
