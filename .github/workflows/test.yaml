@@ -13,16 +13,22 @@ jobs:
         compiler: [clang, gcc]
     steps:
       - uses: actions/checkout@v4
+      - id: sccache
+        uses: mozilla-actions/sccache-action@v0.0.7
       - id: deps
         uses: mmalenic/evlist@main
+      - id: args
+        run: >
+          echo "args=-InputDeviceLister* ${{ steps.deps.outputs[format('{0}-version', matrix.compiler)] }} 
+          '-o "&:compiler_launcher=sccache"'" >> $GITHUB_OUTPUT
       - id: test
-        run: just test_${{ matrix.compiler }} -InputDeviceLister* ${{ steps.deps.outputs[format('{0}-version', matrix.compiler)] }}
+        run: just test_${{ matrix.compiler }} {{ steps.args.outputs.args }}
       - id: test-valgrind
         if: matrix.compiler == 'clang'
-        run: just test_valgrind -InputDeviceLister* ${{ steps.deps.outputs[format('{0}-version', matrix.compiler)] }}
+        run: just test_valgrind -InputDeviceLister* {{ steps.args.outputs.args }}
       - id: test-asan
         if: matrix.compiler == 'clang'
-        run: just test_asan -InputDeviceLister* ${{ steps.deps.outputs[format('{0}-version', matrix.compiler)] }}
+        run: just test_asan -InputDeviceLister* {{ steps.args.outputs.args }}
       - id: test-msan
         if: matrix.compiler == 'clang'
-        run: just test_msan -InputDeviceLister* ${{ steps.deps.outputs[format('{0}-version', matrix.compiler)] }}
+        run: just test_msan -InputDeviceLister* {{ steps.args.outputs.args }}
