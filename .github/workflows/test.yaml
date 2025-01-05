@@ -19,8 +19,8 @@ jobs:
         uses: mmalenic/evlist@main
       - id: args
         run: >
-          echo "args=-InputDeviceLister* ${{ steps.deps.outputs[format('{0}-version', matrix.compiler)] }} 
-          '-o "&:compiler_launcher=sccache"'" >> $GITHUB_OUTPUT
+          echo args=-InputDeviceLister* ${{ steps.deps.outputs[format('{0}-version', matrix.compiler)] }} 
+          -o "&:compiler_launcher=sccache" >> $GITHUB_OUTPUT
       - id: test
         run: just test_${{ matrix.compiler }} {{ steps.args.outputs.args }}
       - id: test-valgrind
