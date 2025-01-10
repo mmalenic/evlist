@@ -16,7 +16,7 @@ jobs:
         uses: mmalenic/evlist@main
       - run: >
           just check Debug
-          -o \"&:build_testing=True\"
-          -o \"&:run_clang_tidy=True\"
-          -o \"&:clang_tidy_executable=clang-tidy-${{ steps.deps.outputs.clang-version }}\"
-          -o \"&:compiler_launcher=sccache\"
+          '-o \"&:build_testing=True\"'
+          '-o \"&:run_clang_tidy=True\"'
+          '-o \"&:clang_tidy_executable=clang-tidy-${{ steps.deps.outputs.clang-version }}\"'
+          '-o \"&:compiler_launcher=sccache\"'
