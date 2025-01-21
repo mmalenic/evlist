@@ -24,6 +24,10 @@ build_gcc build_type='Debug' $COMPILER_VERSION='14' *build_options='': \
 rebuild build_type='Debug':
     cd build/{{ capitalize(build_type) }} && cmake --build .
 
+# Build only the evlist library.
+build_lib build_type='Debug' $COMPILER_VERSION='' *build_options='': \
+    (build build_type COMPILER_VERSION '-o "&:build_binary=False" ' + build_options)
+
 # Build and run evlist.
 run args='--help' build_type='Release' $COMPILER_VERSION='' *build_options='': \
     (build build_type COMPILER_VERSION build_options)

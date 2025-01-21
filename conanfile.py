@@ -11,6 +11,8 @@ class EvListRecipe(ConanFile):
     generators = "CMakeDeps"
 
     options = {
+        # Build the binary CLI.
+        "build_binary": [True, False],
         # Whether to build test executables.
         "build_testing": [True, False],
         # Whether to run clang tidy.
@@ -21,6 +23,7 @@ class EvListRecipe(ConanFile):
         "compiler_launcher": [None, "ANY"],
     }
     default_options = {
+        "build_binary": True,
         "build_testing": False,
         "run_clang_tidy": False,
         "clang_tidy_executable": None,
@@ -34,11 +37,14 @@ class EvListRecipe(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
 
+        tc.variables["EVLIST_BUILD_BINARY"] = self.options.build_binary
         tc.variables["BUILD_TESTING"] = self.options.build_testing
-        tc.variables["RUN_CLANG_TIDY"] = self.options.run_clang_tidy
+        tc.variables["EVLIST_RUN_CLANG_TIDY"] = self.options.run_clang_tidy
 
         if self.options.clang_tidy_executable:
-            tc.variables["CLANG_TIDY_EXECUTABLE"] = self.options.clang_tidy_executable
+            tc.variables["EVLIST_CLANG_TIDY_EXECUTABLE"] = (
+                self.options.clang_tidy_executable
+            )
         if self.options.compiler_launcher:
             tc.variables["CMAKE_C_COMPILER_LAUNCHER"] = self.options.compiler_launcher
             tc.variables["CMAKE_CXX_COMPILER_LAUNCHER"] = self.options.compiler_launcher

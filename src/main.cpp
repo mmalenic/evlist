@@ -3,8 +3,8 @@
 #include <iostream>
 #include <utility>
 
-#include "evlist/cli.h"
-#include "evlist/list.h"
+// NOLINTNEXTLINE(misc-include-cleaner)
+#include "evlist/evlist.h"
 
 int main(int argc, char** argv) {
     auto cli = evlist::Cli{};

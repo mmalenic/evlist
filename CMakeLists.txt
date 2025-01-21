@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.24)
 set(CMAKE_CXX_STANDARD 23)
 project(evlist)
 
+# Configurable options. These are normally set by `conan build`.
+# set(EVLIST_BUILD_BINARY TRUE) set(EVLIST_RUN_CLANG_TIDY FALSE)
+# set(EVLIST_CLANG_TIDY_EXECUTABLE ./path/to/clang-tidy) set(BUILD_TESTING
+# FALSE)
+
 include(FetchContent)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 # Fetch content from this repo.
@@ -14,9 +19,9 @@ FetchContent_MakeAvailable(toolbelt)
 list(APPEND CMAKE_MODULE_PATH "${toolbelt_SOURCE_DIR}/src")
 include(toolbelt)
 
-if(RUN_CLANG_TIDY)
-  if(DEFINED CLANG_TIDY_EXECUTABLE)
-    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXECUTABLE}")
+if(EVLIST_RUN_CLANG_TIDY)
+  if(DEFINED EVLIST_CLANG_TIDY_EXECUTABLE)
+    set(CMAKE_CXX_CLANG_TIDY "${EVLIST_CLANG_TIDY_EXECUTABLE}")
   else()
     set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
   endif()
@@ -24,12 +29,16 @@ endif()
 
 set(LIBRARY_NAME libevlist)
 add_library(
-  ${LIBRARY_NAME} include/evlist/device.h include/evlist/list.h
-                  include/evlist/cli.h src/device.cpp src/list.cpp src/cli.cpp)
+  ${LIBRARY_NAME}
+  include/evlist/cli.h
+  include/evlist/device.h
+  include/evlist/evlist.h
+  include/evlist/list.h
+  src/cli.cpp
+  src/device.cpp
+  src/list.cpp)
 target_include_directories(${LIBRARY_NAME} PUBLIC include)
 toolbelt_add_dep(${LIBRARY_NAME} CLI11 LINK_COMPONENTS CLI11::CLI11)
-add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARY_NAME})
 
 file(STRINGS "LICENSE" LICENSE)
 list(GET LICENSE 0 LICENSE_NAME)
@@ -39,6 +48,11 @@ target_compile_definitions(${LIBRARY_NAME}
 target_compile_definitions(${LIBRARY_NAME}
                            PUBLIC EVLIST_COPYRIGHT="${LICENSE_COPYRIGHT}")
 target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_VERSION="0.1.0")
+
+if(EVLIST_BUILD_BINARY)
+  add_executable(${PROJECT_NAME} src/main.cpp)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARY_NAME})
+endif()
 
 if(BUILD_TESTING)
   enable_testing()
