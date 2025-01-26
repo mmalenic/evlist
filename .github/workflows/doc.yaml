@@ -1,0 +1,26 @@
+name: pages
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: deps
+        uses: mmalenic/evlist@main
+      - id: doc
+        run: just doc
+      - id: deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/docs/html
