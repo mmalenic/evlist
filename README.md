@@ -30,7 +30,7 @@ evlist --filter name=device* --use-regex
 ```
 
 > [!NOTE]
-> Viewing and filtering on capabilities requires elevated privileges.
+> Viewing and filtering capabilities requires elevated privileges.
 
 ## Build
 

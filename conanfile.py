@@ -1,9 +1,17 @@
+from json import load
+
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain
 
 
 class EvListRecipe(ConanFile):
+    name = "evlist"
+    license = "MIT"
+    url = "https://github.com/evlist/evlist"
+    author = "Marko Malenic (mmalenic1@gmail.com)"
+    description = "list input event devices"
+
     requires = "cli11/2.4.2"
     test_requires = "gtest/1.15.0"
 
@@ -58,3 +66,8 @@ class EvListRecipe(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+
+    def set_version(self):
+        if not self.version:
+            with open(".release-please-manifest.json") as manifest:
+                self.version = load(manifest)["."]

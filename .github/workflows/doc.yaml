@@ -1,4 +1,4 @@
-name: pages
+name: doc
 on:
   push:
     branches:
@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v4
       - id: deps
