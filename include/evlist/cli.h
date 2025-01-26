@@ -61,6 +61,9 @@ enum class Filter : uint8_t {
     CAPABILITIES
 };
 
+/**
+ * The command line options parser.
+ */
 class Cli {
 public:
     /**
