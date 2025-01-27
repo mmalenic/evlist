@@ -12,7 +12,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - id: checkout
+        uses: actions/checkout@v4
       - id: deps
         uses: mmalenic/evlist@main
       - id: doc

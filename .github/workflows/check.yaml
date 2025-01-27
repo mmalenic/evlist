@@ -9,13 +9,15 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - id: checkout
+        uses: actions/checkout@v4
       - id: sccache
         uses: mozilla-actions/sccache-action@v0.0.7
       - id: deps
         uses: mmalenic/evlist@main
-      - run: >
-          just check Debug
+      - id: check
+        run: >
+          just check Debug ''
           '-o "&:build_testing=True"'
           '-o "&:run_clang_tidy=True"'
           '-o "&:clang_tidy_executable=clang-tidy-${{ steps.deps.outputs.clang-version }}"'

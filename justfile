@@ -28,6 +28,11 @@ rebuild build_type='Debug':
 build_lib build_type='Debug' $COMPILER_VERSION='' *build_options='': \
     (build build_type COMPILER_VERSION '-o "&:build_binary=False" ' + build_options)
 
+# Build and package the binary in a compressed file.
+package build_type='Release' name='evlist.tar.gz' $COMPILER_VERSION='' *build_options='': \
+    (build build_type COMPILER_VERSION build_options)
+    cd build/{{ capitalize(build_type) }} && tar -czf {{ name }} evlist && sha256sum -b {{ name }} > {{ name }}.sha256
+
 # Build and run evlist.
 run args='--help' build_type='Release' $COMPILER_VERSION='' *build_options='': \
     (build build_type COMPILER_VERSION build_options)

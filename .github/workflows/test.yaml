@@ -7,12 +7,13 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         compiler: [clang, gcc]
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - id: checkout
+        uses: actions/checkout@v4
       - id: sccache
         uses: mozilla-actions/sccache-action@v0.0.7
       - id: deps
