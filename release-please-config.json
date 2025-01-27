@@ -4,6 +4,10 @@
     {
       "path": "CMakeLists.txt",
       "type": "generic"
+    },
+    {
+      "path": "Doxyfile",
+      "type": "generic"
     }
   ],
   "include-component-in-tag": false,
