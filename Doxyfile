@@ -1,6 +1,10 @@
 PROJECT_NAME = "evlist"
-PROJECT_NUMBER = 0.1.0
 PROJECT_BRIEF = "list input devices"
+
+# x-release-please-start-version
+PROJECT_NUMBER = 0.0.1
+# x-release-please-end
+
 OUTPUT_DIRECTORY = "build/docs"
 INPUT = include src docs/API_REFERENCE.md
 RECURSIVE = YES
