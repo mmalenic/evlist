@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 23)
 # x-release-please-start-version
 project(
     evlist
-    VERSION 1.0.0
+    VERSION 1.1.0
     DESCRIPTION "list input event devices"
     HOMEPAGE_URL "https://github.com/mmalenic/evlist"
 )
