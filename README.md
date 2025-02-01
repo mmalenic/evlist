@@ -1,4 +1,13 @@
+<a href="https://github.com/mmalenic/evlist/blob/main/LICENSE" target="_blank"><img
+alt="MIT licensed" src="https://img.shields.io/badge/license-MIT-blue.svg"/></a>
+<a href="https://github.com/mmalenic/evlist/actions?query=workflow%3Atest+branch%3Amain" target="_blank"><img
+alt="Build status" src="https://github.com/mmalenic/cmake-toolbelt/actions/workflows/test.yaml/badge.svg"/></a>
+<a href="https://mmalenic.github.io/evlist" target="_blank"><img
+alt="MIT licensed" src="https://img.shields.io/badge/docs-API-blue.svg"/></a>
+
 # List input event devices - evlist
+
+API Documentation
 
 List input event devices under `/dev/input/eventX` and format device information and capabilities.
 
@@ -60,7 +69,7 @@ just check
 ## Library usage
 
 This project can also be built and used as a library. Functionality is available from `#include <evlist/evlist.h>`,
-including functions to iterate and parse `/dev/input`.
+including functions to iterate and parse `/dev/input`. View the API docs [here][api-docs].
 
 The library can be built without the binary using:
 
@@ -89,3 +98,4 @@ just doc
 [gcc-14]: https://gcc.gnu.org/gcc-14/
 [clang-19]: https://releases.llvm.org/19.1.0/tools/clang/docs/ReleaseNotes.html
 [pre-commit]: https://pre-commit.com/
+[api-docs]: https://mmalenic.github.io/evlist
