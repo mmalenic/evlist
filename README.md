@@ -60,7 +60,7 @@ Tests can be run using:
 just test
 ```
 
-This project uses [pre-commit] and [clang-tidy] should to lint code. To format and lint the code run:
+This project uses [pre-commit] and [clang-tidy] to lint code. To format and lint the code run:
 
 ```sh
 just check
@@ -97,5 +97,6 @@ just doc
 [cmake]: https://cmake.org/
 [gcc-14]: https://gcc.gnu.org/gcc-14/
 [clang-19]: https://releases.llvm.org/19.1.0/tools/clang/docs/ReleaseNotes.html
+[clang-tidy]: https://clang.llvm.org/extra/clang-tidy/
 [pre-commit]: https://pre-commit.com/
 [api-docs]: https://mmalenic.github.io/evlist
