@@ -26,7 +26,12 @@ rebuild build_type='Debug':
 
 # Build only the evlist library.
 build_lib build_type='Debug' $COMPILER_VERSION='' *build_options='': \
-    (build build_type COMPILER_VERSION '-o "&:build_binary=False" ' + build_options)
+    (build build_type COMPILER_VERSION '-o "&:build_bin=False" ' + build_options)
+
+# Build and install evlist.
+install build_type='Release' $COMPILER_VERSION='' *build_options='': \
+    (build build_type COMPILER_VERSION build_options)
+    cmake --install build/{{ capitalize(build_type) }}
 
 # Build and package the binary in a compressed file.
 package build_type='Release' name='evlist.tar.gz' $COMPILER_VERSION='' *build_options='': \

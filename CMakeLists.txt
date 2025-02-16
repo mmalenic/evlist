@@ -11,22 +11,26 @@ project(
 # x-release-please-end
 
 # ~~~
-# Configurable options. These are normally set by `conan build`.
-# set(EVLIST_BUILD_BINARY TRUE)
+# Configurable options with default values. These are normally set by `conan build`.
+# set(EVLIST_BUILD_BIN TRUE)
 # set(EVLIST_RUN_CLANG_TIDY FALSE)
 # set(EVLIST_CLANG_TIDY_EXECUTABLE ./path/to/clang-tidy)
 # set(BUILD_TESTING FALSE)
+# set(INSTALL_BIN TRUE)
+# set(INSTALL_LIB TRUE)
 # ~~~
 
-include(FetchContent)
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
-# Fetch content from this repo.
-FetchContent_Declare(
-    toolbelt
-    GIT_REPOSITORY https://github.com/mmalenic/cmake-toolbelt
-    GIT_TAG v0.3.0
-)
-FetchContent_MakeAvailable(toolbelt)
+if(NOT DEFINED toolbelt_SOURCE_DIR)
+    include(FetchContent)
+    set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+    # Fetch content from this repo.
+    FetchContent_Declare(
+        toolbelt
+        GIT_REPOSITORY https://github.com/mmalenic/cmake-toolbelt
+        GIT_TAG v0.3.0
+    )
+    FetchContent_MakeAvailable(toolbelt)
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${toolbelt_SOURCE_DIR}/src")
 include(toolbelt)
@@ -50,6 +54,8 @@ add_library(
     src/device.cpp
     src/list.cpp
 )
+set_property(TARGET ${LIBRARY_NAME} PROPERTY OUTPUT_NAME ${PROJECT_NAME})
+
 target_include_directories(${LIBRARY_NAME} PUBLIC include)
 toolbelt_add_dep(${LIBRARY_NAME} CLI11 LINK_COMPONENTS CLI11::CLI11)
 
@@ -58,9 +64,11 @@ list(GET LICENSE 0 LICENSE_NAME)
 list(GET LICENSE 2 LICENSE_COPYRIGHT)
 target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_LICENSE="${LICENSE_NAME}")
 target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_COPYRIGHT="${LICENSE_COPYRIGHT}")
+# x-release-please-start-version
 target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_VERSION="0.1.0")
+# x-release-please-end
 
-if(EVLIST_BUILD_BINARY)
+if(EVLIST_BUILD_BIN)
     add_executable(${PROJECT_NAME} src/main.cpp)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARY_NAME})
 endif()
@@ -75,4 +83,12 @@ if(BUILD_TESTING)
     target_include_directories(${TEST_EXECUTABLE_NAME} PUBLIC tests)
 
     toolbelt_setup_gtest(${TEST_EXECUTABLE_NAME} ADD_LIBRARIES ${LIBRARY_NAME})
+endif()
+
+if(EVLIST_INSTALL_BIN AND EVLIST_BUILD_BIN)
+    install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+endif()
+
+if(EVLIST_INSTALL_LIB)
+    install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
 endif()

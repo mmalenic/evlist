@@ -20,7 +20,7 @@ class EvListRecipe(ConanFile):
 
     options = {
         # Build the binary CLI.
-        "build_binary": [True, False],
+        "build_bin": [True, False],
         # Whether to build test executables.
         "build_testing": [True, False],
         # Whether to run clang tidy.
@@ -29,13 +29,21 @@ class EvListRecipe(ConanFile):
         "clang_tidy_executable": [None, "ANY"],
         # Specifies a compiler launcher, such as sccache, which sets CMAKE_<LANG>_COMPILER_LAUNCHER.
         "compiler_launcher": [None, "ANY"],
+        # Add a cmake install command after for the binary target if `build_binary` is also true:
+        # https://cmake.org/cmake/help/latest/command/install.html
+        "install_bin": [True, False],
+        # Add a cmake install command after for the library target:
+        # https://cmake.org/cmake/help/latest/command/install.html
+        "install_lib": [True, False],
     }
     default_options = {
-        "build_binary": True,
+        "build_bin": True,
         "build_testing": False,
         "run_clang_tidy": False,
         "clang_tidy_executable": None,
         "compiler_launcher": None,
+        "install_bin": True,
+        "install_lib": True,
     }
 
     def validate(self):
@@ -45,9 +53,11 @@ class EvListRecipe(ConanFile):
     def generate(self):
         tc = CMakeToolchain(self)
 
-        tc.variables["EVLIST_BUILD_BINARY"] = self.options.build_binary
+        tc.variables["EVLIST_BUILD_BIN"] = self.options.build_bin
         tc.variables["BUILD_TESTING"] = self.options.build_testing
         tc.variables["EVLIST_RUN_CLANG_TIDY"] = self.options.run_clang_tidy
+        tc.variables["EVLIST_INSTALL_BIN"] = self.options.install_bin
+        tc.variables["EVLIST_INSTALL_LIB"] = self.options.install_lib
 
         if self.options.clang_tidy_executable:
             tc.variables["EVLIST_CLANG_TIDY_EXECUTABLE"] = (
