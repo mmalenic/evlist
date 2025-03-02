@@ -51,6 +51,8 @@ target_sources(
            headers
            TYPE
            HEADERS
+           BASE_DIRS
+           include
            FILES
            include/evlist/cli.h
            include/evlist/device.h
@@ -89,10 +91,9 @@ if(BUILD_TESTING)
 endif()
 
 if(EVLIST_INSTALL_BIN AND EVLIST_BUILD_BIN)
-    install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+    install(TARGETS ${PROJECT_NAME})
 endif()
 
 if(EVLIST_INSTALL_LIB)
-    install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
-    install(FILE_SET headers)
+    install(TARGETS ${LIBRARY_NAME} FILE_SET headers)
 endif()
