@@ -44,15 +44,18 @@ if(EVLIST_RUN_CLANG_TIDY)
 endif()
 
 set(LIBRARY_NAME libevlist)
-add_library(
+add_library(${LIBRARY_NAME} src/cli.cpp src/device.cpp src/list.cpp)
+target_sources(
     ${LIBRARY_NAME}
-    include/evlist/cli.h
-    include/evlist/device.h
-    include/evlist/evlist.h
-    include/evlist/list.h
-    src/cli.cpp
-    src/device.cpp
-    src/list.cpp
+    PUBLIC FILE_SET
+           headers
+           TYPE
+           HEADERS
+           FILES
+           include/evlist/cli.h
+           include/evlist/device.h
+           include/evlist/evlist.h
+           include/evlist/list.h
 )
 set_property(TARGET ${LIBRARY_NAME} PROPERTY OUTPUT_NAME ${PROJECT_NAME})
 
@@ -91,4 +94,5 @@ endif()
 
 if(EVLIST_INSTALL_LIB)
     install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+    install(FILE_SET headers)
 endif()
