@@ -8,6 +8,10 @@
     {
       "path": "Doxyfile",
       "type": "generic"
+    },
+    {
+      "path": "conanfile.py",
+      "type": "generic"
     }
   ],
   "include-component-in-tag": false,
