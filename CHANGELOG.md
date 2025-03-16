@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/mmalenic/evlist/compare/v1.0.0...v1.0.1) (2025-03-16)
+
+
+### Bug Fixes
+
+* add missing install options and avoid fetch content if already fetched ([4c93d3d](https://github.com/mmalenic/evlist/commit/4c93d3d15c30d227cb728b6475bd3ab53af47e47))
+
 ## 1.0.0 (2025-02-01)
 
 
