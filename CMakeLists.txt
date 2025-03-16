@@ -70,7 +70,7 @@ list(GET LICENSE 2 LICENSE_COPYRIGHT)
 target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_LICENSE="${LICENSE_NAME}")
 target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_COPYRIGHT="${LICENSE_COPYRIGHT}")
 # x-release-please-start-version
-target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_VERSION="0.1.0")
+target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_VERSION="1.0.0")
 # x-release-please-end
 
 if(EVLIST_BUILD_BIN)
