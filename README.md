@@ -7,7 +7,7 @@ alt="MIT licensed" src="https://img.shields.io/badge/docs-API-blue.svg"/></a>
 
 # List input event devices - evlist
 
-API Documentation
+[API Documentation][api-docs]
 
 List input event devices under `/dev/input/eventX` and format device information and capabilities.
 
