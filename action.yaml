@@ -36,8 +36,8 @@ runs:
         gpg --dearmor - |
         sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null &&
 
-        echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg]
-              https://apt.kitware.com/ubuntu/ noble main' |
+        echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] \
+              https://apt.kitware.com/ubuntu/ noble main" |
         sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null &&
 
         sudo apt-get update && sudo apt-get install cmake
