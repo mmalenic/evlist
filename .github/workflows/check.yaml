@@ -17,7 +17,7 @@ jobs:
         uses: mmalenic/evlist@main
       - id: check
         run: >
-          just check Debug ${{ steps.deps.outputs.gcc-version }}
+          just check ${{ steps.deps.outputs.clang-version }}
           '-pr ./profiles/clang'
           '-o "&:clang_tidy_executable=clang-tidy-${{ steps.deps.outputs.clang-version }}"'
           '-o "&:compiler_launcher=sccache"'
