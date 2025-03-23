@@ -20,7 +20,8 @@ jobs:
         uses: mmalenic/evlist@main
       - id: package
         run: >
-          just package Release evlist-${{ github.ref_name }}.$(uname -m)_linux.tar.gz ''
+          VERSION=${{ github.ref_name }}
+          just package Release evlist-${VERSION#v}.$(uname -m)_linux.tar.gz ''
           '-o "&:compiler_launcher=sccache"'
       - id: publish
         uses: softprops/action-gh-release@v2
