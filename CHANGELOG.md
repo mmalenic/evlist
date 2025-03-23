@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/mmalenic/evlist/compare/v1.0.1...v1.0.2) (2025-03-23)
+
+
+### Bug Fixes
+
+* remove version prefix from published asset names ([656a7c3](https://github.com/mmalenic/evlist/commit/656a7c35e2a17cfa25edf46b10fc89be023d9d4e))
+
 ## [1.0.1](https://github.com/mmalenic/evlist/compare/v1.0.0...v1.0.1) (2025-03-16)
 
 
