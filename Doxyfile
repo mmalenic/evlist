@@ -2,7 +2,7 @@ PROJECT_NAME = "evlist"
 PROJECT_BRIEF = "list input devices"
 
 # x-release-please-start-version
-PROJECT_NUMBER = 1.0.1
+PROJECT_NUMBER = 1.0.2
 # x-release-please-end
 
 OUTPUT_DIRECTORY = "build/docs"
