@@ -23,7 +23,7 @@ build_llvm dir runtimes use_sanitizer targets $COMPILER_VERSION='19' *build_opti
         echo "llvm at {{ dir }} already built - skipping"
     else
         # Extract the compiler launcher from a string such as '-o "&:compiler_launcher=..."'
-        launcher=$(echo {{ build_options }} | grep -Po 'compiler_launcher=\K(.*)(?=")?' || true)
+        launcher=$(echo {{ build_options }} | grep -Po 'compiler_launcher=\K(.*)(?=")?' | sed -e "s/\"\|'//g")
 
         CC=clang-{{ COMPILER_VERSION }} CXX=clang++-{{ COMPILER_VERSION }} \
             cmake -G Ninja -S runtimes -B {{ dir }} \
