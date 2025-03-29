@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.2](https://github.com/mmalenic/evlist/compare/v1.0.1...v1.0.2) (2025-03-29)
+
+
+### Bug Fixes
+
+* extracting compiler launcher in sanitizer runs ([8d40000](https://github.com/mmalenic/evlist/commit/8d40000c823ce6dd6fefe71d1eeffeed5e1debab))
+* remove version prefix from published asset names ([6d73687](https://github.com/mmalenic/evlist/commit/6d7368747d83d189202f4f827a2dc26a26b6e480))
+
 ## [1.0.1](https://github.com/mmalenic/evlist/compare/v1.0.0...v1.0.1) (2025-03-16)
 
 
