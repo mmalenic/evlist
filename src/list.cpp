@@ -83,6 +83,10 @@ std::
         const fs::path &entry, const fs::path &path
     ) noexcept {
     try {
+        if (!fs::is_directory(path)) {
+            return {};
+        }
+
         for (const auto &path_enty : fs::directory_iterator(path)) {
             if (path_enty.is_symlink() &&
                 read_symlink(path_enty.path()).filename() == entry.filename()) {

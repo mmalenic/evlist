@@ -62,7 +62,7 @@ std::expected<bool, int> evlist::Cli::parse(int argc, char** argv) {
         return std::unexpected{app.exit(e)};
     }
 
-    return {should_exit};
+    return should_exit;
 }
 
 evlist::Format evlist::Cli::format() const { return format_; }
