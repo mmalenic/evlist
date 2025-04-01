@@ -39,6 +39,11 @@ evlist::InputDeviceLister::InputDeviceLister(
 std::expected<evlist::InputDevices, std::filesystem::filesystem_error>
 evlist::InputDeviceLister::list_input_devices() const {
     std::vector<InputDevice> devices{};
+    auto inputDevices = InputDevices{output_format_, devices};
+
+    if (!fs::is_directory(input_directory_)) {
+        return inputDevices;
+    }
 
     for (const auto &entry : fs::directory_iterator(input_directory_)) {
         if (entry.is_character_file() &&
@@ -64,8 +69,6 @@ evlist::InputDeviceLister::list_input_devices() const {
     }
 
     std::ranges::sort(devices, std::less{});
-
-    auto inputDevices = InputDevices{output_format_, devices};
 
     if (!filter_.empty()) {
         inputDevices.filter(filter_, use_regex_);
