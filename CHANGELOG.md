@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/mmalenic/evlist/compare/v1.0.3...v1.0.4) (2025-04-01)
+
+
+### Bug Fixes
+
+* also check existence for sub-directories in /dev/input ([437c6da](https://github.com/mmalenic/evlist/commit/437c6dabc2d22cd09d866bdd15731005342b002d))
+
 ## [1.0.3](https://github.com/mmalenic/evlist/compare/v1.0.2...v1.0.3) (2025-04-01)
 
 
