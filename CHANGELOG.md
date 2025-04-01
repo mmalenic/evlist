@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/mmalenic/evlist/compare/v1.0.2...v1.0.3) (2025-04-01)
+
+
+### Bug Fixes
+
+* check if directory exists for input devices ([3bad2d8](https://github.com/mmalenic/evlist/commit/3bad2d81a35335175e551549006f05553981cfcc))
+
 ## [1.0.2](https://github.com/mmalenic/evlist/compare/v1.0.1...v1.0.2) (2025-03-29)
 
 
