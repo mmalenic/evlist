@@ -13,8 +13,8 @@ class EvListRecipe(ConanFile):
     version = "1.0.6"
     # x-release-please-end
 
-    requires = "cli11/2.5.0"
-    test_requires = "gtest/1.16.0"
+    requires = "cli11/[^2]"
+    test_requires = "gtest/[^1]"
 
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps"
