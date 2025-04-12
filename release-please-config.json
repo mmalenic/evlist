@@ -1,5 +1,19 @@
 {
   "bump-minor-pre-major": true,
+  "changelog-sections": [
+    {
+      "section": "Dependencies",
+      "type": "deps"
+    },
+    {
+      "section": "Features",
+      "type": "feat"
+    },
+    {
+      "section": "Bug Fixes",
+      "type": "fix"
+    }
+  ],
   "extra-files": [
     {
       "path": "CMakeLists.txt",
