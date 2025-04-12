@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/mmalenic/evlist/compare/v1.0.4...v1.0.5) (2025-04-12)
+
+
+### Dependencies
+
+* update cmake-toolbelt ([2b070a3](https://github.com/mmalenic/evlist/commit/2b070a38369ec7d16c0a83b970e41c106ca24492))
+
 ## [1.0.4](https://github.com/mmalenic/evlist/compare/v1.0.3...v1.0.4) (2025-04-01)
 
 
