@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6](https://github.com/mmalenic/evlist/compare/v1.0.5...v1.0.6) (2025-04-12)
+
+
+### Dependencies
+
+* update cli11 and gtest ([01f537d](https://github.com/mmalenic/evlist/commit/01f537d134d06a5764f46cc137e969e27013b7ef))
+
 ## [1.0.5](https://github.com/mmalenic/evlist/compare/v1.0.4...v1.0.5) (2025-04-12)
 
 

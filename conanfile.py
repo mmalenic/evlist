@@ -10,7 +10,7 @@ class EvListRecipe(ConanFile):
     author = "Marko Malenic (mmalenic1@gmail.com)"
     description = "list input event devices"
     # x-release-please-start-version
-    version = "1.0.5"
+    version = "1.0.6"
     # x-release-please-end
 
     requires = "cli11/2.5.0"

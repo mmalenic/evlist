@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 23)
 # x-release-please-start-version
 project(
     evlist
-    VERSION 1.0.5
+    VERSION 1.0.6
     DESCRIPTION "list input event devices"
     HOMEPAGE_URL "https://github.com/mmalenic/evlist"
 )
@@ -69,7 +69,7 @@ list(GET LICENSE 2 LICENSE_COPYRIGHT)
 target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_LICENSE="${LICENSE_NAME}")
 target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_COPYRIGHT="${LICENSE_COPYRIGHT}")
 # x-release-please-start-version
-target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_VERSION="1.0.5")
+target_compile_definitions(${LIBRARY_NAME} PUBLIC EVLIST_VERSION="1.0.6")
 # x-release-please-end
 
 if(EVLIST_BUILD_BIN)
