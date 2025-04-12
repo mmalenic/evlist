@@ -22,7 +22,6 @@ project(
 
 if(NOT DEFINED toolbelt_SOURCE_DIR)
     include(FetchContent)
-    set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
     # Fetch content from this repo.
     FetchContent_Declare(
         toolbelt

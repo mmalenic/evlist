@@ -1,5 +1,3 @@
-from json import load
-
 from conan import ConanFile
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain
@@ -15,8 +13,8 @@ class EvListRecipe(ConanFile):
     version = "1.0.5"
     # x-release-please-end
 
-    requires = "cli11/2.4.2"
-    test_requires = "gtest/1.15.0"
+    requires = "cli11/2.5.0"
+    test_requires = "gtest/1.16.0"
 
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps"
@@ -79,8 +77,3 @@ class EvListRecipe(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-
-    def set_version(self):
-        if not self.version:
-            with open(".release-please-manifest.json") as manifest:
-                self.version = load(manifest)["."]

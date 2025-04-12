@@ -6,7 +6,7 @@ profile:
 
 # Update the lock file.
 update:
-    conan lock create .
+    conan lock create . --lockfile-clean
 
 # Build evlist.
 build build_type='Debug' $COMPILER_VERSION='' *build_options='': profile clean_cache

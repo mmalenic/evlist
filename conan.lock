@@ -1,8 +1,8 @@
 {
     "version": "0.5",
     "requires": [
-        "gtest/1.15.0#9eb07f548819215e766e41399858454f%1721318797.609",
-        "cli11/2.4.2#1b431bda2fb2cd3efed633899abcd8cc%1714827406.138"
+        "gtest/1.16.0#4fd8d9d80636ea9504de6a0ec1ab8686%1743410803.513",
+        "cli11/2.5.0#1b7c81ea2bff6279eb2150bbe06a200a%1741515009.124"
     ],
     "build_requires": [],
     "python_requires": [],
