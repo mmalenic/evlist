@@ -27,7 +27,7 @@ if(NOT DEFINED toolbelt_SOURCE_DIR)
     FetchContent_Declare(
         toolbelt
         GIT_REPOSITORY https://github.com/mmalenic/cmake-toolbelt
-        GIT_TAG v0.3.0
+        GIT_TAG v0.3.1
     )
     FetchContent_MakeAvailable(toolbelt)
 endif()
