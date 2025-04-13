@@ -17,7 +17,7 @@ jobs:
       - id: sccache
         uses: mozilla-actions/sccache-action@v0.0.7
       - id: deps
-        uses: ./.github/setup.yaml
+        uses: ./.github/
       - id: args
         run: >
           echo "args=-InputDeviceLister* ${{ steps.deps.outputs[format('{0}-version', matrix.compiler)] }}
