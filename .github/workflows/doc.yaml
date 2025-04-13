@@ -15,7 +15,7 @@ jobs:
       - id: checkout
         uses: actions/checkout@v4
       - id: deps
-        uses: mmalenic/evlist@main
+        uses: ./.github/setup.yaml
       - id: doc
         run: just doc
       - id: deploy

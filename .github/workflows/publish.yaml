@@ -17,7 +17,7 @@ jobs:
       - id: sccache
         uses: mozilla-actions/sccache-action@v0.0.7
       - id: deps
-        uses: mmalenic/evlist@main
+        uses: ./.github/setup.yaml
       - id: package
         run: >
           export VERSION=${{ github.ref_name }} &&
