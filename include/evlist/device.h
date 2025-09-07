@@ -55,35 +55,35 @@ public:
      *
      * @return device
      */
-    [[nodiscard]] const fs::path &device_path() const;
+    [[nodiscard]] const fs::path& device_path() const;
 
     /**
      * Get the by-id path.
      *
      * @return by-id path
      */
-    [[nodiscard]] const std::optional<std::string> &by_id() const;
+    [[nodiscard]] const std::optional<std::string>& by_id() const;
 
     /**
      * Get the by-path path.
      *
      * @return by-path path
      */
-    [[nodiscard]] const std::optional<std::string> &by_path() const;
+    [[nodiscard]] const std::optional<std::string>& by_path() const;
 
     /**
      * Get the name.
      *
      * @return name
      */
-    [[nodiscard]] const std::string &name() const;
+    [[nodiscard]] const std::string& name() const;
 
     /**
      * Get the capabilities.
      *
      * @return capabilities
      */
-    [[nodiscard]] const std::vector<std::string> &capabilities() const;
+    [[nodiscard]] const std::vector<std::string>& capabilities() const;
 
     /**
      * Partition a string into segments of numbers and characters, where
@@ -101,7 +101,7 @@ public:
      * @param other compare to
      * @return whether devices are equal
      */
-    bool operator==(const InputDevice &other) const = default;
+    bool operator==(const InputDevice& other) const = default;
 
 private:
     fs::path device_;
@@ -166,8 +166,8 @@ public:
      * @param use_regex whether to compare using a regex instead of equality
      * @return filtered input devices
      */
-    InputDevices &filter(
-        const std::vector<std::pair<Filter, std::string>> &filter,
+    InputDevices& filter(
+        const std::vector<std::pair<Filter, std::string>>& filter,
         bool use_regex
     );
 
@@ -178,7 +178,7 @@ public:
      * @param max_name_size new max name size
      * @return this instance of `InputDevices`
      */
-    InputDevices &with_max_name(size_t max_name_size);
+    InputDevices& with_max_name(size_t max_name_size);
 
     /**
      * Set the maximum length of the device path field used for formatting
@@ -187,7 +187,7 @@ public:
      * @param max_device_size new max device size
      * @return this instance of `InputDevices`
      */
-    InputDevices &with_max_device_path(size_t max_device_size);
+    InputDevices& with_max_device_path(size_t max_device_size);
 
     /**
      * Set the maximum length of the by-id field used for formatting
@@ -196,7 +196,7 @@ public:
      * @param max_by_id_size new max device size
      * @return this instance of `InputDevices`
      */
-    InputDevices &with_max_by_id(size_t max_by_id_size);
+    InputDevices& with_max_by_id(size_t max_by_id_size);
 
     /**
      * Set the maximum length of the by-path field used for formatting
@@ -205,7 +205,7 @@ public:
      * @param max_by_path_size new max device size
      * @return this instance of `InputDevices`
      */
-    InputDevices &with_max_by_path(size_t max_by_path_size);
+    InputDevices& with_max_by_path(size_t max_by_path_size);
 
     /**
      * Set the underlying input devices.
@@ -213,7 +213,7 @@ public:
      * @param input_devices new input devices
      * @return this instance of `InputDevices`
      */
-    InputDevices &with_input_devices(std::vector<InputDevice> input_devices);
+    InputDevices& with_input_devices(std::vector<InputDevice> input_devices);
 
     /**
      * Get the input devices.
@@ -274,22 +274,22 @@ private:
     std::map<std::string, std::regex> regexes;
 
     bool filter_regex(
-        const InputDevice &device, Filter filter, const std::string &value
+        const InputDevice& device, Filter filter, const std::string& value
     );
     static bool filter_equality(
-        const InputDevice &device, Filter filter, const std::string &value
+        const InputDevice& device, Filter filter, const std::string& value
     );
     static bool filter_device(
-        const InputDevice &device,
+        const InputDevice& device,
         Filter filter,
-        std::invocable<const std::string &> auto comparison
+        std::invocable<const std::string&> auto comparison
     );
 };
 
 bool InputDevices::filter_device(
-    const InputDevice &device,
+    const InputDevice& device,
     Filter filter,
-    std::invocable<const std::string &> auto comparison
+    std::invocable<const std::string&> auto comparison
 ) {
     switch (filter) {
         case Filter::DEVICE_PATH:
@@ -301,10 +301,9 @@ bool InputDevices::filter_device(
         case Filter::BY_PATH:
             return comparison(device.by_path().value_or(""));
         case Filter::CAPABILITIES:
-            const auto &capabilities = device.capabilities();
+            const auto& capabilities = device.capabilities();
             return std::ranges::any_of(
-                capabilities,
-                [&comparison](const auto &capability) {
+                capabilities, [&comparison](const auto& capability) {
                     return comparison(capability);
                 }
             );
@@ -323,7 +322,7 @@ bool InputDevices::filter_device(
  * [`std::strong_ordering`](https://en.cppreference.com/w/cpp/utility/compare/strong_ordering)
  *         sort order
  */
-inline auto operator<=>(const InputDevice &lhs, const InputDevice &rhs) {
+inline auto operator<=>(const InputDevice& lhs, const InputDevice& rhs) {
     auto lhs_device = lhs.device_path().string();
     auto rhs_device = rhs.device_path().string();
 
@@ -357,7 +356,7 @@ struct std::formatter<evlist::InputDevices> {
      * @param ctx formatting context
      * @return output iterator
      */
-    static constexpr auto parse(const std::format_parse_context &ctx) {
+    static constexpr auto parse(const std::format_parse_context& ctx) {
         return ctx.begin();
     }
 
@@ -371,8 +370,9 @@ struct std::formatter<evlist::InputDevices> {
      */
     template <typename Context>
     // NOLINTNEXTLINE(runtime/references)
-    constexpr auto format(const evlist::InputDevices &devices, Context &ctx)
-        const {
+    constexpr auto format(
+        const evlist::InputDevices& devices, Context& ctx
+    ) const {
         auto csv_escape_quotes = [](std::string_view str) {
             std::string out = {};
             out.reserve(str.length());
@@ -433,7 +433,7 @@ struct std::formatter<evlist::InputDevices> {
             evlist::InputDevices::HEADER_CAPABILITIES
         );
 
-        for (const auto &device : devices.devices()) {
+        for (const auto& device : devices.devices()) {
             auto capabilities = device.capabilities();
             std::string capabilities_str{};
             if (!capabilities.empty()) {

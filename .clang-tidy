@@ -2,6 +2,7 @@ Checks: >
   *,
   -llvmlibc-callee-namespace,
   -modernize-use-trailing-return-type,
+  -modernize-type-traits,
   -llvmlibc-implementation-in-namespace,
   -fuchsia-default-arguments-calls,
   -altera-unroll-loops,

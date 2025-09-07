@@ -67,11 +67,12 @@ private:
     std::map<uint32_t, std::string> event_names_{event_names()};
 
     static std::expected<std::optional<fs::path>, fs::filesystem_error>
-    check_symlink(const fs::path &entry, const fs::path &path) noexcept;
+    check_symlink(const fs::path& entry, const fs::path& path) noexcept;
     [[nodiscard]] static std::map<uint32_t, std::string> event_names();
 
-    [[nodiscard]] std::string name(const fs::path &device) const;
-    [[nodiscard]] std::vector<std::string> capabilities(const fs::path &device
+    [[nodiscard]] std::string name(const fs::path& device) const;
+    [[nodiscard]] std::vector<std::string> capabilities(
+        const fs::path& device
     ) const;
 };
 } // namespace evlist

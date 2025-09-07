@@ -100,8 +100,8 @@ public:
      *
      * @return filter
      */
-    [[nodiscard]] const std::vector<std::pair<Filter, std::string>>& filter(
-    ) const;
+    [[nodiscard]] const std::vector<std::pair<Filter, std::string>>&
+    filter() const;
 
     /**
      * Get the filter, consuming self.
@@ -154,7 +154,7 @@ std::string Cli::format_enum(
         "",
         INDENT_BY
     );
-    for (const auto& [_, description] : descriptions) {
+    for (const auto& [_ignored, description] : descriptions) {
         out_description.append(
             std::format("{: <{}}{}\n", "", INDENT_BY, description)
         );

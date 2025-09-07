@@ -18,12 +18,12 @@ TEST(InputDeviceListerTest, ElevatedContainsAllDevices) {
 
     std::vector<bool> results{};
     if (fs::is_directory("/dev/input")) {
-        for (const auto &entry : fs::directory_iterator("/dev/input")) {
+        for (const auto& entry : fs::directory_iterator("/dev/input")) {
             if (entry.is_character_file() &&
                 entry.path().filename().string().find("event") !=
                     std::string::npos) {
                 auto iter{devices.devices().begin()};
-                for (const auto &device : devices.devices()) {
+                for (const auto& device : devices.devices()) {
                     if (device.device_path().string() ==
                         entry.path().string()) {
                         results.emplace_back(true);
@@ -37,15 +37,17 @@ TEST(InputDeviceListerTest, ElevatedContainsAllDevices) {
         }
     }
 
-    ASSERT_TRUE(std::ranges::all_of(
-        results.begin(), results.end(), [](bool value) { return value; }
-    ));
+    ASSERT_TRUE(
+        std::ranges::all_of(results.begin(), results.end(), [](bool value) {
+            return value;
+        })
+    );
 }
 
 TEST(InputDeviceListerTest, ElevatedContainsAllIdSymlinks) {
-    evlist::check_devices([](auto &device) { return device.by_id(); });
+    evlist::check_devices([](auto& device) { return device.by_id(); });
 }
 
 TEST(InputDeviceListerTest, ElevatedContainsAllPathSymlinks) {
-    evlist::check_devices([](auto &device) { return device.by_path(); });
+    evlist::check_devices([](auto& device) { return device.by_path(); });
 }

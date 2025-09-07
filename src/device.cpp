@@ -95,8 +95,7 @@ evlist::InputDevices& evlist::InputDevices::filter(
 
     for (auto device : devices) {
         auto keep_device = std::ranges::all_of(
-            filter,
-            [&use_regex, &device, this](const auto& filter) {
+            filter, [&use_regex, &device, this](const auto& filter) {
                 if (use_regex) {
                     if (filter_regex(device, filter.first, filter.second)) {
                         return true;

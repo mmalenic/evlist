@@ -45,7 +45,7 @@ evlist::InputDeviceLister::list_input_devices() const {
         return inputDevices;
     }
 
-    for (const auto &entry : fs::directory_iterator(input_directory_)) {
+    for (const auto& entry : fs::directory_iterator(input_directory_)) {
         if (entry.is_character_file() &&
             entry.path().filename().string().contains("event")) {
             auto by_id_symlink = check_symlink(entry, by_id_);
@@ -80,31 +80,31 @@ evlist::InputDeviceLister::list_input_devices() const {
 std::
     expected<std::optional<evlist::fs::path>, std::filesystem::filesystem_error>
     evlist::InputDeviceLister::check_symlink(
-        const fs::path &entry, const fs::path &path
+        const fs::path& entry, const fs::path& path
     ) noexcept {
     try {
         if (!fs::is_directory(path)) {
             return {};
         }
 
-        for (const auto &path_enty : fs::directory_iterator(path)) {
+        for (const auto& path_enty : fs::directory_iterator(path)) {
             if (path_enty.is_symlink() &&
                 read_symlink(path_enty.path()).filename() == entry.filename()) {
                 return {{path_enty.path()}};
             }
         }
-    } catch (fs::filesystem_error &err) {
+    } catch (fs::filesystem_error& err) {
         return std::unexpected{err};
     }
     return {};
 }
 
 std::vector<std::string> evlist::InputDeviceLister::capabilities(
-    const fs::path &device
+    const fs::path& device
 ) const {
     std::array<std::uint64_t, EV_MAX> bit{};
 
-    auto deleter = [](auto *file) {
+    auto deleter = [](auto* file) {
         if (file != nullptr) {
             // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
             return std::fclose(file);
@@ -123,7 +123,7 @@ std::vector<std::string> evlist::InputDeviceLister::capabilities(
     ioctl(fileno(file.get()), EVIOCGBIT(0, EV_MAX), bit.data());
 
     std::vector<std::string> out{};
-    for (const auto &[first, second] : event_names_) {
+    for (const auto& [first, second] : event_names_) {
         if ((bit.at(first / ULONG_WIDTH) & 1UL << first % ULONG_WIDTH) != 0U) {
             out.emplace_back(second);
         }
@@ -132,7 +132,7 @@ std::vector<std::string> evlist::InputDeviceLister::capabilities(
     return out;
 }
 
-std::string evlist::InputDeviceLister::name(const fs::path &device) const {
+std::string evlist::InputDeviceLister::name(const fs::path& device) const {
     const fs::path fullPath = sys_class_ / device.filename() / name_path_;
 
     std::ifstream file{fullPath};

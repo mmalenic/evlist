@@ -1,5 +1,6 @@
 #include "evlist/cli.h"
 
+#include <CLI/CLI.hpp>
 #include <expected>
 #include <format>
 #include <iostream>
@@ -7,8 +8,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "CLI/CLI.hpp"
 
 std::expected<bool, int> evlist::Cli::parse(int argc, char** argv) {
     CLI::App app{"lists and formats devices under /dev/input.", "evlist"};
@@ -69,13 +68,13 @@ evlist::Format evlist::Cli::format() const { return format_; }
 
 bool evlist::Cli::use_regex() const { return use_regex_; }
 
-const std::vector<std::pair<evlist::Filter, std::string>>& evlist::Cli::filter(
-) const {
+const std::vector<std::pair<evlist::Filter, std::string>>&
+evlist::Cli::filter() const {
     return filter_;
 }
 
-std::vector<std::pair<evlist::Filter, std::string>> evlist::Cli::into_filter(
-) && {
+std::vector<std::pair<evlist::Filter, std::string>>
+evlist::Cli::into_filter() && {
     return std::move(filter_);
 }
 
@@ -101,8 +100,7 @@ std::map<evlist::Filter, std::string> evlist::Cli::filter_descriptions() {
         {Filter::BY_ID,
          "- by_id: filter outputs that contain the by_id path of the device"},
         {Filter::BY_PATH,
-         "- by_path: filter outputs that contain the by_path path of the device"
-        },
+         "- by_path: filter outputs that contain the by_path path of the device"},
         {Filter::CAPABILITIES,
          "- capabilities: filter outputs that have the capabilities listed"},
     };
