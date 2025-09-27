@@ -91,6 +91,7 @@ std::map<evlist::Format, std::string> evlist::Cli::format_descriptions() {
         {Format::CSV, "- csv: format the output as CSV"},
     };
 }
+
 std::map<evlist::Filter, std::string> evlist::Cli::filter_descriptions() {
     return {
         {Filter::DEVICE_PATH,
